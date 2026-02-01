@@ -1,0 +1,22 @@
+{
+    "name": "UniCli.Server.Editor.Tests",
+    "rootNamespace": "UniCli.Server.Editor.Tests",
+    "references": [
+        "UniCli.Server.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible Condition="'$(TargetFramework)' == 'net9.0'">true</IsAotCompatible>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- コピー先パス -->
+    <UnityServerProtocolPath>$(MSBuildProjectDirectory)/../UniCli.Unity/Packages/com.yucchiy.unicli-server/Editor/Protocol</UnityServerProtocolPath>
+    <ClientProtocolPath>$(MSBuildProjectDirectory)/../UniCli.Client/Protocol</ClientProtocolPath>
+  </PropertyGroup>
+
+
+
+  <!-- ビルド後にUnity Server側にコピー -->
+  <Target Name="CopyToUnityServer" AfterTargets="Build" Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <Message Text="Copying Protocol files to Unity Server..." Importance="high" />
+
+    <ItemGroup>
+      <ProtocolFiles Include="$(MSBuildProjectDirectory)/**/*.cs" Exclude="$(MSBuildProjectDirectory)/obj/**;$(MSBuildProjectDirectory)/bin/**" />
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="@(ProtocolFiles)"
+      DestinationFiles="@(ProtocolFiles->'$(UnityServerProtocolPath)/%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="false"
+      OverwriteReadOnlyFiles="true" />
+
+    <Message Text="Protocol files copied to Unity Server" Importance="high" />
+  </Target>
+
+  <!-- ビルド後に.NET Client側にコピー -->
+  <Target Name="CopyToClient" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net9.0'">
+    <Message Text="Copying Protocol files to Client..." Importance="high" />
+
+    <ItemGroup>
+      <ProtocolFiles Include="$(MSBuildProjectDirectory)/**/*.cs" Exclude="$(MSBuildProjectDirectory)/obj/**;$(MSBuildProjectDirectory)/bin/**" />
+    </ItemGroup>
+
+    <Copy
+      SourceFiles="@(ProtocolFiles)"
+      DestinationFiles="@(ProtocolFiles->'$(ClientProtocolPath)/%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="false"
+      OverwriteReadOnlyFiles="true" />
+
+    <Message Text="Protocol files copied to Client" Importance="high" />
+  </Target>
+
+</Project>

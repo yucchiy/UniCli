@@ -1,0 +1,24 @@
+{
+  "name": "unicli",
+  "owner": {
+    "name": "Yuichiro Mukai"
+  },
+  "metadata": {
+    "description": "Claude Code plugin for controlling Unity Editor via UniCli CLI"
+  },
+  "plugins": [
+    {
+      "name": "unicli",
+      "source": "./.claude-plugin/unicli",
+      "description": "Control Unity Editor from Claude Code using UniCli CLI",
+      "version": "0.1.0",
+      "author": {
+        "name": "Yuichiro Mukai"
+      },
+      "homepage": "https://github.com/yucchiy/UniCli",
+      "repository": "https://github.com/yucchiy/UniCli",
+      "license": "MIT",
+      "strict": false
+    }
+  ]
+}

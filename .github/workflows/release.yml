@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            rid: osx-arm64
+            archive: unicli-osx-arm64.tar.gz
+          - os: macos-latest
+            rid: osx-x64
+            archive: unicli-osx-x64.tar.gz
+          - os: windows-latest
+            rid: win-x64
+            archive: unicli-win-x64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Build Protocol
+        run: dotnet build src/UniCli.Protocol
+
+      - name: Publish Client
+        run: dotnet publish src/UniCli.Client -c Release -r ${{ matrix.rid }} -o publish
+
+      - name: Archive (macOS)
+        if: runner.os != 'Windows'
+        run: tar czf ${{ matrix.archive }} -C publish unicli
+
+      - name: Archive (Windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path publish\unicli.exe -DestinationPath ${{ matrix.archive }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes \
+            unicli-osx-arm64.tar.gz \
+            unicli-osx-x64.tar.gz \
+            unicli-win-x64.zip

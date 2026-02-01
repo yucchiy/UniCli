@@ -1,0 +1,70 @@
+namespace UniCli.Server.Editor
+{
+    public static class CommandNames
+    {
+        public const string Compile = "Compile";
+        public const string Search = "Search";
+
+        public static class Console
+        {
+            public const string GetLog = "Console.GetLog";
+            public const string Clear = "Console.Clear";
+        }
+
+        public static class PlayMode
+        {
+            public const string Enter = "PlayMode.Enter";
+            public const string Exit = "PlayMode.Exit";
+            public const string Pause = "PlayMode.Pause";
+        }
+
+        public static class Menu
+        {
+            public const string List = "Menu.List";
+            public const string Execute = "Menu.Execute";
+        }
+
+        public static class TestRunner
+        {
+            public const string RunEditMode = "TestRunner.RunEditMode";
+            public const string RunPlayMode = "TestRunner.RunPlayMode";
+        }
+
+        public static class GameObject
+        {
+            public const string Find = "GameObject.Find";
+            public const string GetComponents = "GameObject.GetComponents";
+            public const string SetActive = "GameObject.SetActive";
+            public const string GetHierarchy = "GameObject.GetHierarchy";
+        }
+
+        public static class AssetDatabase
+        {
+            public const string Find = "AssetDatabase.Find";
+            public const string Import = "AssetDatabase.Import";
+            public const string GetPath = "AssetDatabase.GetPath";
+        }
+
+        public static class Project
+        {
+            public const string Inspect = "Project.Inspect";
+        }
+
+        public static class PackageManager
+        {
+            public const string List = "PackageManager.List";
+            public const string Add = "PackageManager.Add";
+            public const string Remove = "PackageManager.Remove";
+            public const string Search = "PackageManager.Search";
+        }
+
+        public static class AssemblyDefinition
+        {
+            public const string List = "AssemblyDefinition.List";
+            public const string Get = "AssemblyDefinition.Get";
+            public const string Create = "AssemblyDefinition.Create";
+            public const string AddReference = "AssemblyDefinition.AddReference";
+            public const string RemoveReference = "AssemblyDefinition.RemoveReference";
+        }
+    }
+}
