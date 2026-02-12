@@ -21,37 +21,47 @@ dotnet build src/UniCli.Client
 
 # Publish Client and test with the built binary
 dotnet publish src/UniCli.Client -o .build
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client commands --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Compile --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli commands --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 
 # GameObject operations
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.GetComponents '{"path":"Main Camera"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.AddComponent '{"path":"Main Camera","typeName":"BoxCollider"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.RemoveComponent '{"componentInstanceId":12345}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.GetComponents '{"path":"Main Camera"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.AddComponent '{"path":"Main Camera","typeName":"BoxCollider"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.RemoveComponent '{"componentInstanceId":12345}' --json
 
 # Prefab operations
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.GetStatus '{"path":"Main Camera"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Instantiate '{"assetPath":"Assets/Prefabs/Enemy.prefab"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Save '{"path":"Main Camera","assetPath":"Assets/TestPrefab.prefab"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Apply '{"path":"MyPrefabInstance"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Unpack '{"path":"MyPrefabInstance"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.GetStatus '{"path":"Main Camera"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Instantiate '{"assetPath":"Assets/Prefabs/Enemy.prefab"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Save '{"path":"Main Camera","assetPath":"Assets/TestPrefab.prefab"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Apply '{"path":"MyPrefabInstance"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Unpack '{"path":"MyPrefabInstance"}' --json
+
+# Scene operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.GetActive --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Open '{"path":"Assets/Scenes/SampleScene.unity"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Open '{"path":"Assets/Scenes/Additive.unity","additive":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.SetActive '{"name":"SampleScene"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Save '{"all":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Close '{"name":"Additive"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.New '{"empty":true,"additive":true}' --json
 
 # AssetDatabase operations
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec AssetDatabase.Delete '{"path":"Assets/Prefabs/Old.prefab"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AssetDatabase.Delete '{"path":"Assets/Prefabs/Old.prefab"}' --json
 
 # Run Unity EditMode tests
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
 
 # Run Unity PlayMode tests
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunPlayMode --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 
 # Compile Unity project (also serves as a build verification for the server)
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Compile --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
 
 ## Testing
 
-When testing CLI behavior, always publish first with `dotnet publish src/UniCli.Client -o .build`, then test with `.build/UniCli.Client` directly. Do not use `dotnet run`.
+When testing CLI behavior, always publish first with `dotnet publish src/UniCli.Client -o .build`, then test with `.build/unicli` directly. Do not use `dotnet run`.
 
 ### Server-side verification (required)
 
@@ -62,11 +72,11 @@ When testing CLI behavior, always publish first with `dotnet publish src/UniCli.
 dotnet publish src/UniCli.Client -o .build
 
 # 2. Verify server-side compilation (required)
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Compile --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 
 # 3. Run tests
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode --json
-UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunPlayMode --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 ```
 
 ### Maintaining documentation

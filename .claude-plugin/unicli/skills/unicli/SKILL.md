@@ -99,6 +99,13 @@ unicli exec GameObject.Find --includeInactive
 | `AssemblyDefinition.Create` | Create a new assembly definition |
 | `AssemblyDefinition.AddReference` | Add an asmdef reference |
 | `AssemblyDefinition.RemoveReference` | Remove an asmdef reference |
+| `Scene.List` | List all loaded scenes |
+| `Scene.GetActive` | Get the active scene |
+| `Scene.SetActive` | Set the active scene |
+| `Scene.Open` | Open a scene by asset path |
+| `Scene.Close` | Close a loaded scene |
+| `Scene.Save` | Save a scene or all open scenes |
+| `Scene.New` | Create a new scene |
 
 ## Common Workflows
 
@@ -139,6 +146,19 @@ unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab" --json
 unicli exec Prefab.Save --path "Player" --assetPath "Assets/Prefabs/Player.prefab" --json
 unicli exec Prefab.Apply --path "MyPrefabInstance" --json
 unicli exec Prefab.Unpack --path "MyPrefabInstance" --json
+```
+
+**Scene operations:**
+
+```bash
+unicli exec Scene.List --json
+unicli exec Scene.GetActive --json
+unicli exec Scene.Open --path "Assets/Scenes/Level1.unity" --json
+unicli exec Scene.Open --path "Assets/Scenes/Additive.unity" --additive --json
+unicli exec Scene.SetActive --name "Level1" --json
+unicli exec Scene.Save --all --json
+unicli exec Scene.Close --name "Additive" --json
+unicli exec Scene.New --empty --additive --json
 ```
 
 **Delete an asset:**
