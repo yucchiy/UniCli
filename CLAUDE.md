@@ -24,6 +24,11 @@ dotnet publish src/UniCli.Client -o .build
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client commands --json
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Compile --json
 
+# GameObject operations
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.GetComponents '{"path":"Main Camera"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.AddComponent '{"path":"Main Camera","typeName":"BoxCollider"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.RemoveComponent '{"componentInstanceId":12345}' --json
+
 # Run Unity EditMode tests
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode --json
 

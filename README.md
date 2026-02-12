@@ -121,6 +121,8 @@ unicli exec GameObject.Find --name "Main Camera"
 unicli exec GameObject.Find --tag Player --includeInactive
 unicli exec GameObject.GetHierarchy
 unicli exec GameObject.GetComponents --instanceId 1234
+unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider
+unicli exec GameObject.RemoveComponent --componentInstanceId 1234
 
 # Manage packages
 unicli exec PackageManager.List
@@ -156,6 +158,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.GetComponents`           | Get components                     |
 | GameObject         | `GameObject.SetActive`               | Set active state                   |
 | GameObject         | `GameObject.GetHierarchy`            | Get scene hierarchy                |
+| GameObject         | `GameObject.AddComponent`            | Add a component                    |
+| GameObject         | `GameObject.RemoveComponent`         | Remove a component                 |
 | AssetDatabase      | `AssetDatabase.Find`                 | Search assets                      |
 | AssetDatabase      | `AssetDatabase.Import`               | Import an asset                    |
 | AssetDatabase      | `AssetDatabase.GetPath`              | Get asset path by GUID             |

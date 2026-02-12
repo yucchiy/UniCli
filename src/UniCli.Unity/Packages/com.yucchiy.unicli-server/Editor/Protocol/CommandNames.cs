@@ -36,6 +36,8 @@ namespace UniCli.Server.Editor
             public const string GetComponents = "GameObject.GetComponents";
             public const string SetActive = "GameObject.SetActive";
             public const string GetHierarchy = "GameObject.GetHierarchy";
+            public const string AddComponent = "GameObject.AddComponent";
+            public const string RemoveComponent = "GameObject.RemoveComponent";
         }
 
         public static class AssetDatabase
