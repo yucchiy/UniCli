@@ -29,6 +29,13 @@ UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.GetComponen
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.AddComponent '{"path":"Main Camera","typeName":"BoxCollider"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec GameObject.RemoveComponent '{"componentInstanceId":12345}' --json
 
+# Prefab operations
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.GetStatus '{"path":"Main Camera"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Instantiate '{"assetPath":"Assets/Prefabs/Enemy.prefab"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Save '{"path":"Main Camera","assetPath":"Assets/TestPrefab.prefab"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Apply '{"path":"MyPrefabInstance"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Unpack '{"path":"MyPrefabInstance"}' --json
+
 # Run Unity EditMode tests
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode --json
 

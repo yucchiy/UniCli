@@ -60,6 +60,15 @@ namespace UniCli.Server.Editor
             public const string Search = "PackageManager.Search";
         }
 
+        public static class Prefab
+        {
+            public const string GetStatus = "Prefab.GetStatus";
+            public const string Instantiate = "Prefab.Instantiate";
+            public const string Save = "Prefab.Save";
+            public const string Apply = "Prefab.Apply";
+            public const string Unpack = "Prefab.Unpack";
+        }
+
         public static class AssemblyDefinition
         {
             public const string List = "AssemblyDefinition.List";
