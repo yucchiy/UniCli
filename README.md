@@ -124,6 +124,13 @@ unicli exec GameObject.GetComponents --instanceId 1234
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234
 
+# Prefab operations
+unicli exec Prefab.GetStatus --path "MyPrefabInstance"
+unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab"
+unicli exec Prefab.Save --path "Player" --assetPath "Assets/Prefabs/Player.prefab"
+unicli exec Prefab.Apply --path "MyPrefabInstance"
+unicli exec Prefab.Unpack --path "MyPrefabInstance" --completely
+
 # Manage packages
 unicli exec PackageManager.List
 unicli exec PackageManager.Add --packageIdOrName com.unity.mathematics
@@ -160,6 +167,11 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.GetHierarchy`            | Get scene hierarchy                |
 | GameObject         | `GameObject.AddComponent`            | Add a component                    |
 | GameObject         | `GameObject.RemoveComponent`         | Remove a component                 |
+| Prefab             | `Prefab.GetStatus`                   | Get prefab instance status         |
+| Prefab             | `Prefab.Instantiate`                 | Instantiate a prefab into scene    |
+| Prefab             | `Prefab.Save`                        | Save GameObject as prefab          |
+| Prefab             | `Prefab.Apply`                       | Apply prefab overrides             |
+| Prefab             | `Prefab.Unpack`                      | Unpack a prefab instance           |
 | AssetDatabase      | `AssetDatabase.Find`                 | Search assets                      |
 | AssetDatabase      | `AssetDatabase.Import`               | Import an asset                    |
 | AssetDatabase      | `AssetDatabase.GetPath`              | Get asset path by GUID             |
