@@ -45,6 +45,7 @@ namespace UniCli.Server.Editor
             public const string Find = "AssetDatabase.Find";
             public const string Import = "AssetDatabase.Import";
             public const string GetPath = "AssetDatabase.GetPath";
+            public const string Delete = "AssetDatabase.Delete";
         }
 
         public static class Project

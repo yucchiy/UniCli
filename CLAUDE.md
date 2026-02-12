@@ -36,6 +36,9 @@ UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Save '{"path":"
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Apply '{"path":"MyPrefabInstance"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec Prefab.Unpack '{"path":"MyPrefabInstance"}' --json
 
+# AssetDatabase operations
+UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec AssetDatabase.Delete '{"path":"Assets/Prefabs/Old.prefab"}' --json
+
 # Run Unity EditMode tests
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode --json
 
