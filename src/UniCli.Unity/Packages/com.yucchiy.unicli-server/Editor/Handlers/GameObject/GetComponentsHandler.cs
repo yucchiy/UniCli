@@ -31,6 +31,7 @@ namespace UniCli.Server.Editor.Handlers
 
                 var detail = new ComponentDetail
                 {
+                    instanceId = component.GetInstanceID(),
                     typeName = component.GetType().FullName,
                     enabled = component is not Behaviour behaviour || behaviour.enabled,
                     properties = ExtractProperties(component)
@@ -123,6 +124,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class ComponentDetail
     {
+        public int instanceId;
         public string typeName;
         public bool enabled;
         public SerializedPropertyInfo[] properties;
