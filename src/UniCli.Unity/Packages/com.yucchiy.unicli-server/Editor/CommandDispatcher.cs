@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Server.Editor.Handlers;
@@ -11,6 +12,7 @@ namespace UniCli.Server.Editor
     public sealed class CommandDispatcher
     {
         private readonly Dictionary<string, ICommandHandler> _handlers = new();
+        private readonly StringBuilder _formatBuffer = new();
 
         public CommandDispatcher(ServiceRegistry services)
         {
@@ -90,16 +92,20 @@ namespace UniCli.Server.Editor
                     };
                 }
 
-                if (wantsText && handler is IResponseFormatter formatter
-                    && formatter.TryFormat(result, true, out var formatted))
+                if (wantsText && handler is IResponseFormatter formatter)
                 {
-                    return new CommandResponse
+                    _formatBuffer.Clear();
+                    var writer = new StringFormatWriter(_formatBuffer);
+                    if (formatter.TryWriteFormatted(result, true, writer))
                     {
-                        success = true,
-                        message = $"Command '{request.command}' succeeded",
-                        data = formatted,
-                        format = "text"
-                    };
+                        return new CommandResponse
+                        {
+                            success = true,
+                            message = $"Command '{request.command}' succeeded",
+                            data = _formatBuffer.ToString(),
+                            format = "text"
+                        };
+                    }
                 }
 
                 return new CommandResponse
@@ -123,16 +129,20 @@ namespace UniCli.Server.Editor
                     };
                 }
 
-                if (wantsText && handler is IResponseFormatter failFormatter
-                    && failFormatter.TryFormat(ex.ResponseData, false, out var failFormatted))
+                if (wantsText && handler is IResponseFormatter failFormatter)
                 {
-                    return new CommandResponse
+                    _formatBuffer.Clear();
+                    var failWriter = new StringFormatWriter(_formatBuffer);
+                    if (failFormatter.TryWriteFormatted(ex.ResponseData, false, failWriter))
                     {
-                        success = false,
-                        message = $"Command failed: {ex.Message}",
-                        data = failFormatted,
-                        format = "text"
-                    };
+                        return new CommandResponse
+                        {
+                            success = false,
+                            message = $"Command failed: {ex.Message}",
+                            data = _formatBuffer.ToString(),
+                            format = "text"
+                        };
+                    }
                 }
 
                 return new CommandResponse

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -14,9 +15,9 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssemblyDefinition.RemoveReference;
         public override string Description => "Remove an assembly reference from an existing assembly definition";
 
-        protected override bool TryFormat(AssemblyDefinitionRemoveReferenceResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(AssemblyDefinitionRemoveReferenceResponse response, bool success, IFormatWriter writer)
         {
-            formatted = $"Removed reference '{response.removedReference}' from {response.name} ({response.references.Length} references total)";
+            writer.WriteLine($"Removed reference '{response.removedReference}' from {response.name} ({response.references.Length} references total)");
             return true;
         }
 

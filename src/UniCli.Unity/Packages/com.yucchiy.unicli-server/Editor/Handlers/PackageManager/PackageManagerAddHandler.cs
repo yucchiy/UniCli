@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
@@ -9,11 +10,11 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.PackageManager.Add;
         public override string Description => "Add a package by identifier (e.g., com.unity.foo@1.2.3 or git URL)";
 
-        protected override bool TryFormat(PackageManagerAddResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(PackageManagerAddResponse response, bool success, IFormatWriter writer)
         {
-            formatted = success
+            writer.WriteLine(success
                 ? $"Added {response.name}@{response.version} ({response.source})"
-                : $"Failed to add package";
+                : "Failed to add package");
             return true;
         }
 

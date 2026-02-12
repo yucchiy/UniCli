@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,57 +14,52 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.GameObject.GetHierarchy;
         public override string Description => "Get the scene hierarchy of GameObjects";
 
-        protected override bool TryFormat(GetHierarchyResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(GetHierarchyResponse response, bool success, IFormatWriter writer)
         {
             if (!success || response.scenes == null || response.scenes.Length == 0)
             {
-                formatted = "No scenes found.";
+                writer.WriteLine("No scenes found.");
                 return true;
             }
-
-            var sb = new StringBuilder();
 
             for (var s = 0; s < response.scenes.Length; s++)
             {
                 var scene = response.scenes[s];
-                if (s > 0) sb.AppendLine();
-                sb.AppendLine($"[{scene.name}]");
+                if (s > 0) writer.WriteLine("");
+                writer.WriteLine($"[{scene.name}]");
 
                 if (scene.nodes == null) continue;
                 foreach (var node in scene.nodes)
-                    FormatNode(node, 0, sb);
+                    WriteNode(node, 0, writer);
             }
 
-            formatted = sb.ToString().TrimEnd();
             return true;
         }
 
-        private static void FormatNode(HierarchyNode node, int indent, StringBuilder sb)
+        private static void WriteNode(HierarchyNode node, int indent, IFormatWriter writer)
         {
-            sb.Append(new string(' ', indent * 2));
-            sb.Append(node.name);
+            var prefix = new string(' ', indent * 2) + node.name;
 
             if (!node.isActive)
-                sb.Append(" (inactive)");
+                prefix += " (inactive)";
 
             if (node.components != null && node.components.Length > 0)
             {
-                sb.Append("  [");
+                var names = new string[node.components.Length];
                 for (var i = 0; i < node.components.Length; i++)
                 {
-                    if (i > 0) sb.Append(", ");
                     var fullName = node.components[i];
                     var dotIndex = fullName.LastIndexOf('.');
-                    sb.Append(dotIndex >= 0 ? fullName.Substring(dotIndex + 1) : fullName);
+                    names[i] = dotIndex >= 0 ? fullName.Substring(dotIndex + 1) : fullName;
                 }
-                sb.Append(']');
+                prefix += $"  [{string.Join(", ", names)}]";
             }
 
-            sb.AppendLine();
+            writer.WriteLine(prefix);
 
             if (node.children == null) return;
             foreach (var child in node.children)
-                FormatNode(child, indent + 1, sb);
+                WriteNode(child, indent + 1, writer);
         }
 
         protected override ValueTask<GetHierarchyResponse> ExecuteAsync(GetHierarchyRequest request)

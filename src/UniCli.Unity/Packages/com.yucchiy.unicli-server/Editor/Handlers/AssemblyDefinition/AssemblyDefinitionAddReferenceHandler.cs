@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -13,9 +14,9 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssemblyDefinition.AddReference;
         public override string Description => "Add an assembly reference to an existing assembly definition";
 
-        protected override bool TryFormat(AssemblyDefinitionAddReferenceResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(AssemblyDefinitionAddReferenceResponse response, bool success, IFormatWriter writer)
         {
-            formatted = $"Added reference '{response.addedReference}' to {response.name} ({response.references.Length} references total)";
+            writer.WriteLine($"Added reference '{response.addedReference}' to {response.name} ({response.references.Length} references total)");
             return true;
         }
 

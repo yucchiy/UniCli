@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
@@ -9,11 +10,11 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.PackageManager.Remove;
         public override string Description => "Remove a package by name (e.g., com.unity.cinemachine)";
 
-        protected override bool TryFormat(PackageManagerRemoveResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(PackageManagerRemoveResponse response, bool success, IFormatWriter writer)
         {
-            formatted = success
+            writer.WriteLine(success
                 ? $"Removed {response.name}"
-                : $"Failed to remove package";
+                : "Failed to remove package");
             return true;
         }
 

@@ -1,8 +1,8 @@
 using System;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,19 +13,16 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Project.Inspect;
         public override string Description => "Get Unity project information";
 
-        protected override bool TryFormat(ProjectInfoResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(ProjectInfoResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
+            writer.WriteLine($"Unity:   {response.unityVersion}");
+            writer.WriteLine($"Project: {response.productName}");
+            writer.WriteLine($"Company: {response.companyName}");
+            writer.WriteLine($"Path:    {response.projectPath}");
+            writer.WriteLine($"Target:  {response.buildTarget}");
+            writer.WriteLine($"Playing: {(response.isPlaying ? "Yes" : "No")}");
+            writer.WriteLine($"PID:     {response.processId}");
 
-            sb.AppendLine($"Unity:   {response.unityVersion}");
-            sb.AppendLine($"Project: {response.productName}");
-            sb.AppendLine($"Company: {response.companyName}");
-            sb.AppendLine($"Path:    {response.projectPath}");
-            sb.AppendLine($"Target:  {response.buildTarget}");
-            sb.AppendLine($"Playing: {(response.isPlaying ? "Yes" : "No")}");
-            sb.Append($"PID:     {response.processId}");
-
-            formatted = sb.ToString();
             return true;
         }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
@@ -11,10 +11,8 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.PackageManager.Search;
         public override string Description => "Search for packages in the Unity registry";
 
-        protected override bool TryFormat(PackageManagerSearchResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(PackageManagerSearchResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
             var nameWidth = "Name".Length;
             var versionWidth = "Version".Length;
 
@@ -24,18 +22,17 @@ namespace UniCli.Server.Editor.Handlers
                 versionWidth = Math.Max(versionWidth, pkg.version.Length);
             }
 
-            sb.AppendLine(
+            writer.WriteLine(
                 $"{"Name".PadRight(nameWidth)}  {"Version".PadRight(versionWidth)}  Description");
 
             foreach (var pkg in response.packages)
             {
-                sb.AppendLine(
+                writer.WriteLine(
                     $"{pkg.name.PadRight(nameWidth)}  {pkg.version.PadRight(versionWidth)}  {pkg.description}");
             }
 
-            sb.Append($"{response.totalCount} result(s)");
+            writer.WriteLine($"{response.totalCount} result(s)");
 
-            formatted = sb.ToString();
             return true;
         }
 

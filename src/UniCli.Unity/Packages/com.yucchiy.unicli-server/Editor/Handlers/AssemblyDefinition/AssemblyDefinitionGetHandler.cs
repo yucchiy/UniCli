@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -14,55 +14,52 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssemblyDefinition.Get;
         public override string Description => "Get detailed information about a specific assembly definition";
 
-        protected override bool TryFormat(AssemblyDefinitionGetResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(AssemblyDefinitionGetResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine($"Name:             {response.name}");
-            sb.AppendLine($"Path:             {response.path}");
-            sb.AppendLine($"Root Namespace:   {response.rootNamespace}");
-            sb.AppendLine($"Allow Unsafe:     {response.allowUnsafeCode}");
-            sb.AppendLine($"Auto Referenced:  {response.autoReferenced}");
-            sb.AppendLine($"No Engine Refs:   {response.noEngineReferences}");
+            writer.WriteLine($"Name:             {response.name}");
+            writer.WriteLine($"Path:             {response.path}");
+            writer.WriteLine($"Root Namespace:   {response.rootNamespace}");
+            writer.WriteLine($"Allow Unsafe:     {response.allowUnsafeCode}");
+            writer.WriteLine($"Auto Referenced:  {response.autoReferenced}");
+            writer.WriteLine($"No Engine Refs:   {response.noEngineReferences}");
 
             if (response.references.Length > 0)
             {
-                sb.AppendLine($"References ({response.references.Length}):");
+                writer.WriteLine($"References ({response.references.Length}):");
                 foreach (var r in response.references)
-                    sb.AppendLine($"  - {r}");
+                    writer.WriteLine($"  - {r}");
             }
 
             if (response.includePlatforms.Length > 0)
             {
-                sb.AppendLine($"Include Platforms ({response.includePlatforms.Length}):");
+                writer.WriteLine($"Include Platforms ({response.includePlatforms.Length}):");
                 foreach (var p in response.includePlatforms)
-                    sb.AppendLine($"  - {p}");
+                    writer.WriteLine($"  - {p}");
             }
 
             if (response.excludePlatforms.Length > 0)
             {
-                sb.AppendLine($"Exclude Platforms ({response.excludePlatforms.Length}):");
+                writer.WriteLine($"Exclude Platforms ({response.excludePlatforms.Length}):");
                 foreach (var p in response.excludePlatforms)
-                    sb.AppendLine($"  - {p}");
+                    writer.WriteLine($"  - {p}");
             }
 
             if (response.defineConstraints.Length > 0)
             {
-                sb.AppendLine($"Define Constraints ({response.defineConstraints.Length}):");
+                writer.WriteLine($"Define Constraints ({response.defineConstraints.Length}):");
                 foreach (var d in response.defineConstraints)
-                    sb.AppendLine($"  - {d}");
+                    writer.WriteLine($"  - {d}");
             }
 
             if (response.defines.Length > 0)
             {
-                sb.AppendLine($"Defines ({response.defines.Length}):");
+                writer.WriteLine($"Defines ({response.defines.Length}):");
                 foreach (var d in response.defines)
-                    sb.AppendLine($"  - {d}");
+                    writer.WriteLine($"  - {d}");
             }
 
-            sb.Append($"Source Files:     {response.sourceFiles.Length}");
+            writer.WriteLine($"Source Files:     {response.sourceFiles.Length}");
 
-            formatted = sb.ToString();
             return true;
         }
 

@@ -256,6 +256,32 @@ if (hasErrors)
     throw new CommandFailedException("Validation failed", response);
 ```
 
+## Claude Code Integration
+
+UniCli provides a [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin via the marketplace. This plugin gives Claude Code the ability to interact with Unity Editor — compiling scripts, running tests, inspecting GameObjects, managing packages, and more — as part of its coding workflow.
+
+With the plugin installed, Claude Code can:
+
+- **Compile & verify** — catch compilation errors immediately after code changes
+- **Run tests** — execute EditMode / PlayMode tests and read results
+- **Inspect the scene** — find GameObjects, check components, and navigate the hierarchy
+- **Manage packages** — add, remove, and search Unity packages
+- **Discover commands** — automatically find all available commands, including project-specific custom commands
+
+The plugin also handles server package setup: if the `com.yucchiy.unicli-server` package is not yet installed in the Unity project, Claude Code will run `unicli install` to set it up automatically.
+
+### Install the plugin
+
+The UniCli CLI must be installed beforehand. See [Installation — CLI](#cli) above.
+
+```bash
+# 1. Add the UniCli marketplace
+/plugin marketplace add yucchiy/UniCli
+
+# 2. Install the plugin
+/plugin install unicli@unicli
+```
+
 ## License
 
 [MIT](./LICENSE)

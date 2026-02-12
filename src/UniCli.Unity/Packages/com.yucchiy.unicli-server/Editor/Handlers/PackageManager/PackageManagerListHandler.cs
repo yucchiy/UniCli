@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
@@ -14,10 +14,8 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.PackageManager.List;
         public override string Description => "List all installed packages in the project";
 
-        protected override bool TryFormat(PackageManagerListResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(PackageManagerListResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
             var nameWidth = "Name".Length;
             var versionWidth = "Version".Length;
             var sourceWidth = "Source".Length;
@@ -29,19 +27,18 @@ namespace UniCli.Server.Editor.Handlers
                 sourceWidth = Math.Max(sourceWidth, pkg.source.Length);
             }
 
-            sb.AppendLine(
+            writer.WriteLine(
                 $"{"Name".PadRight(nameWidth)}  {"Version".PadRight(versionWidth)}  {"Source".PadRight(sourceWidth)}  Direct");
 
             foreach (var pkg in response.packages)
             {
                 var direct = pkg.isDirectDependency ? "yes" : "";
-                sb.AppendLine(
+                writer.WriteLine(
                     $"{pkg.name.PadRight(nameWidth)}  {pkg.version.PadRight(versionWidth)}  {pkg.source.PadRight(sourceWidth)}  {direct}");
             }
 
-            sb.Append($"{response.totalCount} package(s)");
+            writer.WriteLine($"{response.totalCount} package(s)");
 
-            formatted = sb.ToString();
             return true;
         }
 

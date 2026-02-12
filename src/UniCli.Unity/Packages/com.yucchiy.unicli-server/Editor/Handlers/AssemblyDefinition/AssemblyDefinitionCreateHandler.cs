@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -13,9 +14,9 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssemblyDefinition.Create;
         public override string Description => "Create a new assembly definition file";
 
-        protected override bool TryFormat(AssemblyDefinitionCreateResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(AssemblyDefinitionCreateResponse response, bool success, IFormatWriter writer)
         {
-            formatted = $"Created {response.path}";
+            writer.WriteLine($"Created {response.path}");
             return true;
         }
 

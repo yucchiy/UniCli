@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEditor.Compilation;
 
@@ -13,32 +13,29 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Compile;
         public override string Description => "Trigger script compilation and return results with error details";
 
-        protected override bool TryFormat(CompileResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(CompileResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
             if (success)
-                sb.AppendLine($"Compilation succeeded ({response.errorCount} errors, {response.warningCount} warnings)");
+                writer.WriteLine($"Compilation succeeded ({response.errorCount} errors, {response.warningCount} warnings)");
             else
-                sb.AppendLine($"Compilation failed ({response.errorCount} errors, {response.warningCount} warnings)");
+                writer.WriteLine($"Compilation failed ({response.errorCount} errors, {response.warningCount} warnings)");
 
-            AppendIssues(sb, response.errors);
-            AppendIssues(sb, response.warnings);
+            WriteIssues(writer, response.errors);
+            WriteIssues(writer, response.warnings);
 
-            formatted = sb.ToString().TrimEnd();
             return true;
         }
 
-        private static void AppendIssues(StringBuilder sb, CompileIssue[] issues)
+        private static void WriteIssues(IFormatWriter writer, CompileIssue[] issues)
         {
             if (issues == null) return;
 
             foreach (var issue in issues)
             {
                 if (!string.IsNullOrEmpty(issue.file))
-                    sb.AppendLine($"  {issue.file}({issue.line}): {issue.message}");
+                    writer.WriteLine($"  {issue.file}({issue.line}): {issue.message}");
                 else
-                    sb.AppendLine($"  {issue.message}");
+                    writer.WriteLine($"  {issue.message}");
             }
         }
 

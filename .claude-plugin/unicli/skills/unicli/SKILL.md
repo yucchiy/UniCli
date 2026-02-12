@@ -15,7 +15,13 @@ Before running commands, verify that the CLI is installed and the Editor is reac
 unicli check
 ```
 
-If the connection fails, make sure Unity Editor is open with the target project loaded.
+If `unicli check` reports that the server package is not installed, run `unicli install` to install it:
+
+```bash
+unicli install
+```
+
+If the package is installed but the connection fails, make sure Unity Editor is open with the target project loaded. Retry a few times — the Editor may need a moment to start the server.
 
 ## Discovering Commands
 

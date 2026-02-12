@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
@@ -15,7 +16,7 @@ namespace UniCli.Server.Editor.Handlers
 
     public interface IResponseFormatter
     {
-        bool TryFormat(object response, bool success, out string formatted);
+        bool TryWriteFormatted(object response, bool success, IFormatWriter writer);
     }
 
     public abstract class CommandHandler<TRequest, TResponse> : ICommandHandler, IResponseFormatter
@@ -62,17 +63,15 @@ namespace UniCli.Server.Editor.Handlers
             return await ExecuteAsync(typedRequest);
         }
 
-        public bool TryFormat(object response, bool success, out string formatted)
+        public bool TryWriteFormatted(object response, bool success, IFormatWriter writer)
         {
             if (response is TResponse typed)
-                return TryFormat(typed, success, out formatted);
-            formatted = null;
+                return TryWriteFormatted(typed, success, writer);
             return false;
         }
 
-        protected virtual bool TryFormat(TResponse response, bool success, out string formatted)
+        protected virtual bool TryWriteFormatted(TResponse response, bool success, IFormatWriter writer)
         {
-            formatted = null;
             return false;
         }
 

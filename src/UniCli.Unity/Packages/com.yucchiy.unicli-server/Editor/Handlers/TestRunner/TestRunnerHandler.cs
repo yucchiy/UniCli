@@ -1,7 +1,7 @@
 using System;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
 
@@ -12,8 +12,8 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.TestRunner.RunEditMode;
         public override string Description => "Run EditMode tests with optional name/assembly filter";
 
-        protected override bool TryFormat(TestRunnerResponse response, bool success, out string formatted)
-            => TestRunnerResponseFormatter.TryFormat(response, success, out formatted);
+        protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
+            => TestRunnerResponseFormatter.TryWriteFormatted(response, success, writer);
 
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request)
         {
@@ -26,8 +26,8 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.TestRunner.RunPlayMode;
         public override string Description => "Run PlayMode tests with optional name/assembly filter";
 
-        protected override bool TryFormat(TestRunnerResponse response, bool success, out string formatted)
-            => TestRunnerResponseFormatter.TryFormat(response, success, out formatted);
+        protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
+            => TestRunnerResponseFormatter.TryWriteFormatted(response, success, writer);
 
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request)
         {
@@ -37,12 +37,10 @@ namespace UniCli.Server.Editor.Handlers
 
     internal static class TestRunnerResponseFormatter
     {
-        public static bool TryFormat(TestRunnerResponse response, bool success, out string formatted)
+        public static bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
             var status = success ? "passed" : "failed";
-            sb.AppendLine($"Tests {status}: {response.passed} passed, {response.failed} failed, {response.skipped} skipped ({response.total} total)");
+            writer.WriteLine($"Tests {status}: {response.passed} passed, {response.failed} failed, {response.skipped} skipped ({response.total} total)");
 
             if (response.results != null)
             {
@@ -52,14 +50,13 @@ namespace UniCli.Server.Editor.Handlers
                         continue;
 
                     var label = result.status == "Failed" ? "FAIL" : result.status.ToUpperInvariant();
-                    sb.Append($"  {label} {result.name}");
-                    if (!string.IsNullOrEmpty(result.message))
-                        sb.Append($" - {result.message}");
-                    sb.AppendLine();
+                    var line = !string.IsNullOrEmpty(result.message)
+                        ? $"  {label} {result.name} - {result.message}"
+                        : $"  {label} {result.name}";
+                    writer.WriteLine(line);
                 }
             }
 
-            formatted = sb.ToString().TrimEnd();
             return true;
         }
     }

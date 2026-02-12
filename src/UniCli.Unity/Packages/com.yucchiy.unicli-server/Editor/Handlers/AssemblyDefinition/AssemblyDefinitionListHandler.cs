@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UniCli.Protocol;
+using UniCli.Server.Editor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -15,10 +15,8 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssemblyDefinition.List;
         public override string Description => "List all assembly definitions in the project";
 
-        protected override bool TryFormat(AssemblyDefinitionListResponse response, bool success, out string formatted)
+        protected override bool TryWriteFormatted(AssemblyDefinitionListResponse response, bool success, IFormatWriter writer)
         {
-            var sb = new StringBuilder();
-
             var nameWidth = "Name".Length;
             var pathWidth = "Path".Length;
             var nsWidth = "Namespace".Length;
@@ -34,18 +32,17 @@ namespace UniCli.Server.Editor.Handlers
                 refWidth = Math.Max(refWidth, entry.referenceCount.ToString().Length);
             }
 
-            sb.AppendLine(
+            writer.WriteLine(
                 $"{"Name".PadRight(nameWidth)}  {"Path".PadRight(pathWidth)}  {"Namespace".PadRight(nsWidth)}  {"Sources".PadRight(srcWidth)}  {"Refs".PadRight(refWidth)}");
 
             foreach (var entry in response.assemblies)
             {
-                sb.AppendLine(
+                writer.WriteLine(
                     $"{entry.name.PadRight(nameWidth)}  {entry.path.PadRight(pathWidth)}  {entry.rootNamespace.PadRight(nsWidth)}  {entry.sourceFileCount.ToString().PadRight(srcWidth)}  {entry.referenceCount.ToString().PadRight(refWidth)}");
             }
 
-            sb.Append($"{response.totalCount} assembly definition(s)");
+            writer.WriteLine($"{response.totalCount} assembly definition(s)");
 
-            formatted = sb.ToString();
             return true;
         }
 
