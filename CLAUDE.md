@@ -69,6 +69,13 @@ UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunEditMode
 UNICLI_PROJECT=src/UniCli.Unity .build/UniCli.Client exec TestRunner.RunPlayMode --json
 ```
 
+### Maintaining documentation
+
+When adding or modifying commands, update the following files to keep them in sync:
+
+- `README.md` — Available Commands table and Examples section
+- `.claude-plugin/unicli/skills/unicli/SKILL.md` — Built-in Commands table and Common Workflows section
+
 ### Tests requiring Unity connection
 
 The `exec` and `commands` subcommands require a connection to the Unity Editor. If the connection fails, retry a few times. If it still fails, ask the user to confirm that Unity Editor is running with the project open.
