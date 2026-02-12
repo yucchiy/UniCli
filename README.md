@@ -131,6 +131,9 @@ unicli exec Prefab.Save --path "Player" --assetPath "Assets/Prefabs/Player.prefa
 unicli exec Prefab.Apply --path "MyPrefabInstance"
 unicli exec Prefab.Unpack --path "MyPrefabInstance" --completely
 
+# Delete an asset
+unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab"
+
 # Manage packages
 unicli exec PackageManager.List
 unicli exec PackageManager.Add --packageIdOrName com.unity.mathematics
@@ -175,6 +178,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | AssetDatabase      | `AssetDatabase.Find`                 | Search assets                      |
 | AssetDatabase      | `AssetDatabase.Import`               | Import an asset                    |
 | AssetDatabase      | `AssetDatabase.GetPath`              | Get asset path by GUID             |
+| AssetDatabase      | `AssetDatabase.Delete`               | Delete an asset                    |
 | Project            | `Project.Inspect`                    | Get project info                   |
 | PackageManager     | `PackageManager.List`                | List packages                      |
 | PackageManager     | `PackageManager.Add`                 | Add a package                      |
