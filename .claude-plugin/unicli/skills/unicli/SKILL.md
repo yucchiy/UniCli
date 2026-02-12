@@ -65,6 +65,7 @@ unicli exec GameObject.Find --includeInactive
 | Command | Description |
 |---|---|
 | `Compile` | Compile scripts and return results |
+| `CompilePlayer` | Compile player scripts for a build target |
 | `Console.GetLog` | Get console log entries |
 | `Console.Clear` | Clear console |
 | `PlayMode.Enter` | Enter play mode |
@@ -113,6 +114,14 @@ unicli exec GameObject.Find --includeInactive
 
 ```bash
 unicli exec Compile --json
+```
+
+**Compile player scripts for a specific build target:**
+
+```bash
+unicli exec CompilePlayer --json
+unicli exec CompilePlayer --target Android --json
+unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --json
 ```
 
 **Run tests:**

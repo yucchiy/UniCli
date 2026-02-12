@@ -111,6 +111,11 @@ unicli exec GameObject.Find --help
 # Compile scripts
 unicli exec Compile
 
+# Compile player scripts for a specific build target
+unicli exec CompilePlayer
+unicli exec CompilePlayer --target Android
+unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE
+
 # Run tests
 unicli exec TestRunner.RunEditMode
 unicli exec TestRunner.RunPlayMode
@@ -166,6 +171,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Category           | Command                              | Description                        |
 |--------------------|--------------------------------------|------------------------------------|
 | Core               | `Compile`                            | Compile scripts and return results |
+| Core               | `CompilePlayer`                      | Compile player scripts for a build target |
 | Console            | `Console.GetLog`                     | Get console log entries            |
 | Console            | `Console.Clear`                      | Clear console                      |
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |

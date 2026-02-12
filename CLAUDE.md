@@ -55,6 +55,11 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
 # Run Unity PlayMode tests
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 
+# Compile player scripts for a specific build target
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec CompilePlayer --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec CompilePlayer '{"target":"Android"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec CompilePlayer '{"target":"iOS","extraScriptingDefines":["MY_DEFINE"]}' --json
+
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
