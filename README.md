@@ -139,6 +139,17 @@ unicli exec PackageManager.List
 unicli exec PackageManager.Add --packageIdOrName com.unity.mathematics
 unicli exec PackageManager.Remove --packageIdOrName com.unity.mathematics
 
+# Scene operations
+unicli exec Scene.List
+unicli exec Scene.GetActive
+unicli exec Scene.Open --path "Assets/Scenes/Level1.unity"
+unicli exec Scene.Open --path "Assets/Scenes/Additive.unity" --additive
+unicli exec Scene.SetActive --name "Level1"
+unicli exec Scene.Save --all
+unicli exec Scene.Save --name "Level1" --saveAsPath "Assets/Scenes/Level1_backup.unity"
+unicli exec Scene.Close --name "Additive"
+unicli exec Scene.New --empty --additive
+
 # Execute menu items
 unicli exec Menu.Execute --menuPath "Window/General/Console"
 
@@ -189,6 +200,13 @@ The following commands are built in. You can also run `unicli commands` to see t
 | AssemblyDefinition | `AssemblyDefinition.Create`          | Create assembly definition         |
 | AssemblyDefinition | `AssemblyDefinition.AddReference`    | Add asmdef reference               |
 | AssemblyDefinition | `AssemblyDefinition.RemoveReference` | Remove asmdef reference            |
+| Scene              | `Scene.List`                         | List all loaded scenes             |
+| Scene              | `Scene.GetActive`                    | Get the active scene               |
+| Scene              | `Scene.SetActive`                    | Set the active scene               |
+| Scene              | `Scene.Open`                         | Open a scene by asset path         |
+| Scene              | `Scene.Close`                        | Close a loaded scene               |
+| Scene              | `Scene.Save`                         | Save a scene or all open scenes    |
+| Scene              | `Scene.New`                          | Create a new scene                 |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 

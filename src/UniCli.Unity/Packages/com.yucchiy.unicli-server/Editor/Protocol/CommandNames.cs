@@ -78,5 +78,16 @@ namespace UniCli.Server.Editor
             public const string AddReference = "AssemblyDefinition.AddReference";
             public const string RemoveReference = "AssemblyDefinition.RemoveReference";
         }
+
+        public static class Scene
+        {
+            public const string List = "Scene.List";
+            public const string GetActive = "Scene.GetActive";
+            public const string SetActive = "Scene.SetActive";
+            public const string Open = "Scene.Open";
+            public const string Close = "Scene.Close";
+            public const string Save = "Scene.Save";
+            public const string New = "Scene.New";
+        }
     }
 }
