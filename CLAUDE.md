@@ -76,6 +76,18 @@ When adding or modifying commands, update the following files to keep them in sy
 - `README.md` — Available Commands table and Examples section
 - `.claude-plugin/unicli/skills/unicli/SKILL.md` — Built-in Commands table and Common Workflows section
 
+### Releasing a new version
+
+1. Create a `release/vX.Y.Z` branch from `main`
+2. Bump version in the following 3 files:
+   - `src/UniCli.Client/UniCli.Client.csproj` (`<Version>`)
+   - `src/UniCli.Unity/Packages/com.yucchiy.unicli-server/package.json` (`"version"`)
+   - `.claude-plugin/marketplace.json` (`"version"`)
+3. Build and verify: `dotnet build src/UniCli.Protocol && dotnet publish src/UniCli.Client -o .build`
+4. Create a PR to `main` with a changelog summary
+5. After merge: `git tag vX.Y.Z && git push origin vX.Y.Z`
+6. Create a GitHub Release from the tag
+
 ### Tests requiring Unity connection
 
 The `exec` and `commands` subcommands require a connection to the Unity Editor. If the connection fails, retry a few times. If it still fails, ask the user to confirm that Unity Editor is running with the project open.
