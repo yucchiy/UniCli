@@ -129,6 +129,17 @@ unicli exec BuildPlayer.Compile
 unicli exec BuildPlayer.Compile --target Android
 unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
 
+# List available connection targets (players/devices)
+unicli exec Connection.List
+
+# Get current connection status
+unicli exec Connection.Status
+
+# Connect to a target by ID, IP, or device ID
+unicli exec Connection.Connect '{"id":-1}'
+unicli exec Connection.Connect '{"ip":"192.168.1.100"}'
+unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}'
+
 # Run tests
 unicli exec TestRunner.RunEditMode
 unicli exec TestRunner.RunPlayMode
@@ -201,6 +212,9 @@ The following commands are built in. You can also run `unicli commands` to see t
 | BuildPlayer        | `BuildPlayer.Build`                  | Build the player                   |
 | BuildPlayer        | `BuildPlayer.Compile`                | Compile player scripts for a build target |
 | Core               | `Compile`                            | Compile scripts and return results |
+| Connection         | `Connection.List`                    | List available connection targets  |
+| Connection         | `Connection.Connect`                 | Connect to a target by ID, IP, or device ID |
+| Connection         | `Connection.Status`                  | Get current connection status      |
 | Console            | `Console.GetLog`                     | Get console log entries            |
 | Console            | `Console.Clear`                      | Clear console                      |
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |
