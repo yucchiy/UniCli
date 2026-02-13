@@ -89,8 +89,8 @@ unicli exec GameObject.Find --includeInactive
 Array parameters can be passed by repeating the same flag:
 
 ```bash
-unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
-unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
 ```
 
 ### Common options
@@ -119,15 +119,15 @@ unicli exec GameObject.Find --help
 unicli exec Compile
 
 # Build the player
-unicli exec Build --locationPathName "Builds/Test.app"
-unicli exec Build --locationPathName "Builds/Test.app" --options Development
-unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
-unicli exec Build --locationPathName "Builds/Test.app" --target Android --scenes "Assets/Scenes/Main.unity"
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app"
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Android --scenes "Assets/Scenes/Main.unity"
 
 # Compile player scripts for a specific build target
-unicli exec CompilePlayer
-unicli exec CompilePlayer --target Android
-unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
+unicli exec BuildPlayer.Compile
+unicli exec BuildPlayer.Compile --target Android
+unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
 
 # Run tests
 unicli exec TestRunner.RunEditMode
@@ -198,8 +198,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 
 | Category           | Command                              | Description                        |
 |--------------------|--------------------------------------|------------------------------------|
-| BuildPlayer        | `Build`                              | Build the player                   |
-| BuildPlayer        | `CompilePlayer`                      | Compile player scripts for a build target |
+| BuildPlayer        | `BuildPlayer.Build`                  | Build the player                   |
+| BuildPlayer        | `BuildPlayer.Compile`                | Compile player scripts for a build target |
 | Core               | `Compile`                            | Compile scripts and return results |
 | Console            | `Console.GetLog`                     | Get console log entries            |
 | Console            | `Console.Clear`                      | Clear console                      |

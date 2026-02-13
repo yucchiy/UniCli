@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class BuildHandler : CommandHandler<BuildRequest, BuildResponse>
     {
-        public override string CommandName => CommandNames.Build;
+        public override string CommandName => CommandNames.BuildPlayer.Build;
         public override string Description => "Build the player using BuildPipeline.BuildPlayer";
 
         protected override bool TryWriteFormatted(BuildResponse response, bool success, IFormatWriter writer)

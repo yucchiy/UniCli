@@ -56,7 +56,7 @@ unicli exec GameObject.Find --includeInactive
 Array parameters can be passed by repeating the same flag:
 
 ```bash
-unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
 ```
 
 ### Common options
@@ -70,9 +70,9 @@ unicli exec Build --locationPathName "Builds/Test.app" --options Development --o
 
 | Command | Description |
 |---|---|
-| `Build` | Build the player |
+| `BuildPlayer.Build` | Build the player |
+| `BuildPlayer.Compile` | Compile player scripts for a build target |
 | `Compile` | Compile scripts and return results |
-| `CompilePlayer` | Compile player scripts for a build target |
 | `Console.GetLog` | Get console log entries |
 | `Console.Clear` | Clear console |
 | `PlayMode.Enter` | Enter play mode |
@@ -143,18 +143,18 @@ unicli exec Compile --json
 **Build the player:**
 
 ```bash
-unicli exec Build --locationPathName "Builds/Test.app" --json
-unicli exec Build --locationPathName "Builds/Test.app" --options Development --json
-unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler --json
-unicli exec Build --locationPathName "Builds/Test.app" --target Android --json
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --json
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --json
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler --json
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Android --json
 ```
 
 **Compile player scripts for a specific build target:**
 
 ```bash
-unicli exec CompilePlayer --json
-unicli exec CompilePlayer --target Android --json
-unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
+unicli exec BuildPlayer.Compile --json
+unicli exec BuildPlayer.Compile --target Android --json
+unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
 ```
 
 **Run tests:**
