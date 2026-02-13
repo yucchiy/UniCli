@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using UniCli.Protocol;
-using UniCli.Server.Editor;
 using UnityEditor;
 using UnityEngine;
 

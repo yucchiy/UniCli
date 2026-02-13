@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using UniCli.Server.Editor;
 using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
@@ -27,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
             writer.WriteLine($"Direct Dependency: {(response.isDirectDependency ? "yes" : "no")}");
             writer.WriteLine($"Description:       {response.description}");
 
-            if (response.dependencies != null && response.dependencies.Length > 0)
+            if (response.dependencies is { Length: > 0 })
             {
                 writer.WriteLine("Dependencies:");
                 foreach (var dep in response.dependencies)

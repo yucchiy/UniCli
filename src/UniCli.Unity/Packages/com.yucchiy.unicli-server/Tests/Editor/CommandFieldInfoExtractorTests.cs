@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using UniCli.Protocol;
+using UniCli.Server.Editor.Internal;
 
 namespace UniCli.Server.Editor.Tests
 {

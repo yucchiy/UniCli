@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UniCli.Protocol;
 using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
