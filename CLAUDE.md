@@ -123,7 +123,7 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 When adding or modifying commands, update the following files to keep them in sync:
 
 - `README.md` — Available Commands table and Examples section
-- `.claude-plugin/unicli/skills/unicli/SKILL.md` — Built-in Commands table and Common Workflows section
+- `.claude-plugin/unicli/skills/unity-development/SKILL.md` — Built-in Commands table and Common Workflows section
 
 ### Releasing a new version
 
