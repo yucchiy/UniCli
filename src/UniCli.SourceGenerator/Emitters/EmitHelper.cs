@@ -1,0 +1,153 @@
+using System.Text;
+using Microsoft.CodeAnalysis;
+using UniCli.SourceGenerator.Analysis;
+
+namespace UniCli.SourceGenerator.Emitters
+{
+    internal static class EmitHelper
+    {
+        public static string GetResponseFieldType(ITypeSymbol type)
+        {
+            if (TypeSerializabilityChecker.IsEnumType(type))
+                return "string";
+
+            return GetTypeDisplayName(type);
+        }
+
+        public static string GetTypeDisplayName(ITypeSymbol type)
+        {
+            var fullName = TypeSerializabilityChecker.GetFullMetadataName(type);
+
+            switch (fullName)
+            {
+                case "System.String": return "string";
+                case "System.Boolean": return "bool";
+                case "System.Int32": return "int";
+                case "System.Int64": return "long";
+                case "System.Single": return "float";
+                case "System.Double": return "double";
+                case "System.Byte": return "byte";
+                case "System.SByte": return "sbyte";
+                case "System.Int16": return "short";
+                case "System.UInt16": return "ushort";
+                case "System.UInt32": return "uint";
+                case "System.UInt64": return "ulong";
+                case "System.Char": return "char";
+                default: return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            }
+        }
+
+        public static string GetValueReadExpression(IPropertySymbol property, string accessPrefix)
+        {
+            if (TypeSerializabilityChecker.IsEnumType(property.Type))
+                return $"{accessPrefix}.{property.Name}.ToString()";
+
+            return $"{accessPrefix}.{property.Name}";
+        }
+
+        public static string GetValueAssignExpression(
+            ITypeSymbol type, string requestValueExpr, string propertyName)
+        {
+            if (TypeSerializabilityChecker.IsEnumType(type))
+            {
+                var enumFullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                return $"ParseEnum<{enumFullName}>({requestValueExpr}, \"{propertyName}\")";
+            }
+
+            return requestValueExpr;
+        }
+
+        public static string GetParameterExpression(IParameterSymbol parameter, string requestFieldPrefix)
+        {
+            var paramType = parameter.Type;
+            var fieldName = parameter.Name;
+            var fullTypeName = TypeSerializabilityChecker.GetFullMetadataName(paramType);
+
+            if (fullTypeName == "UnityEditor.Build.NamedBuildTarget")
+                return $"NamedBuildTargetHelper.Parse({requestFieldPrefix}.{fieldName})";
+
+            if (TypeSerializabilityChecker.IsEnumType(paramType))
+            {
+                var enumFullName = paramType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                return $"ParseEnum<{enumFullName}>({requestFieldPrefix}.{fieldName}, \"{fieldName}\")";
+            }
+
+            return $"{requestFieldPrefix}.{fieldName}";
+        }
+
+        public static string GetRequestFieldType(IParameterSymbol parameter)
+        {
+            var fullTypeName = TypeSerializabilityChecker.GetFullMetadataName(parameter.Type);
+
+            if (fullTypeName == "UnityEditor.Build.NamedBuildTarget")
+                return "string";
+
+            if (TypeSerializabilityChecker.IsEnumType(parameter.Type))
+                return "string";
+
+            return GetTypeDisplayName(parameter.Type);
+        }
+
+        public static string ToCamelCase(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+            var camel = char.ToLowerInvariant(name[0]) + name.Substring(1);
+            return EscapeKeyword(camel);
+        }
+
+        private static readonly System.Collections.Generic.HashSet<string> CSharpKeywords =
+            new System.Collections.Generic.HashSet<string>
+            {
+                "abstract", "as", "base", "bool", "break", "byte", "case", "catch",
+                "char", "checked", "class", "const", "continue", "decimal", "default",
+                "delegate", "do", "double", "else", "enum", "event", "explicit",
+                "extern", "false", "finally", "fixed", "float", "for", "foreach",
+                "goto", "if", "implicit", "in", "int", "interface", "internal", "is",
+                "lock", "long", "namespace", "new", "null", "object", "operator",
+                "out", "override", "params", "private", "protected", "public",
+                "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof",
+                "stackalloc", "static", "string", "struct", "switch", "this", "throw",
+                "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe",
+                "ushort", "using", "virtual", "void", "volatile", "while"
+            };
+
+        private static string EscapeKeyword(string name)
+        {
+            if (CSharpKeywords.Contains(name))
+                return "@" + name;
+            return name;
+        }
+
+        public static void AppendAutoGeneratedHeader(StringBuilder sb)
+        {
+            sb.AppendLine("// <auto-generated/>");
+            sb.AppendLine("// This file is generated by UniCli.SourceGenerator. Do not edit manually.");
+            sb.AppendLine();
+        }
+
+        public static void AppendUsings(StringBuilder sb)
+        {
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Threading.Tasks;");
+            sb.AppendLine("using UniCli.Protocol;");
+            sb.AppendLine("using UniCli.Server.Editor.Handlers;");
+            sb.AppendLine("using UnityEngine;");
+            sb.AppendLine();
+        }
+
+        public static void AppendParseEnumHelper(StringBuilder sb, string indent)
+        {
+            sb.AppendLine($"{indent}private static T ParseEnum<T>(string value, string fieldName) where T : struct");
+            sb.AppendLine($"{indent}{{");
+            sb.AppendLine($"{indent}    if (System.Enum.TryParse<T>(value, true, out var result))");
+            sb.AppendLine($"{indent}        return result;");
+            sb.AppendLine();
+            sb.AppendLine($"{indent}    var validValues = System.Enum.GetNames(typeof(T));");
+            sb.AppendLine($"{indent}    throw new CommandFailedException(");
+            sb.AppendLine($"{indent}        $\"Invalid value '{{value}}' for {{fieldName}}. Valid values: {{string.Join(\", \", validValues)}}\",");
+            sb.AppendLine($"{indent}        null);");
+            sb.AppendLine($"{indent}}}");
+        }
+    }
+}
