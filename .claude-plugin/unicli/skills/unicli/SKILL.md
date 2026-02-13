@@ -53,6 +53,12 @@ Boolean flags can be passed without a value:
 unicli exec GameObject.Find --includeInactive
 ```
 
+Array parameters can be passed by repeating the same flag:
+
+```bash
+unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+```
+
 ### Common options
 
 - `--json` — Output in JSON format (recommended for structured processing)
@@ -64,6 +70,7 @@ unicli exec GameObject.Find --includeInactive
 
 | Command | Description |
 |---|---|
+| `Build` | Build the player |
 | `Compile` | Compile scripts and return results |
 | `CompilePlayer` | Compile player scripts for a build target |
 | `Console.GetLog` | Get console log entries |
@@ -133,12 +140,21 @@ Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
 unicli exec Compile --json
 ```
 
+**Build the player:**
+
+```bash
+unicli exec Build --locationPathName "Builds/Test.app" --json
+unicli exec Build --locationPathName "Builds/Test.app" --options Development --json
+unicli exec Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler --json
+unicli exec Build --locationPathName "Builds/Test.app" --target Android --json
+```
+
 **Compile player scripts for a specific build target:**
 
 ```bash
 unicli exec CompilePlayer --json
 unicli exec CompilePlayer --target Android --json
-unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --json
+unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
 ```
 
 **Run tests:**

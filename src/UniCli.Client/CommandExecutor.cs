@@ -190,9 +190,9 @@ internal static class CommandExecutor
         return await ExecuteAsync(commandName, jsonData, timeoutMs, json, focusEditor);
     }
 
-    private static Dictionary<string, string?> ParseKeyValueArgs(string[] args)
+    private static Dictionary<string, List<string?>> ParseKeyValueArgs(string[] args)
     {
-        var result = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        var result = new Dictionary<string, List<string?>>(StringComparer.OrdinalIgnoreCase);
 
         for (var i = 0; i < args.Length; i++)
         {
@@ -201,28 +201,38 @@ internal static class CommandExecutor
 
             var key = args[i].Substring(2);
 
+            if (!result.TryGetValue(key, out var list))
+            {
+                list = new List<string?>();
+                result[key] = list;
+            }
+
             if (i + 1 < args.Length && !args[i + 1].StartsWith("--"))
             {
-                result[key] = args[i + 1];
+                list.Add(args[i + 1]);
                 i++;
             }
             else
             {
-                result[key] = null;
+                list.Add(null);
             }
         }
 
         return result;
     }
 
-    private static string BuildJsonFromKeyValues(Dictionary<string, string?> pairs, CommandFieldInfo[] fields)
+    private static bool IsArrayType(string fieldType) => fieldType.EndsWith("[]");
+
+    private static string GetArrayElementType(string fieldType) => fieldType.Substring(0, fieldType.Length - 2);
+
+    private static string BuildJsonFromKeyValues(Dictionary<string, List<string?>> pairs, CommandFieldInfo[] fields)
     {
         var buffer = new ArrayBufferWriter<byte>();
         using var writer = new Utf8JsonWriter(buffer);
 
         writer.WriteStartObject();
 
-        foreach (var (key, value) in pairs)
+        foreach (var (key, values) in pairs)
         {
             var field = fields.FirstOrDefault(
                 f => f.name.Equals(key, StringComparison.OrdinalIgnoreCase));
@@ -231,30 +241,24 @@ internal static class CommandExecutor
 
             writer.WritePropertyName(fieldName);
 
-            if (value == null)
+            if (IsArrayType(fieldType))
             {
-                writer.WriteBooleanValue(true);
+                var elementType = GetArrayElementType(fieldType);
+                writer.WriteStartArray();
+                foreach (var value in values)
+                {
+                    if (value != null)
+                        WriteScalarValue(writer, value, elementType);
+                }
+                writer.WriteEndArray();
             }
             else
             {
-                switch (fieldType)
-                {
-                    case "int" when int.TryParse(value, out var intVal):
-                        writer.WriteNumberValue(intVal);
-                        break;
-                    case "float" when float.TryParse(value, out var floatVal):
-                        writer.WriteNumberValue(floatVal);
-                        break;
-                    case "double" when double.TryParse(value, out var doubleVal):
-                        writer.WriteNumberValue(doubleVal);
-                        break;
-                    case "bool" when bool.TryParse(value, out var boolVal):
-                        writer.WriteBooleanValue(boolVal);
-                        break;
-                    default:
-                        writer.WriteStringValue(value);
-                        break;
-                }
+                var value = values[values.Count - 1];
+                if (value == null)
+                    writer.WriteBooleanValue(true);
+                else
+                    WriteScalarValue(writer, value, fieldType);
             }
         }
 
@@ -262,6 +266,28 @@ internal static class CommandExecutor
         writer.Flush();
 
         return Encoding.UTF8.GetString(buffer.WrittenSpan);
+    }
+
+    private static void WriteScalarValue(Utf8JsonWriter writer, string value, string fieldType)
+    {
+        switch (fieldType)
+        {
+            case "int" when int.TryParse(value, out var intVal):
+                writer.WriteNumberValue(intVal);
+                break;
+            case "float" when float.TryParse(value, out var floatVal):
+                writer.WriteNumberValue(floatVal);
+                break;
+            case "double" when double.TryParse(value, out var doubleVal):
+                writer.WriteNumberValue(doubleVal);
+                break;
+            case "bool" when bool.TryParse(value, out var boolVal):
+                writer.WriteBooleanValue(boolVal);
+                break;
+            default:
+                writer.WriteStringValue(value);
+                break;
+        }
     }
 
     public static async Task<CliResult> ExecuteAsync(
