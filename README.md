@@ -198,9 +198,9 @@ The following commands are built in. You can also run `unicli commands` to see t
 
 | Category           | Command                              | Description                        |
 |--------------------|--------------------------------------|------------------------------------|
-| Core               | `Build`                              | Build the player                   |
+| BuildPlayer        | `Build`                              | Build the player                   |
+| BuildPlayer        | `CompilePlayer`                      | Compile player scripts for a build target |
 | Core               | `Compile`                            | Compile scripts and return results |
-| Core               | `CompilePlayer`                      | Compile player scripts for a build target |
 | Console            | `Console.GetLog`                     | Get console log entries            |
 | Console            | `Console.Clear`                      | Clear console                      |
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |
