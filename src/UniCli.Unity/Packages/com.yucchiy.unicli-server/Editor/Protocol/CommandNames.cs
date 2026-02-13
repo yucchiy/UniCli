@@ -97,5 +97,12 @@ namespace UniCli.Server.Editor
             public const string Save = "Scene.Save";
             public const string New = "Scene.New";
         }
+
+        public static class Connection
+        {
+            public const string List = "Connection.List";
+            public const string Connect = "Connection.Connect";
+            public const string Status = "Connection.Status";
+        }
     }
 }

@@ -73,6 +73,9 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `BuildPlayer.Build` | Build the player |
 | `BuildPlayer.Compile` | Compile player scripts for a build target |
 | `Compile` | Compile scripts and return results |
+| `Connection.List` | List available connection targets (players/devices) |
+| `Connection.Connect` | Connect to a target by ID, IP, or device ID |
+| `Connection.Status` | Get current profiler connection status |
 | `Console.GetLog` | Get console log entries |
 | `Console.Clear` | Clear console |
 | `PlayMode.Enter` | Enter play mode |
@@ -138,6 +141,15 @@ Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
 
 ```bash
 unicli exec Compile --json
+```
+
+**List connection targets and check status:**
+
+```bash
+unicli exec Connection.List --json
+unicli exec Connection.Status --json
+unicli exec Connection.Connect '{"id":-1}' --json
+unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}' --json
 ```
 
 **Build the player:**
