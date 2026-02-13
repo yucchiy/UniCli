@@ -47,6 +47,11 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Save '{"all":true}' --j
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Close '{"name":"Additive"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.New '{"empty":true,"additive":true}' --json
 
+# PackageManager operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec PackageManager.GetInfo '{"name":"com.unity.test-framework"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec PackageManager.Update '{"name":"com.unity.test-framework"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec PackageManager.Update '{"name":"com.unity.test-framework","version":"1.4.5"}' --json
+
 # AssetDatabase operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AssetDatabase.Delete '{"path":"Assets/Prefabs/Old.prefab"}' --json
 

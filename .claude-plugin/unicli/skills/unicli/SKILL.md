@@ -95,6 +95,8 @@ unicli exec GameObject.Find --includeInactive
 | `PackageManager.Add` | Add a package |
 | `PackageManager.Remove` | Remove a package |
 | `PackageManager.Search` | Search the Unity package registry |
+| `PackageManager.GetInfo` | Get detailed info about an installed package |
+| `PackageManager.Update` | Update a package to a specific or latest version |
 | `AssemblyDefinition.List` | List assembly definitions |
 | `AssemblyDefinition.Get` | Get assembly definition details |
 | `AssemblyDefinition.Create` | Create a new assembly definition |

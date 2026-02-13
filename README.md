@@ -143,6 +143,9 @@ unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab"
 unicli exec PackageManager.List
 unicli exec PackageManager.Add --packageIdOrName com.unity.mathematics
 unicli exec PackageManager.Remove --packageIdOrName com.unity.mathematics
+unicli exec PackageManager.GetInfo --name com.unity.test-framework
+unicli exec PackageManager.Update --name com.unity.test-framework
+unicli exec PackageManager.Update --name com.unity.test-framework --version 1.4.5
 
 # Scene operations
 unicli exec Scene.List
@@ -213,6 +216,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 | PackageManager     | `PackageManager.Add`                 | Add a package                      |
 | PackageManager     | `PackageManager.Remove`              | Remove a package                   |
 | PackageManager     | `PackageManager.Search`              | Search registry                    |
+| PackageManager     | `PackageManager.GetInfo`             | Get package details                |
+| PackageManager     | `PackageManager.Update`              | Update a package                   |
 | AssemblyDefinition | `AssemblyDefinition.List`            | List assembly definitions          |
 | AssemblyDefinition | `AssemblyDefinition.Get`             | Get assembly definition            |
 | AssemblyDefinition | `AssemblyDefinition.Create`          | Create assembly definition         |

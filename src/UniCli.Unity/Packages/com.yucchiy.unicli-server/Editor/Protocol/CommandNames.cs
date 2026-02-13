@@ -60,6 +60,8 @@ namespace UniCli.Server.Editor
             public const string Add = "PackageManager.Add";
             public const string Remove = "PackageManager.Remove";
             public const string Search = "PackageManager.Search";
+            public const string GetInfo = "PackageManager.GetInfo";
+            public const string Update = "PackageManager.Update";
         }
 
         public static class Prefab
