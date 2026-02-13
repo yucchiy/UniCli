@@ -107,6 +107,21 @@ unicli exec GameObject.Find --includeInactive
 | `Scene.Close` | Close a loaded scene |
 | `Scene.Save` | Save a scene or all open scenes |
 | `Scene.New` | Create a new scene |
+| `TypeCache.List` | List types derived from a base type |
+| `TypeInspect` | Inspect nested types of a given type |
+
+### Settings Commands (auto-generated)
+
+Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` are auto-generated at compile time to match your Unity version. Use `unicli commands` to see the full list.
+
+| Pattern | Example | Description |
+|---|---|---|
+| `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values |
+| `<Settings>.Set<Property>` | `PlayerSettings.SetCompanyName` | Set a property |
+| `<Settings>.<Nested>.Set<Property>` | `PlayerSettings.Android.SetMinSdkVersion` | Set a nested type property |
+| `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
+
+Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
 
 ## Common Workflows
 
@@ -174,6 +189,17 @@ unicli exec Scene.New --empty --additive --json
 
 ```bash
 unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab" --json
+```
+
+**Inspect and modify Unity settings:**
+
+```bash
+unicli exec PlayerSettings.Inspect --json
+unicli exec PlayerSettings.SetCompanyName --value "MyCompany" --json
+unicli exec PlayerSettings.Android.SetMinSdkVersion --value AndroidApiLevel28 --json
+unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP --json
+unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android --json
+unicli exec EditorSettings.Inspect --json
 ```
 
 **Check console output:**

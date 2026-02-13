@@ -155,6 +155,18 @@ unicli exec Scene.Save --name "Level1" --saveAsPath "Assets/Scenes/Level1_backup
 unicli exec Scene.Close --name "Additive"
 unicli exec Scene.New --empty --additive
 
+# Settings — inspect all values
+unicli exec PlayerSettings.Inspect
+unicli exec EditorSettings.Inspect
+
+# Settings — set a property
+unicli exec PlayerSettings.SetCompanyName --value "MyCompany"
+unicli exec PlayerSettings.Android.SetMinSdkVersion --value AndroidApiLevel28
+
+# Settings — call Set/Get methods (with platform target)
+unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP
+unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android
+
 # Execute menu items
 unicli exec Menu.Execute --menuPath "Window/General/Console"
 
@@ -213,8 +225,27 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Scene              | `Scene.Close`                        | Close a loaded scene               |
 | Scene              | `Scene.Save`                         | Save a scene or all open scenes    |
 | Scene              | `Scene.New`                          | Create a new scene                 |
+| Utility            | `TypeCache.List`                     | List types derived from a base type |
+| Utility            | `TypeInspect`                        | Inspect nested types of a given type |
 
 Use `unicli exec <command> --help` to see parameters for any command.
+
+### Settings Commands (auto-generated)
+
+In addition to the built-in commands above, UniCli auto-generates commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` via a Roslyn Source Generator at Unity compile time. This means the available commands match your exact Unity version — no manual updates needed.
+
+The generated commands follow these patterns:
+
+| Pattern | Example | Description |
+|---|---|---|
+| `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values at once |
+| `<Settings>.Set<Property>` | `PlayerSettings.SetCompanyName` | Set a single property |
+| `<Settings>.<Nested>.Set<Property>` | `PlayerSettings.Android.SetMinSdkVersion` | Set a nested type property |
+| `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
+
+Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`). Invalid values return an error with the list of valid options.
+
+Run `unicli commands` to see the full list of available commands, including all generated Settings commands.
 
 
 ## Custom Commands
