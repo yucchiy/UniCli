@@ -1,5 +1,12 @@
 ---
-description: Use UniCli CLI to control Unity Editor — compile scripts, run tests, find GameObjects, manage packages, and more. Activate when working with Unity projects.
+description: >-
+  MUST activate when performing ANY Unity-related task: editing C# scripts
+  under Assets/ or Packages/, compiling Unity code, running tests, creating or
+  modifying GameObjects/scenes/prefabs/assets, managing Unity packages, changing
+  project settings, building the player, inspecting the scene hierarchy, or any
+  operation involving the Unity Editor. This skill provides required workflows
+  such as .meta file generation after file creation and compilation verification
+  after code changes. Always load this skill before starting Unity work.
 ---
 
 # UniCli — Unity Editor CLI
@@ -7,30 +14,13 @@ description: Use UniCli CLI to control Unity Editor — compile scripts, run tes
 UniCli lets you interact with Unity Editor directly from the terminal.
 The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the Editor must be open with the `com.yucchiy.unicli-server` package installed.
 
-## IMPORTANT: .meta file generation
+## RULES — Always Follow These
 
-**You MUST run `AssetDatabase.Import` after creating or modifying any file under the Unity project's `Assets/` or `Packages/` directories.** Unity requires a `.meta` file for every asset, and these are generated automatically by `AssetDatabase.Import`. Failing to do so will cause missing references, broken imports, and compilation errors.
-
-```bash
-unicli exec AssetDatabase.Import --path "Assets/path/to/file.cs" --json
-```
-
-This rule applies to all file types: `.cs`, `.asmdef`, `.asset`, `.prefab`, directories, etc. Always import immediately after file creation or modification.
-
-## Recommended: Compilation verification
-
-After modifying C# code in the Unity project, it is recommended to verify that the code compiles successfully using `Compile`. This catches errors that `dotnet build` (client-side only) cannot detect, since server-side code is compiled by Unity's own compiler.
-
-```bash
-unicli exec Compile --json
-```
-
-If the project targets a specific platform (e.g., Android, iOS), `BuildPlayer.Compile` can also verify that the player scripts compile for that target. This catches platform-specific errors such as missing `#if` guards or unsupported API usage.
-
-```bash
-unicli exec BuildPlayer.Compile --json
-unicli exec BuildPlayer.Compile --target Android --json
-```
+1. **After creating/modifying ANY file under `Assets/` or `Packages/`**: Run `unicli exec AssetDatabase.Import --path "<path>" --json`. Unity requires `.meta` files for every asset — skipping this causes missing references, broken imports, and compilation errors. This applies to all file types: `.cs`, `.asmdef`, `.asset`, `.prefab`, directories, etc.
+2. **After modifying C# code in the Unity project**: Run `unicli exec Compile --json` to verify compilation. `dotnet build` only checks the client side — server-side code is compiled by Unity's own compiler.
+3. **Always use `--json`** when parsing output programmatically.
+4. **If connection to Unity Editor fails**: Retry 2–3 times, then ask the user to confirm Unity Editor is running with the project open.
+5. **For platform-specific verification**: Use `unicli exec BuildPlayer.Compile --target <platform> --json` to catch platform-specific errors (missing `#if` guards, unsupported APIs, etc.).
 
 ## Prerequisites
 
