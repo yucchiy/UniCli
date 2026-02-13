@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UniCli.Protocol;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;

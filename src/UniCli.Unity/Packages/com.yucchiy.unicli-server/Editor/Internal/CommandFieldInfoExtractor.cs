@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UniCli.Protocol;
 
-namespace UniCli.Server.Editor
+namespace UniCli.Server.Editor.Internal
 {
     internal static class CommandFieldInfoExtractor
     {
@@ -37,7 +37,7 @@ namespace UniCli.Server.Editor
             if (type == typeof(double)) return "double";
             if (type == typeof(string[])) return "string[]";
             if (type == typeof(int[])) return "int[]";
-            if (type.IsArray) return type.GetElementType().Name + "[]";
+            if (type.IsArray) return type.GetElementType()?.Name + "[]";
             return type.Name;
         }
 
