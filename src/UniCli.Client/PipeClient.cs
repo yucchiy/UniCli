@@ -25,7 +25,7 @@ namespace UniCli.Client
         }
 
         /// <summary>
-        /// Connects to the server
+        /// Connects to the server and performs protocol handshake
         /// </summary>
         public async Task<Result<bool, string>> ConnectAsync(
             int timeoutMs = 5000,
@@ -44,9 +44,28 @@ namespace UniCli.Client
 
                 await _pipeStream.ConnectAsync(timeoutMs, cancellationToken);
 
+                // Perform handshake within the remaining timeout
+                using var handshakeCts = timeoutMs > 0
+                    ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken)
+                    : null;
+                handshakeCts?.CancelAfter(timeoutMs);
+                var handshakeToken = handshakeCts?.Token ?? cancellationToken;
+
+                var handshakeResult = await PerformHandshakeAsync(handshakeToken);
+                if (!handshakeResult.IsSuccess)
+                {
+                    _pipeStream.Dispose();
+                    _pipeStream = null;
+                    return handshakeResult;
+                }
+
                 return Result<bool, string>.Success(true);
             }
             catch (TimeoutException)
+            {
+                return Result<bool, string>.Error("Connection timeout - Unity server may not be running");
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
                 return Result<bool, string>.Error("Connection timeout - Unity server may not be running");
             }
@@ -58,6 +77,48 @@ namespace UniCli.Client
             {
                 return Result<bool, string>.Error($"Unexpected error: {ex.Message}");
             }
+        }
+
+        private async Task<Result<bool, string>> PerformHandshakeAsync(CancellationToken cancellationToken)
+        {
+            var sendBuffer = new byte[ProtocolConstants.HandshakeSize];
+            Array.Copy(ProtocolConstants.MagicBytes, 0, sendBuffer, 0, 4);
+            BitConverter.GetBytes(ProtocolConstants.ProtocolVersion).CopyTo(sendBuffer, 4);
+
+            await _pipeStream!.WriteAsync(sendBuffer.AsMemory(0, ProtocolConstants.HandshakeSize), cancellationToken);
+            await _pipeStream.FlushAsync(cancellationToken);
+
+            var recvBuffer = new byte[ProtocolConstants.HandshakeSize];
+            var totalRead = 0;
+            while (totalRead < ProtocolConstants.HandshakeSize)
+            {
+                var bytesRead = await _pipeStream.ReadAsync(
+                    recvBuffer.AsMemory(totalRead, ProtocolConstants.HandshakeSize - totalRead),
+                    cancellationToken);
+
+                if (bytesRead == 0)
+                    return Result<bool, string>.Error("Server closed connection during handshake");
+
+                totalRead += bytesRead;
+            }
+
+            if (recvBuffer[0] != ProtocolConstants.MagicBytes[0] ||
+                recvBuffer[1] != ProtocolConstants.MagicBytes[1] ||
+                recvBuffer[2] != ProtocolConstants.MagicBytes[2] ||
+                recvBuffer[3] != ProtocolConstants.MagicBytes[3])
+            {
+                return Result<bool, string>.Error("Handshake failed: not a UniCli server (invalid magic bytes)");
+            }
+
+            var serverVersion = BitConverter.ToUInt16(recvBuffer, 4);
+            if (serverVersion != ProtocolConstants.ProtocolVersion)
+            {
+                return Result<bool, string>.Error(
+                    $"Protocol version mismatch (client: {ProtocolConstants.ProtocolVersion}, server: {serverVersion}). "
+                    + "Please update unicli or the Unity server package.");
+            }
+
+            return Result<bool, string>.Success(true);
         }
 
         /// <summary>

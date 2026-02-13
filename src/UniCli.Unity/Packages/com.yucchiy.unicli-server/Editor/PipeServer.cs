@@ -83,6 +83,9 @@ namespace UniCli.Server.Editor
             {
                 try
                 {
+                    if (!await PerformHandshakeAsync(server, cancellationToken))
+                        return;
+
                     while (!cancellationToken.IsCancellationRequested && server.IsConnected)
                     {
                         // Read length prefix (4 bytes)
@@ -158,6 +161,49 @@ namespace UniCli.Server.Editor
                     Debug.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
                 }
             }
+        }
+
+        private static async Task<bool> PerformHandshakeAsync(
+            NamedPipeServerStream server, CancellationToken cancellationToken)
+        {
+            var recvBuffer = ArrayPool<byte>.Shared.Rent(ProtocolConstants.HandshakeSize);
+            try
+            {
+                if (!await ReadExactAsync(server, recvBuffer, ProtocolConstants.HandshakeSize, cancellationToken))
+                {
+                    Debug.LogWarning("[UniCli] Client disconnected during handshake");
+                    return false;
+                }
+
+                if (recvBuffer[0] != ProtocolConstants.MagicBytes[0] ||
+                    recvBuffer[1] != ProtocolConstants.MagicBytes[1] ||
+                    recvBuffer[2] != ProtocolConstants.MagicBytes[2] ||
+                    recvBuffer[3] != ProtocolConstants.MagicBytes[3])
+                {
+                    Debug.LogWarning("[UniCli] Handshake failed: invalid magic bytes from client");
+                    return false;
+                }
+
+                var clientVersion = BitConverter.ToUInt16(recvBuffer, 4);
+                if (clientVersion != ProtocolConstants.ProtocolVersion)
+                {
+                    Debug.LogWarning(
+                        $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion})");
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(recvBuffer);
+            }
+
+            var sendBuffer = new byte[ProtocolConstants.HandshakeSize];
+            Array.Copy(ProtocolConstants.MagicBytes, 0, sendBuffer, 0, 4);
+            BitConverter.GetBytes(ProtocolConstants.ProtocolVersion).CopyTo(sendBuffer, 4);
+
+            await server.WriteAsync(sendBuffer, 0, ProtocolConstants.HandshakeSize, cancellationToken);
+            await server.FlushAsync(cancellationToken);
+
+            return true;
         }
 
         private static async Task<bool> ReadExactAsync(
