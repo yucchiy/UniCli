@@ -33,7 +33,6 @@ namespace UniCli.SourceGenerator.Emitters
             foreach (var prop in info.Properties)
             {
                 if (prop.Symbol.GetMethod == null) continue;
-                if (prop.IsObsolete) continue;
                 var fieldName = EmitHelper.ToCamelCase(prop.PascalCaseName);
                 sb.AppendLine($"            try {{ response.{fieldName} = {EmitHelper.GetValueReadExpression(prop.Symbol, settingsFullName)}; }}");
                 sb.AppendLine("            catch (System.Exception) { }");
@@ -51,8 +50,7 @@ namespace UniCli.SourceGenerator.Emitters
                 foreach (var prop in nested.Properties)
                 {
                     if (prop.Symbol.GetMethod == null) continue;
-                    if (prop.IsObsolete) continue;
-                    var fieldName = EmitHelper.ToCamelCase(prop.PascalCaseName);
+                        var fieldName = EmitHelper.ToCamelCase(prop.PascalCaseName);
                     sb.AppendLine($"            try {{ response.{nestedFieldName}.{fieldName} = {EmitHelper.GetValueReadExpression(prop.Symbol, nestedFullName)}; }}");
                     sb.AppendLine("            catch (System.Exception) { }");
                 }
@@ -81,7 +79,6 @@ namespace UniCli.SourceGenerator.Emitters
             foreach (var prop in info.Properties)
             {
                 if (prop.Symbol.GetMethod == null) continue;
-                if (prop.IsObsolete) continue;
                 var fieldType = EmitHelper.GetResponseFieldType(prop.Symbol.Type);
                 var fieldName = EmitHelper.ToCamelCase(prop.PascalCaseName);
                 sb.AppendLine($"        public {fieldType} {fieldName};");
@@ -107,8 +104,7 @@ namespace UniCli.SourceGenerator.Emitters
                 foreach (var prop in nested.Properties)
                 {
                     if (prop.Symbol.GetMethod == null) continue;
-                    if (prop.IsObsolete) continue;
-                    var fieldType = EmitHelper.GetResponseFieldType(prop.Symbol.Type);
+                        var fieldType = EmitHelper.GetResponseFieldType(prop.Symbol.Type);
                     var fieldName = EmitHelper.ToCamelCase(prop.PascalCaseName);
                     sb.AppendLine($"            public {fieldType} {fieldName};");
                 }

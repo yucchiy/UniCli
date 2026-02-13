@@ -52,8 +52,7 @@ namespace UniCli.SourceGenerator.Analysis
                 result.Add(new SettingsPropertyInfo(
                     property,
                     commandPrefix,
-                    TypeSerializabilityChecker.IsEnumType(propertyType),
-                    false));
+                    TypeSerializabilityChecker.IsEnumType(propertyType)));
             }
 
             return result.ToImmutableArray();
@@ -90,7 +89,7 @@ namespace UniCli.SourceGenerator.Analysis
                 if (!method.Parameters.All(p => IsSerializableParameter(p)))
                     continue;
 
-                candidates.Add(new SettingsMethodInfo(method, commandPrefix, false));
+                candidates.Add(new SettingsMethodInfo(method, commandPrefix));
             }
 
             // Deduplicate overloads: prefer NamedBuildTarget variant
@@ -155,7 +154,7 @@ namespace UniCli.SourceGenerator.Analysis
                 if (!method.Parameters.All(p => IsSerializableParameter(p)))
                     continue;
 
-                candidates.Add(new SettingsMethodInfo(method, commandPrefix, false));
+                candidates.Add(new SettingsMethodInfo(method, commandPrefix));
             }
 
             // Deduplicate overloads: prefer NamedBuildTarget variant
@@ -289,26 +288,6 @@ namespace UniCli.SourceGenerator.Analysis
                 "System.ObsoleteAttribute");
         }
 
-        private static bool HasObsoleteWithError(ISymbol symbol)
-        {
-            foreach (var attr in symbol.GetAttributes())
-            {
-                if (attr.AttributeClass == null)
-                    continue;
-
-                if (TypeSerializabilityChecker.GetFullMetadataName(attr.AttributeClass) !=
-                    "System.ObsoleteAttribute")
-                    continue;
-
-                // Check if error parameter is true
-                if (attr.ConstructorArguments.Length >= 2 &&
-                    attr.ConstructorArguments[1].Value is bool errorValue &&
-                    errorValue)
-                    return true;
-            }
-
-            return false;
-        }
     }
 
     internal sealed class SettingsTypeInfo
@@ -342,7 +321,6 @@ namespace UniCli.SourceGenerator.Analysis
         public IPropertySymbol Symbol { get; }
         public string CommandPrefix { get; }
         public bool IsEnum { get; }
-        public bool IsObsolete { get; }
         public bool HasSetter => Symbol.SetMethod != null;
 
         public string PascalCaseName
@@ -358,13 +336,11 @@ namespace UniCli.SourceGenerator.Analysis
         public SettingsPropertyInfo(
             IPropertySymbol symbol,
             string commandPrefix,
-            bool isEnum,
-            bool isObsolete)
+            bool isEnum)
         {
             Symbol = symbol;
             CommandPrefix = commandPrefix;
             IsEnum = isEnum;
-            IsObsolete = isObsolete;
         }
     }
 
@@ -372,16 +348,13 @@ namespace UniCli.SourceGenerator.Analysis
     {
         public IMethodSymbol Symbol { get; }
         public string CommandPrefix { get; }
-        public bool IsObsolete { get; }
 
         public SettingsMethodInfo(
             IMethodSymbol symbol,
-            string commandPrefix,
-            bool isObsolete)
+            string commandPrefix)
         {
             Symbol = symbol;
             CommandPrefix = commandPrefix;
-            IsObsolete = isObsolete;
         }
     }
 

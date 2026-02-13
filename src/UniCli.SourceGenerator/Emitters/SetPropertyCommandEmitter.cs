@@ -23,10 +23,6 @@ namespace UniCli.SourceGenerator.Emitters
             sb.AppendLine("namespace UniCli.Server.Editor.Handlers");
             sb.AppendLine("{");
 
-            // Handler class
-            if (property.IsObsolete)
-                sb.AppendLine("    [Obsolete]");
-
             sb.AppendLine($"    public sealed class {className} : CommandHandler<{requestName}, {responseName}>");
             sb.AppendLine("    {");
             sb.AppendLine($"        public override string CommandName => \"{commandName}\";");

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using UniCli.SourceGenerator.Analysis;
@@ -57,6 +58,9 @@ namespace UniCli.SourceGenerator.Emitters
                 if (!member.IsStatic)
                     continue;
 
+                if (IsObsolete(member))
+                    continue;
+
                 var memberTypeName = "";
                 if (member is IPropertySymbol prop)
                 {
@@ -78,6 +82,14 @@ namespace UniCli.SourceGenerator.Emitters
             }
 
             return targets;
+        }
+
+        private static bool IsObsolete(ISymbol symbol)
+        {
+            return symbol.GetAttributes().Any(a =>
+                a.AttributeClass != null &&
+                TypeSerializabilityChecker.GetFullMetadataName(a.AttributeClass) ==
+                "System.ObsoleteAttribute");
         }
     }
 }

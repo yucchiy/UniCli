@@ -13,9 +13,15 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<TypeInspectResponse> ExecuteAsync(TypeInspectRequest request)
         {
-            var typeName = string.IsNullOrEmpty(request.typeName)
-                ? "UnityEditor.PlayerSettings"
-                : request.typeName;
+            if (string.IsNullOrEmpty(request.typeName))
+            {
+                throw new CommandFailedException(
+                    "typeName is required",
+                    new TypeInspectResponse
+                    {
+                        nestedTypes = Array.Empty<TypeInspectNestedInfo>()
+                    });
+            }
 
             var type = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a =>
@@ -23,12 +29,12 @@ namespace UniCli.Server.Editor.Handlers
                     try { return a.GetTypes(); }
                     catch { return Array.Empty<Type>(); }
                 })
-                .FirstOrDefault(t => t.FullName == typeName);
+                .FirstOrDefault(t => t.FullName == request.typeName);
 
             if (type == null)
             {
                 throw new CommandFailedException(
-                    $"Type '{typeName}' not found",
+                    $"Type '{request.typeName}' not found",
                     new TypeInspectResponse
                     {
                         nestedTypes = Array.Empty<TypeInspectNestedInfo>()

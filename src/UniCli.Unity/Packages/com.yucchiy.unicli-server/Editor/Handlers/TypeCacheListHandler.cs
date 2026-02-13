@@ -13,9 +13,12 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<TypeCacheListResponse> ExecuteAsync(TypeCacheListRequest request)
         {
-            var baseTypeName = string.IsNullOrEmpty(request.baseType)
-                ? "UniCli.Server.Editor.Handlers.ICommandHandler"
-                : request.baseType;
+            if (string.IsNullOrEmpty(request.baseType))
+            {
+                throw new CommandFailedException(
+                    "baseType is required",
+                    new TypeCacheListResponse { types = Array.Empty<string>() });
+            }
 
             var baseType = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a =>
@@ -23,12 +26,12 @@ namespace UniCli.Server.Editor.Handlers
                     try { return a.GetTypes(); }
                     catch { return Array.Empty<Type>(); }
                 })
-                .FirstOrDefault(t => t.FullName == baseTypeName);
+                .FirstOrDefault(t => t.FullName == request.baseType);
 
             if (baseType == null)
             {
                 throw new CommandFailedException(
-                    $"Type '{baseTypeName}' not found",
+                    $"Type '{request.baseType}' not found",
                     new TypeCacheListResponse { types = Array.Empty<string>() });
             }
 
