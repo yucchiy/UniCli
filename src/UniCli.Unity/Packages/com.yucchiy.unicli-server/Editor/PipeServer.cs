@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
@@ -11,10 +12,13 @@ namespace UniCli.Server.Editor
 {
     public sealed class PipeServer : IDisposable
     {
+        private const byte AckByte = 0x01;
+
         private readonly string _pipeName;
         private readonly Action<CommandRequest, Action<CommandResponse>> _onCommandReceived;
         private readonly CancellationTokenSource _cts = new();
         private readonly TaskCompletionSource<bool> _shutdownTcs = new();
+        private readonly SemaphoreSlim _commandSemaphore = new(1, 1);
         private readonly Task _serverLoop;
 
         public PipeServer(string pipeName, Action<CommandRequest, Action<CommandResponse>> onCommandReceived)
@@ -60,77 +64,99 @@ namespace UniCli.Server.Editor
 
         private async Task AcceptClientAsync(CancellationToken cancellationToken)
         {
-            using var server = new NamedPipeServerStream(
+            var server = new NamedPipeServerStream(
                 _pipeName,
                 PipeDirection.InOut,
-                maxNumberOfServerInstances: 10,
+                NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Byte,
                 PipeOptions.Asynchronous);
 
             await server.WaitForConnectionAsync(cancellationToken);
 
-            await HandleClientAsync(server, cancellationToken);
+            // Fire-and-forget: HandleClientAsync owns the server stream and will dispose it
+            _ = HandleClientAsync(server, cancellationToken);
         }
 
         private async Task HandleClientAsync(NamedPipeServerStream server, CancellationToken cancellationToken)
         {
-            try
+            using (server)
             {
-                while (!cancellationToken.IsCancellationRequested && server.IsConnected)
+                try
                 {
-                    // Read length prefix (4 bytes)
-                    var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
-                    try
+                    while (!cancellationToken.IsCancellationRequested && server.IsConnected)
                     {
-                        if (!await ReadExactAsync(server, lengthBuffer, 4, cancellationToken))
-                            break; // Client disconnected
-
-                        var length = BitConverter.ToInt32(lengthBuffer, 0);
-                        if (length <= 0 || length > 1024 * 1024)
-                        {
-                            Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
-                            break;
-                        }
-
-                        var jsonBuffer = ArrayPool<byte>.Shared.Rent(length);
+                        // Read length prefix (4 bytes)
+                        var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
                         try
                         {
-                            if (!await ReadExactAsync(server, jsonBuffer, length, cancellationToken))
+                            if (!await ReadExactAsync(server, lengthBuffer, 4, cancellationToken))
+                                break; // Client disconnected
+
+                            var length = BitConverter.ToInt32(lengthBuffer, 0);
+                            if (length <= 0 || length > 1024 * 1024)
                             {
-                                Debug.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
+                                Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
                                 break;
                             }
 
-                            var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
-                            var request = JsonUtility.FromJson<CommandRequest>(json);
+                            var jsonBuffer = ArrayPool<byte>.Shared.Rent(length);
+                            try
+                            {
+                                if (!await ReadExactAsync(server, jsonBuffer, length, cancellationToken))
+                                {
+                                    Debug.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
+                                    break;
+                                }
 
-                            var responseTcs = new TaskCompletionSource<CommandResponse>();
-                            _onCommandReceived(request, response => responseTcs.TrySetResult(response));
+                                var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
+                                var request = JsonUtility.FromJson<CommandRequest>(json);
 
-                            var commandResponse = await responseTcs.Task;
+                                // Send ACK to indicate the request was received
+                                await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
+                                await server.FlushAsync(cancellationToken);
 
-                            var responseJson = JsonUtility.ToJson(commandResponse);
-                            var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-                            var responseLengthBytes = BitConverter.GetBytes(responseBytes.Length);
+                                // Serialize command processing with semaphore
+                                await _commandSemaphore.WaitAsync(cancellationToken);
+                                try
+                                {
+                                    var responseTcs = new TaskCompletionSource<CommandResponse>();
+                                    _onCommandReceived(request, response => responseTcs.TrySetResult(response));
 
-                            await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
-                            await server.WriteAsync(responseBytes, 0, responseBytes.Length, cancellationToken);
-                            await server.FlushAsync(cancellationToken);
+                                    var commandResponse = await responseTcs.Task;
+
+                                    var responseJson = JsonUtility.ToJson(commandResponse);
+                                    var responseBytes = Encoding.UTF8.GetBytes(responseJson);
+                                    var responseLengthBytes = BitConverter.GetBytes(responseBytes.Length);
+
+                                    await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
+                                    await server.WriteAsync(responseBytes, 0, responseBytes.Length, cancellationToken);
+                                    await server.FlushAsync(cancellationToken);
+                                }
+                                catch (IOException ex)
+                                {
+                                    Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
+                                    break;
+                                }
+                                finally
+                                {
+                                    _commandSemaphore.Release();
+                                }
+                            }
+                            finally
+                            {
+                                ArrayPool<byte>.Shared.Return(jsonBuffer);
+                            }
                         }
                         finally
                         {
-                            ArrayPool<byte>.Shared.Return(jsonBuffer);
+                            ArrayPool<byte>.Shared.Return(lengthBuffer);
                         }
                     }
-                    finally
-                    {
-                        ArrayPool<byte>.Shared.Return(lengthBuffer);
-                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
+                }
             }
         }
 
@@ -153,6 +179,7 @@ namespace UniCli.Server.Editor
             _cts.Cancel();
             _serverLoop?.Wait(TimeSpan.FromSeconds(5));
             _cts.Dispose();
+            _commandSemaphore.Dispose();
         }
     }
 }
