@@ -117,7 +117,7 @@ When adding or modifying commands, update the following files to keep them in sy
 3. Build and verify: `dotnet build src/UniCli.Protocol && dotnet publish src/UniCli.Client -o .build`
 4. Create a PR to `main` with a changelog summary
 5. After merge: `git tag vX.Y.Z && git push origin vX.Y.Z`
-6. Create a GitHub Release from the tag
+   - GitHub Actions (`.github/workflows/release.yml`) will automatically build binaries and create a GitHub Release
 
 ### Tests requiring Unity connection
 
