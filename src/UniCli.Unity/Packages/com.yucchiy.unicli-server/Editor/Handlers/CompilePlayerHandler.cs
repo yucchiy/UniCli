@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class CompilePlayerHandler : CommandHandler<CompilePlayerRequest, CompilePlayerResponse>
     {
-        public override string CommandName => CommandNames.CompilePlayer;
+        public override string CommandName => CommandNames.BuildPlayer.Compile;
         public override string Description => "Compile player scripts for a specific build target";
 
         protected override bool TryWriteFormatted(CompilePlayerResponse response, bool success, IFormatWriter writer)

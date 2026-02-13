@@ -86,6 +86,13 @@ Boolean flags can be passed without a value:
 unicli exec GameObject.Find --includeInactive
 ```
 
+Array parameters can be passed by repeating the same flag:
+
+```bash
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
+```
+
 ### Common options
 
 These options can be combined with any `exec` command:
@@ -111,10 +118,16 @@ unicli exec GameObject.Find --help
 # Compile scripts
 unicli exec Compile
 
+# Build the player
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app"
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Android --scenes "Assets/Scenes/Main.unity"
+
 # Compile player scripts for a specific build target
-unicli exec CompilePlayer
-unicli exec CompilePlayer --target Android
-unicli exec CompilePlayer --target iOS --extraScriptingDefines MY_DEFINE
+unicli exec BuildPlayer.Compile
+unicli exec BuildPlayer.Compile --target Android
+unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
 
 # Run tests
 unicli exec TestRunner.RunEditMode
@@ -185,8 +198,9 @@ The following commands are built in. You can also run `unicli commands` to see t
 
 | Category           | Command                              | Description                        |
 |--------------------|--------------------------------------|------------------------------------|
+| BuildPlayer        | `BuildPlayer.Build`                  | Build the player                   |
+| BuildPlayer        | `BuildPlayer.Compile`                | Compile player scripts for a build target |
 | Core               | `Compile`                            | Compile scripts and return results |
-| Core               | `CompilePlayer`                      | Compile player scripts for a build target |
 | Console            | `Console.GetLog`                     | Get console log entries            |
 | Console            | `Console.Clear`                      | Clear console                      |
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |
