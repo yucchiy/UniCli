@@ -23,7 +23,14 @@ The CLI communicates with the Unity Editor over named pipes using length-prefixe
 
 ### CLI
 
-Download the latest binary from the [Releases](https://github.com/yucchiy/UniCli/releases) page and place it in your PATH.
+**Homebrew (macOS):**
+
+```bash
+brew tap yucchiy/tap
+brew install unicli
+```
+
+**Manual:** Download the latest binary from the [Releases](https://github.com/yucchiy/UniCli/releases) page and place it in your PATH.
 
 ### Unity Package
 
