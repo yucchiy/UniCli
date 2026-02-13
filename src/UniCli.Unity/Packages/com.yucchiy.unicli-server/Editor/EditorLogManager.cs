@@ -23,13 +23,14 @@ namespace UniCli.Server.Editor
 
     public sealed class EditorLogManager
     {
+        private readonly object _lock = new();
         private readonly Queue<LogEntry> _logBuffer = new();
         private readonly int _maxBufferSize;
 
         public EditorLogManager(int maxBufferSize = 10000)
         {
             _maxBufferSize = maxBufferSize;
-            Application.logMessageReceived += OnLogMessageReceived;
+            Application.logMessageReceivedThreaded += OnLogMessageReceived;
         }
 
         private void OnLogMessageReceived(string message, string stackTrace, LogType type)
@@ -42,21 +43,30 @@ namespace UniCli.Server.Editor
                 timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
             };
 
-            _logBuffer.Enqueue(entry);
-            if (_logBuffer.Count > _maxBufferSize)
+            lock (_lock)
             {
-                _logBuffer.Dequeue();
+                _logBuffer.Enqueue(entry);
+                if (_logBuffer.Count > _maxBufferSize)
+                {
+                    _logBuffer.Dequeue();
+                }
             }
         }
 
         public int GetLogCount()
         {
-            return _logBuffer.Count;
+            lock (_lock)
+            {
+                return _logBuffer.Count;
+            }
         }
 
         public LogEntry[] GetLogs()
         {
-            return _logBuffer.ToArray();
+            lock (_lock)
+            {
+                return _logBuffer.ToArray();
+            }
         }
 
         public LogEntry[] GetLogs(string logType, string searchText, int maxCount)
@@ -67,16 +77,18 @@ namespace UniCli.Server.Editor
 
             var result = new List<LogEntry>();
 
-            // Filter all entries first, then take the last maxCount items
-            foreach (var entry in _logBuffer)
+            lock (_lock)
             {
-                if (filterByType && !entry.type.Equals(logType, StringComparison.OrdinalIgnoreCase))
-                    continue;
+                foreach (var entry in _logBuffer)
+                {
+                    if (filterByType && !entry.type.Equals(logType, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
-                if (filterBySearch && !entry.message.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-                    continue;
+                    if (filterBySearch && !entry.message.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
-                result.Add(entry);
+                    result.Add(entry);
+                }
             }
 
             if (maxCount > 0 && result.Count > maxCount)
@@ -89,7 +101,10 @@ namespace UniCli.Server.Editor
 
         public void ClearLogs()
         {
-            _logBuffer.Clear();
+            lock (_lock)
+            {
+                _logBuffer.Clear();
+            }
         }
     }
 }

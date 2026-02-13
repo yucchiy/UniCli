@@ -15,6 +15,7 @@ namespace UniCli.Server.Editor
         {
             public const string GetLog = "Console.GetLog";
             public const string Clear = "Console.Clear";
+            public const string Log = "Console.Log";
         }
 
         public static class PlayMode
