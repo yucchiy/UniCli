@@ -160,6 +160,23 @@ unicli exec GameObject.GetComponents --instanceId 1234
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234
 
+# Create GameObjects
+unicli exec GameObject.Create --name "Enemy"
+unicli exec GameObject.Create --name "Child" --parent "Enemy"
+unicli exec GameObject.Create --name "WithCollider" --components BoxCollider
+unicli exec GameObject.CreatePrimitive --primitiveType Cube
+unicli exec GameObject.CreatePrimitive --primitiveType Sphere --name "Ball" --parent "Enemy"
+
+# Modify GameObjects
+unicli exec GameObject.Rename --path "Enemy" --name "Boss"
+unicli exec GameObject.SetTransform --path "Boss" --position 1,2,3 --rotation 0,90,0
+unicli exec GameObject.Duplicate --path "Boss"
+unicli exec GameObject.SetParent --path "Boss(Clone)" --parentPath "Boss"
+unicli exec GameObject.Destroy --path "Boss(Clone)"
+
+# Set component properties
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
+
 # Prefab operations
 unicli exec Prefab.GetStatus --path "MyPrefabInstance"
 unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab"
@@ -232,11 +249,19 @@ The following commands are built in. You can also run `unicli commands` to see t
 | TestRunner         | `TestRunner.RunEditMode`             | Run EditMode tests                 |
 | TestRunner         | `TestRunner.RunPlayMode`             | Run PlayMode tests                 |
 | GameObject         | `GameObject.Find`                    | Find GameObjects                   |
+| GameObject         | `GameObject.Create`                  | Create a new GameObject            |
+| GameObject         | `GameObject.CreatePrimitive`         | Create a primitive GameObject      |
 | GameObject         | `GameObject.GetComponents`           | Get components                     |
 | GameObject         | `GameObject.SetActive`               | Set active state                   |
 | GameObject         | `GameObject.GetHierarchy`            | Get scene hierarchy                |
 | GameObject         | `GameObject.AddComponent`            | Add a component                    |
 | GameObject         | `GameObject.RemoveComponent`         | Remove a component                 |
+| GameObject         | `GameObject.Destroy`                 | Destroy a GameObject               |
+| GameObject         | `GameObject.SetTransform`            | Set local transform                |
+| GameObject         | `GameObject.Duplicate`               | Duplicate a GameObject             |
+| GameObject         | `GameObject.Rename`                  | Rename a GameObject                |
+| GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
+| Component          | `Component.SetProperty`              | Set a component property           |
 | Prefab             | `Prefab.GetStatus`                   | Get prefab instance status         |
 | Prefab             | `Prefab.Instantiate`                 | Instantiate a prefab into scene    |
 | Prefab             | `Prefab.Save`                        | Save GameObject as prefab          |

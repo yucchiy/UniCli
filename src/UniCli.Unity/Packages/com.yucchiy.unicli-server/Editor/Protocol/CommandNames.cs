@@ -39,11 +39,23 @@ namespace UniCli.Server.Editor
         public static class GameObject
         {
             public const string Find = "GameObject.Find";
+            public const string Create = "GameObject.Create";
             public const string GetComponents = "GameObject.GetComponents";
             public const string SetActive = "GameObject.SetActive";
             public const string GetHierarchy = "GameObject.GetHierarchy";
             public const string AddComponent = "GameObject.AddComponent";
             public const string RemoveComponent = "GameObject.RemoveComponent";
+            public const string Destroy = "GameObject.Destroy";
+            public const string SetTransform = "GameObject.SetTransform";
+            public const string Duplicate = "GameObject.Duplicate";
+            public const string Rename = "GameObject.Rename";
+            public const string SetParent = "GameObject.SetParent";
+            public const string CreatePrimitive = "GameObject.CreatePrimitive";
+        }
+
+        public static class Component
+        {
+            public const string SetProperty = "Component.SetProperty";
         }
 
         public static class AssetDatabase

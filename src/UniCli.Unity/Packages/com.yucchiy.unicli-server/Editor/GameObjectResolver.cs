@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,6 +7,20 @@ namespace UniCli.Server.Editor
 {
     internal static class GameObjectResolver
     {
+        public static string BuildPath(Transform transform)
+        {
+            var parts = new List<string>();
+            var current = transform;
+            while (current != null)
+            {
+                parts.Add(current.name);
+                current = current.parent;
+            }
+
+            parts.Reverse();
+            return string.Join("/", parts);
+        }
+
         public static GameObject Resolve(int instanceId, string path)
         {
             if (instanceId != 0)

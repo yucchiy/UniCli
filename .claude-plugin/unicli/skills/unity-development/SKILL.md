@@ -16,7 +16,7 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 
 ## RULES — Always Follow These
 
-1. **After creating/modifying ANY file under `Assets/` or `Packages/`**: Run `unicli exec AssetDatabase.Import --path "<path>" --json`. Unity requires `.meta` files for every asset — skipping this causes missing references, broken imports, and compilation errors. This applies to all file types: `.cs`, `.asmdef`, `.asset`, `.prefab`, directories, etc.
+1. **After creating/modifying ANY file under `Assets/` or `Packages/`**: Run `unicli exec AssetDatabase.Import --path "<path>" --json` to generate `.meta` files. **Never create `.meta` files manually** — always let Unity generate them via this command. Unity requires `.meta` files for every asset — skipping this causes missing references, broken imports, and compilation errors. This applies to all file types: `.cs`, `.asmdef`, `.asset`, `.prefab`, directories, etc.
 2. **After modifying C# code in the Unity project**: Run `unicli exec Compile --json` to verify compilation. `dotnet build` only checks the client side — server-side code is compiled by Unity's own compiler.
 3. **Always use `--json`** when parsing output programmatically.
 4. **If connection to Unity Editor fails**: Retry 2–3 times, then ask the user to confirm Unity Editor is running with the project open.
@@ -101,11 +101,19 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `TestRunner.RunEditMode` | Run EditMode tests |
 | `TestRunner.RunPlayMode` | Run PlayMode tests |
 | `GameObject.Find` | Find GameObjects by name, tag, or layer |
+| `GameObject.Create` | Create a new GameObject in the scene |
+| `GameObject.CreatePrimitive` | Create a primitive (Cube, Sphere, etc.) |
 | `GameObject.GetComponents` | Get components on a GameObject |
 | `GameObject.SetActive` | Set active state |
 | `GameObject.GetHierarchy` | Get scene hierarchy tree |
 | `GameObject.AddComponent` | Add a component to a GameObject |
 | `GameObject.RemoveComponent` | Remove a component from a GameObject |
+| `GameObject.Destroy` | Destroy a GameObject from the scene |
+| `GameObject.SetTransform` | Set local position/rotation/scale |
+| `GameObject.Duplicate` | Duplicate a GameObject |
+| `GameObject.Rename` | Rename a GameObject |
+| `GameObject.SetParent` | Change parent or move to root |
+| `Component.SetProperty` | Set a component property via SerializedProperty |
 | `Prefab.GetStatus` | Get prefab instance status |
 | `Prefab.Instantiate` | Instantiate a prefab into scene |
 | `Prefab.Save` | Save GameObject as prefab asset |
@@ -200,11 +208,32 @@ unicli exec GameObject.Find --name "Main Camera" --json
 unicli exec GameObject.GetComponents --instanceId 1234 --json
 ```
 
+**Create GameObjects:**
+
+```bash
+unicli exec GameObject.Create --name "Enemy" --json
+unicli exec GameObject.Create --name "Child" --parent "Enemy" --json
+unicli exec GameObject.Create --name "WithCollider" --components BoxCollider --json
+unicli exec GameObject.CreatePrimitive --primitiveType Cube --json
+unicli exec GameObject.CreatePrimitive --primitiveType Sphere --name "Ball" --json
+```
+
+**Modify GameObjects:**
+
+```bash
+unicli exec GameObject.Rename --path "Enemy" --name "Boss" --json
+unicli exec GameObject.SetTransform --path "Boss" --position 1,2,3 --json
+unicli exec GameObject.Duplicate --path "Boss" --json
+unicli exec GameObject.SetParent --path "Child" --parentPath "Boss" --json
+unicli exec GameObject.Destroy --path "OldObject" --json
+```
+
 **Manage components:**
 
 ```bash
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider --json
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234 --json
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true" --json
 ```
 
 **Prefab operations:**
