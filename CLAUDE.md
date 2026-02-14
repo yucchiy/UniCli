@@ -26,9 +26,22 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli commands --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 
 # GameObject operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Create '{"name":"TestObject"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Create '{"name":"Child","parent":"TestObject"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Create '{"name":"WithCollider","components":["BoxCollider"]}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.CreatePrimitive '{"primitiveType":"Cube"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.CreatePrimitive '{"primitiveType":"Sphere","name":"Ball","parent":"Parent"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.GetComponents '{"path":"Main Camera"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.AddComponent '{"path":"Main Camera","typeName":"BoxCollider"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.RemoveComponent '{"componentInstanceId":12345}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Destroy '{"path":"TestObject"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.SetTransform '{"path":"TestObject","position":[1,2,3]}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Duplicate '{"path":"TestObject"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.Rename '{"path":"TestObject","name":"Renamed"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.SetParent '{"path":"Child","parentPath":"Parent"}' --json
+
+# Component operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Component.SetProperty '{"componentInstanceId":12345,"propertyPath":"m_IsKinematic","value":"true"}' --json
 
 # Prefab operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.GetStatus '{"path":"Main Camera"}' --json
