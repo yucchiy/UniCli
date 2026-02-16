@@ -112,6 +112,52 @@ namespace UniCli.SourceGenerator.Emitters
             sb.AppendLine();
         }
 
+        public static void AppendInstanceResolveCode(
+            StringBuilder sb,
+            string indent,
+            SettingsCommandGenerator.ResolveMode mode,
+            string typeFullName)
+        {
+            switch (mode)
+            {
+                case SettingsCommandGenerator.ResolveMode.Guid:
+                    sb.AppendLine($"{indent}var assetPath = UnityEditor.AssetDatabase.GUIDToAssetPath(request.guid);");
+                    sb.AppendLine($"{indent}if (string.IsNullOrEmpty(assetPath))");
+                    sb.AppendLine($"{indent}    throw new CommandFailedException($\"Asset not found for GUID: {{request.guid}}\", null);");
+                    sb.AppendLine($"{indent}var instance = UnityEditor.AssetDatabase.LoadAssetAtPath<{typeFullName}>(assetPath);");
+                    sb.AppendLine($"{indent}if (instance == null)");
+                    sb.AppendLine($"{indent}    throw new CommandFailedException($\"Failed to load asset at: {{assetPath}}\", null);");
+                    break;
+
+                case SettingsCommandGenerator.ResolveMode.InstanceId:
+                    sb.AppendLine($"{indent}var obj = UnityEditor.EditorUtility.InstanceIDToObject(request.instanceId);");
+                    sb.AppendLine($"{indent}if (obj is not {typeFullName} instance)");
+                    sb.AppendLine($"{indent}    throw new CommandFailedException($\"Object not found for instanceId: {{request.instanceId}}\", null);");
+                    break;
+            }
+        }
+
+        public static void AppendSetDirty(StringBuilder sb, string indent)
+        {
+            sb.AppendLine($"{indent}UnityEditor.EditorUtility.SetDirty(instance);");
+        }
+
+        public static void AppendInstanceResolveRequestFields(
+            StringBuilder sb,
+            string indent,
+            SettingsCommandGenerator.ResolveMode mode)
+        {
+            switch (mode)
+            {
+                case SettingsCommandGenerator.ResolveMode.Guid:
+                    sb.AppendLine($"{indent}public string guid;");
+                    break;
+                case SettingsCommandGenerator.ResolveMode.InstanceId:
+                    sb.AppendLine($"{indent}public int instanceId;");
+                    break;
+            }
+        }
+
         public static void AppendParseEnumHelper(StringBuilder sb, string indent)
         {
             sb.AppendLine($"{indent}private static T ParseEnum<T>(string value, string fieldName) where T : struct");
