@@ -179,6 +179,16 @@ unicli exec GameObject.Destroy --path "Boss(Clone)"
 # Set component properties
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
 
+# Set ObjectReference properties (e.g. assign a material to a renderer)
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Materials.Array.data[0]" --value "guid:abc123def456"
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Mesh" --value "Assets/Meshes/Custom.mesh"
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Material" --value "null"
+
+# Material operations (requires asset GUID)
+unicli exec Material.Inspect --guid "abc123def456"
+unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}'
+unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8
+
 # Prefab operations
 unicli exec Prefab.GetStatus --path "MyPrefabInstance"
 unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab"
@@ -263,7 +273,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.Duplicate`               | Duplicate a GameObject             |
 | GameObject         | `GameObject.Rename`                  | Rename a GameObject                |
 | GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
-| Component          | `Component.SetProperty`              | Set a component property           |
+| Component          | `Component.SetProperty`              | Set a component property (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
 | Prefab             | `Prefab.GetStatus`                   | Get prefab instance status         |
 | Prefab             | `Prefab.Instantiate`                 | Instantiate a prefab into scene    |
 | Prefab             | `Prefab.Save`                        | Save GameObject as prefab          |
@@ -299,9 +309,11 @@ Use `unicli exec <command> --help` to see parameters for any command.
 
 ### Settings Commands (auto-generated)
 
-In addition to the built-in commands above, UniCli auto-generates commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` via a Roslyn Source Generator at Unity compile time. This means the available commands match your exact Unity version — no manual updates needed.
+UniCli auto-generates commands via a Roslyn Source Generator at Unity compile time. Target types are declared with the `[GenerateCommands]` assembly attribute, so the available commands always match your exact Unity version.
 
-The generated commands follow these patterns:
+#### Static types (Settings)
+
+Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings`:
 
 | Pattern | Example | Description |
 |---|---|---|
@@ -312,7 +324,19 @@ The generated commands follow these patterns:
 
 Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`). Invalid values return an error with the list of valid options.
 
-Run `unicli commands` to see the full list of available commands, including all generated Settings commands.
+#### Instance types (asset-based)
+
+Commands for instance types like `Material` require a `guid` parameter to identify the target asset:
+
+| Pattern | Example | Description |
+|---|---|---|
+| `<Type>.Inspect` | `Material.Inspect` | Read all properties of an instance |
+| `<Type>.Set<Property>` | `Material.SetRenderQueue` | Set a property on the instance |
+| `<Type>.<Method>` | `Material.SetColor`, `Material.GetFloat` | Call a Set/Get method on the instance |
+
+Instance type commands automatically call `EditorUtility.SetDirty()` after mutations to ensure changes are saved.
+
+Run `unicli commands` to see the full list of available commands, including all generated commands.
 
 
 ## Custom Commands

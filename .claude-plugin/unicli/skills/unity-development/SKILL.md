@@ -113,7 +113,12 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `GameObject.Duplicate` | Duplicate a GameObject |
 | `GameObject.Rename` | Rename a GameObject |
 | `GameObject.SetParent` | Change parent or move to root |
-| `Component.SetProperty` | Set a component property via SerializedProperty |
+| `Component.SetProperty` | Set a component property via SerializedProperty (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
+| `Material.Inspect` | Read all properties of a Material asset (by GUID) |
+| `Material.SetColor` | Set a shader color property on a Material |
+| `Material.SetFloat` | Set a shader float property on a Material |
+| `Material.GetColor` | Get a shader color property from a Material |
+| `Material.GetFloat` | Get a shader float property from a Material |
 | `Prefab.GetStatus` | Get prefab instance status |
 | `Prefab.Instantiate` | Instantiate a prefab into scene |
 | `Prefab.Save` | Save GameObject as prefab asset |
@@ -234,6 +239,24 @@ unicli exec GameObject.Destroy --path "OldObject" --json
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider --json
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234 --json
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true" --json
+
+# ObjectReference: assign a material to a renderer by GUID
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Materials.Array.data[0]" --value "guid:abc123def456" --json
+# ObjectReference: by asset path
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Mesh" --value "Assets/Meshes/Custom.mesh" --json
+# ObjectReference: clear a reference
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Material" --value "null" --json
+```
+
+**Material operations:**
+
+```bash
+# Inspect all properties of a material
+unicli exec Material.Inspect --guid "abc123def456" --json
+# Set shader properties
+unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}' --json
+unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8 --json
+unicli exec Material.GetColor --guid "abc123def456" --name "_Color" --json
 ```
 
 **Prefab operations:**
