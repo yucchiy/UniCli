@@ -60,7 +60,9 @@ namespace UniCli.Server.Editor
             {
                 try
                 {
-                    using var pipeServer = new PipeServer(_pipeName, OnCommandReceived);
+                    using var pipeServer = new PipeServer(
+                        _pipeName,
+                        OnCommandReceived);
 
                     await pipeServer.WaitForShutdownAsync(cancellationToken);
                 }

@@ -14,9 +14,9 @@ internal sealed class FocusScope : IAsyncDisposable
         _savedState = savedState;
     }
 
-    public static async Task<FocusScope> ActivateAsync(string pipeName)
+    public static async Task<FocusScope> ActivateAsync(string projectRoot)
     {
-        var savedState = await UnityProcessActivator.TryActivateAsync(pipeName);
+        var savedState = await UnityProcessActivator.TryActivateAsync(projectRoot);
         return new FocusScope(savedState);
     }
 

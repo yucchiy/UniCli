@@ -111,6 +111,8 @@ These options can be combined with any `exec` command:
 | `--no-focus`| Don't bring Unity Editor to front    |
 | `--help`    | Show command parameters and usage    |
 
+By default, when the server is not responding (e.g., after an assembly reload), the CLI automatically brings Unity Editor to the foreground using a PID file (`Library/UniCli/server.pid`) and restores focus to the original application once the command completes. Use `--no-focus` to disable this behavior, or set the `UNICLI_FOCUS` environment variable to `0` or `false` to disable it globally.
+
 For example:
 
 ```bash

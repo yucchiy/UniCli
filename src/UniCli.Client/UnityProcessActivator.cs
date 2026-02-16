@@ -1,14 +1,12 @@
 using System;
-using System.Text.Json;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
-using UniCli.Protocol;
 
 namespace UniCli.Client;
 
 internal static class UnityProcessActivator
 {
-    private const int PipeTimeoutMs = 2000;
-
     private static readonly IProcessActivator Activator = CreateActivator();
 
     private static IProcessActivator CreateActivator()
@@ -30,11 +28,54 @@ internal static class UnityProcessActivator
         return true;
     }
 
-    public static async Task<long> TryActivateAsync(string pipeName)
+    public static int ReadPidFile(string projectPath)
     {
         try
         {
-            var unityPid = await GetUnityProcessIdAsync(pipeName);
+            var root = StripAssetsSuffix(projectPath);
+            var pidFilePath = Path.Combine(root, "Library", "UniCli", "server.pid");
+            if (!File.Exists(pidFilePath))
+                return 0;
+
+            var content = File.ReadAllText(pidFilePath).Trim();
+            return int.TryParse(content, out var pid) ? pid : 0;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    private static string StripAssetsSuffix(string path)
+    {
+        var trimmed = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (Path.GetFileName(trimmed) == "Assets")
+            return Path.GetDirectoryName(trimmed) ?? trimmed;
+        return path;
+    }
+
+    public static bool IsUnityRunning(string projectRoot)
+    {
+        var pid = ReadPidFile(projectRoot);
+        if (pid <= 0)
+            return false;
+
+        try
+        {
+            using var process = Process.GetProcessById(pid);
+            return !process.HasExited;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
+
+    public static async Task<long> TryActivateAsync(string projectRoot)
+    {
+        try
+        {
+            var unityPid = ReadPidFile(projectRoot);
             if (unityPid <= 0)
                 return 0;
 
@@ -59,37 +100,5 @@ internal static class UnityProcessActivator
         {
             // Best-effort: silently ignore all errors
         }
-    }
-
-    private static async Task<int> GetUnityProcessIdAsync(string pipeName)
-    {
-        using var client = new PipeClient(pipeName);
-        var connectResult = await client.ConnectAsync(timeoutMs: PipeTimeoutMs);
-        if (connectResult.IsError)
-            return 0;
-
-        var request = new CommandRequest
-        {
-            command = "Project.Inspect",
-            data = "",
-            format = "json"
-        };
-
-        var result = await client.SendCommandAsync(request, timeoutMs: PipeTimeoutMs);
-        if (result.IsError)
-            return 0;
-
-        var response = result.Match(
-            onSuccess: r => r,
-            onError: _ => (CommandResponse?)null);
-
-        if (response == null || !response.success || string.IsNullOrEmpty(response.data))
-            return 0;
-
-        using var doc = JsonDocument.Parse(response.data);
-        if (!doc.RootElement.TryGetProperty("processId", out var pidElement))
-            return 0;
-
-        return pidElement.GetInt32();
     }
 }

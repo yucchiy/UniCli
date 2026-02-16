@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Diagnostics;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,6 +20,7 @@ namespace UniCli.Server.Editor
 
         static UniCliServerBootstrap()
         {
+            EnsurePidFile();
             EditorApplication.delayCall += Initialize;
         }
 
@@ -27,6 +30,7 @@ namespace UniCli.Server.Editor
 
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
             EditorApplication.update += OnEditorUpdate;
+            EditorApplication.quitting += OnEditorQuitting;
 
             StartServer();
         }
@@ -45,8 +49,8 @@ namespace UniCli.Server.Editor
             _server = new UniCliServer(
                 pipeName,
                 _dispatcher,
-                logger: Debug.Log,
-                errorLogger: Debug.LogError
+                logger: UnityEngine.Debug.Log,
+                errorLogger: UnityEngine.Debug.LogError
             );
         }
 
@@ -59,6 +63,47 @@ namespace UniCli.Server.Editor
             _server.Dispose();
             _server = null;
             _dispatcher = null;
+        }
+
+        private static string GetPidFilePath()
+        {
+            return Path.Combine(Application.dataPath, "..", "Library", "UniCli", "server.pid");
+        }
+
+        private static void EnsurePidFile()
+        {
+            try
+            {
+                var path = GetPidFilePath();
+                var pid = Process.GetCurrentProcess().Id.ToString();
+
+                if (File.Exists(path) && File.ReadAllText(path).Trim() == pid)
+                    return;
+
+                var dir = Path.GetDirectoryName(path);
+                if (dir != null && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                File.WriteAllText(path, pid);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[UniCli] Failed to write PID file: {ex.Message}");
+            }
+        }
+
+        private static void DeletePidFile()
+        {
+            try
+            {
+                var path = GetPidFilePath();
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch
+            {
+                // Best-effort deletion
+            }
         }
 
         private static void RunServiceInstallers(ServiceRegistry services)
@@ -77,7 +122,7 @@ namespace UniCli.Server.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[UniCli] Failed to run service installer {type.FullName}: {ex.Message}");
+                    UnityEngine.Debug.LogError($"[UniCli] Failed to run service installer {type.FullName}: {ex.Message}");
                 }
             }
         }
@@ -85,6 +130,11 @@ namespace UniCli.Server.Editor
         private static void OnBeforeAssemblyReload()
         {
             StopServer();
+        }
+
+        private static void OnEditorQuitting()
+        {
+            DeletePidFile();
         }
 
         private static void OnEditorUpdate()
