@@ -21,7 +21,9 @@ namespace UniCli.Server.Editor
         private readonly SemaphoreSlim _commandSemaphore = new(1, 1);
         private readonly Task _serverLoop;
 
-        public PipeServer(string pipeName, Action<CommandRequest, Action<CommandResponse>> onCommandReceived)
+        public PipeServer(
+            string pipeName,
+            Action<CommandRequest, Action<CommandResponse>> onCommandReceived)
         {
             _pipeName = pipeName ?? throw new ArgumentNullException(nameof(pipeName));
             _onCommandReceived = onCommandReceived ?? throw new ArgumentNullException(nameof(onCommandReceived));

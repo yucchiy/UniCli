@@ -27,10 +27,6 @@ internal static class CommandExecutor
 
         var pipeName = ProjectIdentifier.GetPipeName(unityProjectRoot);
 
-        await using var focus = focusEditor
-            ? await FocusScope.ActivateAsync(pipeName)
-            : FocusScope.Noop;
-
         var request = new CommandRequest
         {
             command = command,
@@ -39,6 +35,7 @@ internal static class CommandExecutor
         };
 
         string lastError = "";
+        long focusSavedState = 0;
 
         for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
@@ -48,6 +45,9 @@ internal static class CommandExecutor
             if (connectResult.IsError)
             {
                 lastError = connectResult.ErrorValue;
+                focusSavedState = await TryFocusOnceAsync(
+                    focusEditor, focusSavedState, unityProjectRoot);
+
                 if (attempt < maxRetries)
                 {
                     Console.Error.WriteLine(
@@ -59,12 +59,21 @@ internal static class CommandExecutor
 
             var result = await client.SendCommandAsync(request, timeoutMs);
             if (result.IsSuccess)
+            {
+                await RestoreFocusAsync(focusSavedState);
                 return result;
+            }
 
             if (!IsRetryableError(result.ErrorValue))
+            {
+                await RestoreFocusAsync(focusSavedState);
                 return result;
+            }
 
             lastError = result.ErrorValue;
+            focusSavedState = await TryFocusOnceAsync(
+                focusEditor, focusSavedState, unityProjectRoot);
+
             if (attempt < maxRetries)
             {
                 Console.Error.WriteLine(
@@ -73,6 +82,7 @@ internal static class CommandExecutor
             }
         }
 
+        await RestoreFocusAsync(focusSavedState);
         return Result<CommandResponse, string>.Error(
             $"Failed to communicate with Unity Editor server after {maxRetries} attempts.\n"
             + $"  Project: {unityProjectRoot}\n"
@@ -87,6 +97,26 @@ internal static class CommandExecutor
     {
         return error.StartsWith("Server closed connection", StringComparison.Ordinal)
             || error.StartsWith("Communication error", StringComparison.Ordinal);
+    }
+
+    private static async Task<long> TryFocusOnceAsync(
+        bool focusEditor, long savedState, string projectRoot)
+    {
+        if (!focusEditor || savedState != 0)
+            return savedState;
+
+        var pid = UnityProcessActivator.ReadPidFile(projectRoot);
+        if (pid <= 0)
+            return 0;
+
+        Console.Error.WriteLine("Server not responding, focusing Unity Editor...");
+        return await UnityProcessActivator.TryActivateAsync(projectRoot);
+    }
+
+    private static async Task RestoreFocusAsync(long savedState)
+    {
+        if (savedState != 0)
+            await UnityProcessActivator.TryRestoreFocusAsync(savedState);
     }
 
     public static async Task<int> PrintCommandHelpAsync(string commandName)

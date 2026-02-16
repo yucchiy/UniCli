@@ -11,7 +11,8 @@ namespace UniCli.Server.Editor
 {
     public sealed class CommandDispatcher
     {
-        private readonly Dictionary<string, ICommandHandler> _handlers = new();
+        private readonly Dictionary<string, ICommandHandler> _handlers =
+            new(StringComparer.OrdinalIgnoreCase);
         private readonly StringBuilder _formatBuffer = new();
 
         public CommandDispatcher(ServiceRegistry services)

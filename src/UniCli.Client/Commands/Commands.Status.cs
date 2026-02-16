@@ -11,7 +11,7 @@ public partial class Commands
     /// <summary>
     /// Show the connection status of the Unity Editor server
     /// </summary>
-    public async Task<int> Status(bool json = false, bool noFocus = false)
+    public async Task<int> Status(bool json = false)
     {
         var explicitPath = Environment.GetEnvironmentVariable("UNICLI_PROJECT");
         var projectRoot = explicitPath ?? ProjectIdentifier.FindUnityProjectRoot();
@@ -24,10 +24,6 @@ public partial class Commands
 
         var pipeName = ProjectIdentifier.GetPipeName(projectRoot);
 
-        await using var focus = UnityProcessActivator.ShouldFocus(noFocus)
-            ? await FocusScope.ActivateAsync(pipeName)
-            : FocusScope.Noop;
-
         int commandCount;
         {
             using var client = new PipeClient(pipeName);
@@ -35,7 +31,12 @@ public partial class Commands
 
             if (connectResult.IsError)
             {
-                var result = BuildStatusResult(false, projectRoot, pipeName, "Server is not running", 0, 0);
+                var pid = UnityProcessActivator.ReadPidFile(projectRoot);
+                var unityRunning = UnityProcessActivator.IsUnityRunning(projectRoot);
+                var error = unityRunning
+                    ? "Server is not responding (Unity is running, may be reloading assemblies)"
+                    : "Server is not running";
+                var result = BuildStatusResult(false, projectRoot, pipeName, error, 0, pid);
                 return OutputWriter.Write(result, json);
             }
 
@@ -68,48 +69,9 @@ public partial class Commands
             commandCount = listResult;
         }
 
-        var processId = await GetProcessIdAsync(pipeName);
+        var processId = UnityProcessActivator.ReadPidFile(projectRoot);
         var cliResult = BuildStatusResult(true, projectRoot, pipeName, null, commandCount, processId);
         return OutputWriter.Write(cliResult, json);
-    }
-
-    private static async Task<int> GetProcessIdAsync(string pipeName)
-    {
-        try
-        {
-            using var client = new PipeClient(pipeName);
-            var connectResult = await client.ConnectAsync(timeoutMs: 2000);
-            if (connectResult.IsError)
-                return 0;
-
-            var request = new CommandRequest
-            {
-                command = "Project.Inspect",
-                data = "",
-                format = "json"
-            };
-
-            var result = await client.SendCommandAsync(request, timeoutMs: 2000);
-            if (result.IsError)
-                return 0;
-
-            var response = result.Match(
-                onSuccess: r => r,
-                onError: _ => (CommandResponse?)null);
-
-            if (response == null || !response.success || string.IsNullOrEmpty(response.data))
-                return 0;
-
-            using var doc = JsonDocument.Parse(response.data);
-            if (!doc.RootElement.TryGetProperty("processId", out var pidElement))
-                return 0;
-
-            return pidElement.GetInt32();
-        }
-        catch
-        {
-            return 0;
-        }
     }
 
     private static CliResult BuildStatusResult(
