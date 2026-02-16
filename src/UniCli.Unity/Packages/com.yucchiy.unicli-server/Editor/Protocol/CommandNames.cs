@@ -117,6 +117,11 @@ namespace UniCli.Server.Editor
             public const string Status = "Connection.Status";
         }
 
+        public static class Material
+        {
+            public const string Create = "Material.Create";
+        }
+
         public static class AnimatorController
         {
             public const string Create = "AnimatorController.Create";

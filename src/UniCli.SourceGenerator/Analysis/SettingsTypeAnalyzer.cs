@@ -262,7 +262,7 @@ namespace UniCli.SourceGenerator.Analysis
             return true;
         }
 
-        private static bool IsSerializableParameter(IParameterSymbol parameter)
+        internal static bool IsSerializableParameter(IParameterSymbol parameter)
         {
             if (parameter.RefKind != RefKind.None)
                 return false;
@@ -280,7 +280,7 @@ namespace UniCli.SourceGenerator.Analysis
             return false;
         }
 
-        private static bool HasObsolete(ISymbol symbol)
+        internal static bool HasObsolete(ISymbol symbol)
         {
             return symbol.GetAttributes().Any(a =>
                 a.AttributeClass != null &&

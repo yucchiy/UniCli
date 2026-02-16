@@ -104,6 +104,9 @@ namespace UniCli.Server.Editor.Handlers
                 case SerializedPropertyType.Color:
                     property.colorValue = ParseColor(value);
                     break;
+                case SerializedPropertyType.ObjectReference:
+                    property.objectReferenceValue = ResolveObjectReference(value);
+                    break;
                 default:
                     throw new CommandFailedException(
                         $"Unsupported property type: {property.propertyType}",
@@ -154,6 +157,52 @@ namespace UniCli.Server.Editor.Handlers
                 float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture),
                 float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture),
                 parts.Length == 4 ? float.Parse(parts[3].Trim(), CultureInfo.InvariantCulture) : 1f);
+        }
+
+        private static UnityEngine.Object ResolveObjectReference(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value == "null")
+                return null;
+
+            if (value.StartsWith("guid:"))
+            {
+                var guid = value.Substring("guid:".Length);
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(assetPath))
+                    throw new CommandFailedException(
+                        $"Asset not found for GUID: {guid}",
+                        new SetPropertyResponse());
+                var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
+                if (asset == null)
+                    throw new CommandFailedException(
+                        $"Failed to load asset at: {assetPath}",
+                        new SetPropertyResponse());
+                return asset;
+            }
+
+            if (value.StartsWith("instanceId:"))
+            {
+                var idStr = value.Substring("instanceId:".Length);
+                if (!int.TryParse(idStr, out var instanceId))
+                    throw new CommandFailedException(
+                        $"Invalid instanceId: {idStr}",
+                        new SetPropertyResponse());
+                var obj = EditorUtility.InstanceIDToObject(instanceId);
+                if (obj == null)
+                    throw new CommandFailedException(
+                        $"Object not found for instanceId: {instanceId}",
+                        new SetPropertyResponse());
+                return obj;
+            }
+
+            // Try as asset path
+            var assetByPath = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(value);
+            if (assetByPath != null)
+                return assetByPath;
+
+            throw new CommandFailedException(
+                $"Cannot resolve ObjectReference from \"{value}\". Use \"guid:<GUID>\", \"instanceId:<ID>\", an asset path, or \"null\".",
+                new SetPropertyResponse());
         }
 
         private static string GetPropertyValueString(SerializedProperty property)

@@ -113,7 +113,13 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `GameObject.Duplicate` | Duplicate a GameObject |
 | `GameObject.Rename` | Rename a GameObject |
 | `GameObject.SetParent` | Change parent or move to root |
-| `Component.SetProperty` | Set a component property via SerializedProperty |
+| `Component.SetProperty` | Set a component property via SerializedProperty (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
+| `Material.Create` | Create a new material asset |
+| `Material.Inspect` | Read all properties of a Material asset (by GUID) |
+| `Material.SetColor` | Set a shader color property on a Material |
+| `Material.SetFloat` | Set a shader float property on a Material |
+| `Material.GetColor` | Get a shader color property from a Material |
+| `Material.GetFloat` | Get a shader float property from a Material |
 | `AnimatorController.Create` | Create a new .controller asset |
 | `AnimatorController.Inspect` | Inspect layers, parameters, states |
 | `AnimatorController.AddParameter` | Add a parameter |
@@ -164,8 +170,8 @@ Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` a
 | Pattern | Example | Description |
 |---|---|---|
 | `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values |
-| `<Settings>.Set<Property>` | `PlayerSettings.SetCompanyName` | Set a property |
-| `<Settings>.<Nested>.Set<Property>` | `PlayerSettings.Android.SetMinSdkVersion` | Set a nested type property |
+| `<Settings>.<property>` | `PlayerSettings.companyName` | Set a property |
+| `<Settings>.<Nested>.<property>` | `PlayerSettings.Android.minSdkVersion` | Set a nested type property |
 | `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
 
 Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
@@ -246,6 +252,27 @@ unicli exec GameObject.Destroy --path "OldObject" --json
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider --json
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234 --json
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true" --json
+
+# ObjectReference: assign a material to a renderer by GUID
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Materials.Array.data[0]" --value "guid:abc123def456" --json
+# ObjectReference: by asset path
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Mesh" --value "Assets/Meshes/Custom.mesh" --json
+# ObjectReference: clear a reference
+unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Material" --value "null" --json
+```
+
+**Material operations:**
+
+```bash
+# Create a new material
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --json
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --shader "Standard" --json
+# Inspect all properties of a material
+unicli exec Material.Inspect --guid "abc123def456" --json
+# Set shader properties
+unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}' --json
+unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8 --json
+unicli exec Material.GetColor --guid "abc123def456" --name "_Color" --json
 ```
 
 **AnimatorController operations:**
@@ -300,8 +327,8 @@ unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab" --json
 
 ```bash
 unicli exec PlayerSettings.Inspect --json
-unicli exec PlayerSettings.SetCompanyName --value "MyCompany" --json
-unicli exec PlayerSettings.Android.SetMinSdkVersion --value AndroidApiLevel28 --json
+unicli exec PlayerSettings.companyName --value "MyCompany" --json
+unicli exec PlayerSettings.Android.minSdkVersion --value AndroidApiLevel28 --json
 unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP --json
 unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android --json
 unicli exec EditorSettings.Inspect --json
