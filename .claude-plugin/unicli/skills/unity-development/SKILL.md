@@ -157,8 +157,8 @@ Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` a
 | Pattern | Example | Description |
 |---|---|---|
 | `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values |
-| `<Settings>.Set<Property>` | `PlayerSettings.SetCompanyName` | Set a property |
-| `<Settings>.<Nested>.Set<Property>` | `PlayerSettings.Android.SetMinSdkVersion` | Set a nested type property |
+| `<Settings>.<property>` | `PlayerSettings.companyName` | Set a property |
+| `<Settings>.<Nested>.<property>` | `PlayerSettings.Android.minSdkVersion` | Set a nested type property |
 | `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
 
 Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
@@ -292,8 +292,8 @@ unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab" --json
 
 ```bash
 unicli exec PlayerSettings.Inspect --json
-unicli exec PlayerSettings.SetCompanyName --value "MyCompany" --json
-unicli exec PlayerSettings.Android.SetMinSdkVersion --value AndroidApiLevel28 --json
+unicli exec PlayerSettings.companyName --value "MyCompany" --json
+unicli exec PlayerSettings.Android.minSdkVersion --value AndroidApiLevel28 --json
 unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP --json
 unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android --json
 unicli exec EditorSettings.Inspect --json

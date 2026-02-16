@@ -223,8 +223,8 @@ unicli exec PlayerSettings.Inspect
 unicli exec EditorSettings.Inspect
 
 # Settings — set a property
-unicli exec PlayerSettings.SetCompanyName --value "MyCompany"
-unicli exec PlayerSettings.Android.SetMinSdkVersion --value AndroidApiLevel28
+unicli exec PlayerSettings.companyName --value "MyCompany"
+unicli exec PlayerSettings.Android.minSdkVersion --value AndroidApiLevel28
 
 # Settings — call Set/Get methods (with platform target)
 unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP
@@ -318,8 +318,8 @@ Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings`:
 | Pattern | Example | Description |
 |---|---|---|
 | `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values at once |
-| `<Settings>.Set<Property>` | `PlayerSettings.SetCompanyName` | Set a single property |
-| `<Settings>.<Nested>.Set<Property>` | `PlayerSettings.Android.SetMinSdkVersion` | Set a nested type property |
+| `<Settings>.<property>` | `PlayerSettings.companyName` | Set a single property |
+| `<Settings>.<Nested>.<property>` | `PlayerSettings.Android.minSdkVersion` | Set a nested type property |
 | `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
 
 Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`). Invalid values return an error with the list of valid options.

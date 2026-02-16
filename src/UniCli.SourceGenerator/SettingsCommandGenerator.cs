@@ -104,12 +104,12 @@ namespace UniCli.SourceGenerator
                             $"{commandPrefix}InspectHandler.g.cs", inspectSource);
                     }
 
-                    // Emit Set handlers for flat properties with setters
+                    // Emit setter handlers for flat properties with setters
                     foreach (var prop in info.Properties)
                     {
                         if (!prop.HasSetter) continue;
 
-                        var cmdName = $"{prop.CommandPrefix}.Set{prop.PascalCaseName}";
+                        var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
                         if (!generatedCommandNames.Add(cmdName)) continue;
 
                         try
@@ -118,7 +118,7 @@ namespace UniCli.SourceGenerator
                                 prop,
                                 typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
                             AddSourceSafe(context, generatedFileNames,
-                                $"{commandPrefix}Set{prop.PascalCaseName}Handler.g.cs", setSource);
+                                $"{commandPrefix}{prop.Symbol.Name}Handler.g.cs", setSource);
                         }
                         catch (System.Exception)
                         {
@@ -136,14 +136,14 @@ namespace UniCli.SourceGenerator
                         {
                             if (!prop.HasSetter) continue;
 
-                            var cmdName = $"{prop.CommandPrefix}.Set{prop.PascalCaseName}";
+                            var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
                             if (!generatedCommandNames.Add(cmdName)) continue;
 
                             try
                             {
                                 var setSource = SetPropertyCommandEmitter.Emit(prop, nestedFullName);
                                 AddSourceSafe(context, generatedFileNames,
-                                    $"{nested.CommandPrefix.Replace(".", "")}Set{prop.PascalCaseName}Handler.g.cs",
+                                    $"{nested.CommandPrefix.Replace(".", "")}{prop.Symbol.Name}Handler.g.cs",
                                     setSource);
                             }
                             catch (System.Exception)
@@ -287,7 +287,7 @@ namespace UniCli.SourceGenerator
             {
                 if (!prop.HasSetter) continue;
 
-                var cmdName = $"{prop.CommandPrefix}.{prop.PascalCaseName}";
+                var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
                 if (!generatedCommandNames.Add(cmdName)) continue;
 
                 try
@@ -295,7 +295,7 @@ namespace UniCli.SourceGenerator
                     var setSource = InstanceSetPropertyCommandEmitter.Emit(
                         prop, typeFullName, mode);
                     AddSourceSafe(context, generatedFileNames,
-                        $"{commandPrefix}{prop.PascalCaseName}Handler.g.cs", setSource);
+                        $"{commandPrefix}{prop.Symbol.Name}Handler.g.cs", setSource);
                 }
                 catch (System.Exception)
                 {
