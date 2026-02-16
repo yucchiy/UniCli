@@ -114,6 +114,18 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `GameObject.Rename` | Rename a GameObject |
 | `GameObject.SetParent` | Change parent or move to root |
 | `Component.SetProperty` | Set a component property via SerializedProperty |
+| `AnimatorController.Create` | Create a new .controller asset |
+| `AnimatorController.Inspect` | Inspect layers, parameters, states |
+| `AnimatorController.AddParameter` | Add a parameter |
+| `AnimatorController.RemoveParameter` | Remove a parameter |
+| `AnimatorController.AddState` | Add a state to a layer |
+| `AnimatorController.AddTransition` | Add a transition between states |
+| `AnimatorController.AddTransitionCondition` | Add a condition to a transition |
+| `Animator.Inspect` | Inspect Animator component |
+| `Animator.SetController` | Assign an AnimatorController |
+| `Animator.SetParameter` | Set a parameter value (PlayMode) |
+| `Animator.Play` | Play a state immediately (PlayMode) |
+| `Animator.CrossFade` | Cross-fade to a state (PlayMode) |
 | `Prefab.GetStatus` | Get prefab instance status |
 | `Prefab.Instantiate` | Instantiate a prefab into scene |
 | `Prefab.Save` | Save GameObject as prefab asset |
@@ -234,6 +246,25 @@ unicli exec GameObject.Destroy --path "OldObject" --json
 unicli exec GameObject.AddComponent --path "Player" --typeName BoxCollider --json
 unicli exec GameObject.RemoveComponent --componentInstanceId 1234 --json
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true" --json
+```
+
+**AnimatorController operations:**
+
+```bash
+unicli exec AnimatorController.Create --assetPath "Assets/Animations/Player.controller" --json
+unicli exec AnimatorController.Inspect --assetPath "Assets/Animations/Player.controller" --json
+unicli exec AnimatorController.AddParameter --assetPath "Assets/Animations/Player.controller" --name "Speed" --type Float --json
+unicli exec AnimatorController.AddState --assetPath "Assets/Animations/Player.controller" --name "Idle" --json
+unicli exec AnimatorController.AddState --assetPath "Assets/Animations/Player.controller" --name "Walk" --json
+unicli exec AnimatorController.AddTransition --assetPath "Assets/Animations/Player.controller" --sourceStateName "Idle" --destinationStateName "Walk" --json
+unicli exec AnimatorController.AddTransitionCondition --assetPath "Assets/Animations/Player.controller" --sourceStateName "Idle" --destinationStateName "Walk" --parameter "Speed" --mode Greater --threshold 0.1 --json
+```
+
+**Animator component operations:**
+
+```bash
+unicli exec Animator.SetController --path "Player" --controllerAssetPath "Assets/Animations/Player.controller" --json
+unicli exec Animator.Inspect --path "Player" --json
 ```
 
 **Prefab operations:**

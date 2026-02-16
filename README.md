@@ -179,6 +179,19 @@ unicli exec GameObject.Destroy --path "Boss(Clone)"
 # Set component properties
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
 
+# AnimatorController operations
+unicli exec AnimatorController.Create --assetPath "Assets/Animations/Player.controller"
+unicli exec AnimatorController.Inspect --assetPath "Assets/Animations/Player.controller"
+unicli exec AnimatorController.AddParameter --assetPath "Assets/Animations/Player.controller" --name "Speed" --type Float
+unicli exec AnimatorController.AddState --assetPath "Assets/Animations/Player.controller" --name "Idle"
+unicli exec AnimatorController.AddState --assetPath "Assets/Animations/Player.controller" --name "Walk"
+unicli exec AnimatorController.AddTransition --assetPath "Assets/Animations/Player.controller" --sourceStateName "Idle" --destinationStateName "Walk"
+unicli exec AnimatorController.AddTransitionCondition --assetPath "Assets/Animations/Player.controller" --sourceStateName "Idle" --destinationStateName "Walk" --parameter "Speed" --mode Greater --threshold 0.1
+
+# Animator component operations
+unicli exec Animator.SetController --path "Player" --controllerAssetPath "Assets/Animations/Player.controller"
+unicli exec Animator.Inspect --path "Player"
+
 # Prefab operations
 unicli exec Prefab.GetStatus --path "MyPrefabInstance"
 unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab"
@@ -264,6 +277,18 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.Rename`                  | Rename a GameObject                |
 | GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
 | Component          | `Component.SetProperty`              | Set a component property           |
+| AnimatorController | `AnimatorController.Create`          | Create a new .controller asset     |
+| AnimatorController | `AnimatorController.Inspect`         | Inspect layers, parameters, states |
+| AnimatorController | `AnimatorController.AddParameter`    | Add a parameter                    |
+| AnimatorController | `AnimatorController.RemoveParameter` | Remove a parameter                 |
+| AnimatorController | `AnimatorController.AddState`        | Add a state to a layer             |
+| AnimatorController | `AnimatorController.AddTransition`   | Add a transition between states    |
+| AnimatorController | `AnimatorController.AddTransitionCondition` | Add a condition to a transition |
+| Animator           | `Animator.Inspect`                   | Inspect Animator component         |
+| Animator           | `Animator.SetController`             | Assign an AnimatorController       |
+| Animator           | `Animator.SetParameter`              | Set a parameter value (PlayMode)   |
+| Animator           | `Animator.Play`                      | Play a state immediately (PlayMode)|
+| Animator           | `Animator.CrossFade`                 | Cross-fade to a state (PlayMode)   |
 | Prefab             | `Prefab.GetStatus`                   | Get prefab instance status         |
 | Prefab             | `Prefab.Instantiate`                 | Instantiate a prefab into scene    |
 | Prefab             | `Prefab.Save`                        | Save GameObject as prefab          |
