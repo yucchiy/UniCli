@@ -121,5 +121,25 @@ namespace UniCli.Server.Editor
         {
             public const string Create = "Material.Create";
         }
+
+        public static class AnimatorController
+        {
+            public const string Create = "AnimatorController.Create";
+            public const string Inspect = "AnimatorController.Inspect";
+            public const string AddParameter = "AnimatorController.AddParameter";
+            public const string RemoveParameter = "AnimatorController.RemoveParameter";
+            public const string AddState = "AnimatorController.AddState";
+            public const string AddTransition = "AnimatorController.AddTransition";
+            public const string AddTransitionCondition = "AnimatorController.AddTransitionCondition";
+        }
+
+        public static class Animator
+        {
+            public const string Inspect = "Animator.Inspect";
+            public const string SetController = "Animator.SetController";
+            public const string SetParameter = "Animator.SetParameter";
+            public const string Play = "Animator.Play";
+            public const string CrossFade = "Animator.CrossFade";
+        }
     }
 }

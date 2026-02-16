@@ -43,6 +43,22 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec GameObject.SetParent '{"path"
 # Component operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Component.SetProperty '{"componentInstanceId":12345,"propertyPath":"m_IsKinematic","value":"true"}' --json
 
+# AnimatorController operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.Create '{"assetPath":"Assets/Test.controller"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.Inspect '{"assetPath":"Assets/Test.controller"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.AddParameter '{"assetPath":"Assets/Test.controller","name":"Speed","type":"Float"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.RemoveParameter '{"assetPath":"Assets/Test.controller","name":"Speed"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.AddState '{"assetPath":"Assets/Test.controller","name":"Idle"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.AddTransition '{"assetPath":"Assets/Test.controller","sourceStateName":"Idle","destinationStateName":"Walk"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AnimatorController.AddTransitionCondition '{"assetPath":"Assets/Test.controller","sourceStateName":"Idle","destinationStateName":"Walk","parameter":"Speed","mode":"Greater","threshold":0.1}' --json
+
+# Animator operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Animator.Inspect '{"path":"SomeGameObject"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Animator.SetController '{"path":"SomeGameObject","controllerAssetPath":"Assets/Test.controller"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Animator.SetParameter '{"path":"SomeGameObject","name":"Speed","value":"1.5"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Animator.Play '{"path":"SomeGameObject","stateName":"Idle"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Animator.CrossFade '{"path":"SomeGameObject","stateName":"Walk","transitionDuration":0.25}' --json
+
 # Prefab operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.GetStatus '{"path":"Main Camera"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Instantiate '{"assetPath":"Assets/Prefabs/Enemy.prefab"}' --json
