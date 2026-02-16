@@ -184,7 +184,9 @@ unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_M
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Mesh" --value "Assets/Meshes/Custom.mesh"
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_Material" --value "null"
 
-# Material operations (requires asset GUID)
+# Material operations
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat"
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --shader "Standard"
 unicli exec Material.Inspect --guid "abc123def456"
 unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}'
 unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8
@@ -274,6 +276,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.Rename`                  | Rename a GameObject                |
 | GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
 | Component          | `Component.SetProperty`              | Set a component property (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
+| Material           | `Material.Create`                    | Create a new material asset        |
 | Prefab             | `Prefab.GetStatus`                   | Get prefab instance status         |
 | Prefab             | `Prefab.Instantiate`                 | Instantiate a prefab into scene    |
 | Prefab             | `Prefab.Save`                        | Save GameObject as prefab          |

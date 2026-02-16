@@ -114,6 +114,7 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `GameObject.Rename` | Rename a GameObject |
 | `GameObject.SetParent` | Change parent or move to root |
 | `Component.SetProperty` | Set a component property via SerializedProperty (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
+| `Material.Create` | Create a new material asset |
 | `Material.Inspect` | Read all properties of a Material asset (by GUID) |
 | `Material.SetColor` | Set a shader color property on a Material |
 | `Material.SetFloat` | Set a shader float property on a Material |
@@ -251,6 +252,9 @@ unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_M
 **Material operations:**
 
 ```bash
+# Create a new material
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --json
+unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --shader "Standard" --json
 # Inspect all properties of a material
 unicli exec Material.Inspect --guid "abc123def456" --json
 # Set shader properties

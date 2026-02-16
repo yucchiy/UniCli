@@ -116,5 +116,10 @@ namespace UniCli.Server.Editor
             public const string Connect = "Connection.Connect";
             public const string Status = "Connection.Status";
         }
+
+        public static class Material
+        {
+            public const string Create = "Material.Create";
+        }
     }
 }
