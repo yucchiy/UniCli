@@ -116,6 +116,5 @@ namespace UniCli.Server.Editor
             public const string Connect = "Connection.Connect";
             public const string Status = "Connection.Status";
         }
-
     }
 }

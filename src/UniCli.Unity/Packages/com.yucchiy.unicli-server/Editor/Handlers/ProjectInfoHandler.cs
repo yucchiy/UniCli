@@ -9,18 +9,28 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ProjectInfoHandler : CommandHandler<Unit, ProjectInfoResponse>
     {
+        private readonly ServerContext _context;
+
+        public ProjectInfoHandler(ServerContext context)
+        {
+            _context = context;
+        }
+
         public override string CommandName => CommandNames.Project.Inspect;
         public override string Description => "Get Unity project information";
 
         protected override bool TryWriteFormatted(ProjectInfoResponse response, bool success, IFormatWriter writer)
         {
-            writer.WriteLine($"Unity:   {response.unityVersion}");
-            writer.WriteLine($"Project: {response.productName}");
-            writer.WriteLine($"Company: {response.companyName}");
-            writer.WriteLine($"Path:    {response.projectPath}");
-            writer.WriteLine($"Target:  {response.buildTarget}");
-            writer.WriteLine($"Playing: {(response.isPlaying ? "Yes" : "No")}");
-            writer.WriteLine($"PID:     {response.processId}");
+            writer.WriteLine($"Unity:     {response.unityVersion}");
+            writer.WriteLine($"Project:   {response.productName}");
+            writer.WriteLine($"Company:   {response.companyName}");
+            writer.WriteLine($"Path:      {response.projectPath}");
+            writer.WriteLine($"Target:    {response.buildTarget}");
+            writer.WriteLine($"Playing:   {(response.isPlaying ? "Yes" : "No")}");
+            writer.WriteLine($"PID:       {response.processId}");
+            writer.WriteLine($"Server ID: {response.serverId}");
+            writer.WriteLine($"Started:   {response.startedAt}");
+            writer.WriteLine($"Uptime:    {response.uptimeSeconds:F1}s");
 
             return true;
         }
@@ -35,7 +45,10 @@ namespace UniCli.Server.Editor.Handlers
                 companyName = PlayerSettings.companyName,
                 buildTarget = EditorUserBuildSettings.activeBuildTarget.ToString(),
                 isPlaying = EditorApplication.isPlaying,
-                processId = Process.GetCurrentProcess().Id
+                processId = Process.GetCurrentProcess().Id,
+                serverId = _context.ServerId,
+                startedAt = _context.StartedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                uptimeSeconds = (DateTime.Now - _context.StartedAt).TotalSeconds
             };
 
             return new ValueTask<ProjectInfoResponse>(response);
@@ -52,5 +65,8 @@ namespace UniCli.Server.Editor.Handlers
         public string buildTarget;
         public bool isPlaying;
         public int processId;
+        public string serverId;
+        public string startedAt;
+        public double uptimeSeconds;
     }
 }
