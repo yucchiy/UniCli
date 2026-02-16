@@ -13,12 +13,7 @@ namespace UniCli.SourceGenerator.Analysis
             SettingsCommandGenerator.ResolveMode resolveMode)
         {
             var properties = CollectProperties(type, commandPrefix);
-
-            var propertySetNames = new HashSet<string>(
-                properties.Where(p => p.HasSetter)
-                    .Select(p => "Set" + p.PascalCaseName));
-
-            var setMethods = CollectSetMethods(type, commandPrefix, propertySetNames);
+            var setMethods = CollectSetMethods(type, commandPrefix);
             var getMethods = CollectGetMethods(type, commandPrefix);
 
             return new InstanceTypeInfo(
@@ -60,8 +55,7 @@ namespace UniCli.SourceGenerator.Analysis
 
         private static ImmutableArray<InstanceMethodInfo> CollectSetMethods(
             INamedTypeSymbol type,
-            string commandPrefix,
-            HashSet<string> propertySetNames)
+            string commandPrefix)
         {
             var candidates = new List<InstanceMethodInfo>();
 
@@ -81,10 +75,6 @@ namespace UniCli.SourceGenerator.Analysis
 
                 if (method.MethodKind == MethodKind.PropertyGet ||
                     method.MethodKind == MethodKind.PropertySet)
-                    continue;
-
-                // Skip methods that duplicate a property setter
-                if (propertySetNames.Contains(method.Name))
                     continue;
 
                 if (!method.Parameters.All(p => SettingsTypeAnalyzer.IsSerializableParameter(p)))
