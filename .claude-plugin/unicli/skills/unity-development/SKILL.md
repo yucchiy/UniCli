@@ -282,6 +282,83 @@ unicli exec EditorSettings.Inspect --json
 unicli exec Console.GetLog --json
 ```
 
+## Custom Command Handlers
+
+When built-in commands are insufficient for complex or project-specific operations, implement a custom `CommandHandler` and call it via `unicli exec`. The server auto-discovers all `ICommandHandler` implementations via `TypeCache`, so no manual registration is required.
+
+### Directory structure
+
+Place custom handlers under `Assets/Editor/UniCli/` with a dedicated asmdef:
+
+```
+Assets/
+└── Editor/
+    └── UniCli/
+        ├── MyProject.UniCli.Editor.asmdef
+        └── Handlers/
+            └── MyCustomHandler.cs
+```
+
+### Workflow
+
+```bash
+# 1. Create asmdef and add reference to UniCli.Server.Editor
+unicli exec AssemblyDefinition.Create --path "Assets/Editor/UniCli/MyProject.UniCli.Editor.asmdef" --name "MyProject.UniCli.Editor" --editorOnly --json
+unicli exec AssemblyDefinition.AddReference --path "Assets/Editor/UniCli/MyProject.UniCli.Editor.asmdef" --reference "UniCli.Server.Editor" --json
+
+# 2. Create handler script, then import and compile
+unicli exec AssetDatabase.Import --path "Assets/Editor/UniCli" --json
+unicli exec Compile --json
+
+# 3. Verify registration and execute
+unicli commands --json
+unicli exec MyCategory.MyAction --targetName "test" --json
+```
+
+### Handler implementation
+
+```csharp
+using System.Threading.Tasks;
+using UniCli.Protocol;
+using UniCli.Server.Editor.Handlers;
+
+namespace MyProject.UniCli.Editor.Handlers
+{
+    [System.Serializable]
+    public class MyRequest
+    {
+        public string targetName = "";
+    }
+
+    [System.Serializable]
+    public class MyResponse
+    {
+        public string result;
+    }
+
+    public sealed class MyCustomHandler : CommandHandler<MyRequest, MyResponse>
+    {
+        public override string CommandName => "MyCategory.MyAction";
+        public override string Description => "Description shown in unicli commands";
+
+        protected override ValueTask<MyResponse> ExecuteAsync(MyRequest request)
+        {
+            return new ValueTask<MyResponse>(new MyResponse
+            {
+                result = $"Processed {request.targetName}"
+            });
+        }
+    }
+}
+```
+
+Key rules:
+- Request/Response types must be `[Serializable]` with **public fields** (not properties) — required by `JsonUtility`
+- Use `Unit` as `TRequest` when no input is needed, or as `TResponse` when no output is needed
+- Throw `CommandFailedException` with response data on failure
+- For async operations, use `TaskCompletionSource` + `await` to wait for Unity callbacks
+- Constructor parameters are resolved from `ServiceRegistry` for dependency injection
+
 ## Tips
 
 - Always use `--json` when you need to parse the output programmatically.
