@@ -18,7 +18,7 @@ public partial class Commands
 
         if (projectRoot == null)
         {
-            var result = BuildStatusResult(false, null, null, "Unity project not found", 0, 0);
+            var result = BuildStatusResult(false, null, null, "Unity project not found", 0, default);
             return OutputWriter.Write(result, json);
         }
 
@@ -36,7 +36,8 @@ public partial class Commands
                 var error = unityRunning
                     ? "Server is not responding (Unity is running, may be reloading assemblies)"
                     : "Server is not running";
-                var result = BuildStatusResult(false, projectRoot, pipeName, error, 0, pid);
+                var result = BuildStatusResult(false, projectRoot, pipeName, error, 0,
+                    new ServerInfo(pid, null, null, 0));
                 return OutputWriter.Write(result, json);
             }
 
@@ -62,7 +63,7 @@ public partial class Commands
 
             if (listResult < 0)
             {
-                var result = BuildStatusResult(false, projectRoot, pipeName, "Server is not running", 0, 0);
+                var result = BuildStatusResult(false, projectRoot, pipeName, "Server is not running", 0, default);
                 return OutputWriter.Write(result, json);
             }
 
@@ -70,15 +71,66 @@ public partial class Commands
         }
 
         var processId = UnityProcessActivator.ReadPidFile(projectRoot);
-        var cliResult = BuildStatusResult(true, projectRoot, pipeName, null, commandCount, processId);
+        var serverInfo = await GetServerInfoAsync(pipeName);
+        var cliResult = BuildStatusResult(true, projectRoot, pipeName, null, commandCount,
+            serverInfo with { ProcessId = processId > 0 ? processId : serverInfo.ProcessId });
         return OutputWriter.Write(cliResult, json);
     }
 
-    private static CliResult BuildStatusResult(
-        bool running, string? project, string? pipe, string? error, int commandCount, int processId)
+    private readonly record struct ServerInfo(
+        int ProcessId,
+        string? ServerId,
+        string? StartedAt,
+        double UptimeSeconds);
+
+    private static async Task<ServerInfo> GetServerInfoAsync(string pipeName)
     {
-        var jsonData = BuildStatusJson(running, project, pipe, error, commandCount, processId);
-        var formattedText = BuildStatusText(running, project, pipe, error, commandCount, processId);
+        try
+        {
+            using var client = new PipeClient(pipeName);
+            var connectResult = await client.ConnectAsync(timeoutMs: 2000);
+            if (connectResult.IsError)
+                return default;
+
+            var request = new CommandRequest
+            {
+                command = "Project.Inspect",
+                data = "",
+                format = "json"
+            };
+
+            var result = await client.SendCommandAsync(request, timeoutMs: 2000);
+            if (result.IsError)
+                return default;
+
+            var response = result.Match(
+                onSuccess: r => r,
+                onError: _ => (CommandResponse?)null);
+
+            if (response == null || !response.success || string.IsNullOrEmpty(response.data))
+                return default;
+
+            using var doc = JsonDocument.Parse(response.data);
+            var root = doc.RootElement;
+
+            var processId = root.TryGetProperty("processId", out var pidEl) ? pidEl.GetInt32() : 0;
+            var serverId = root.TryGetProperty("serverId", out var sidEl) ? sidEl.GetString() : null;
+            var startedAt = root.TryGetProperty("startedAt", out var saEl) ? saEl.GetString() : null;
+            var uptime = root.TryGetProperty("uptimeSeconds", out var utEl) ? utEl.GetDouble() : 0;
+
+            return new ServerInfo(processId, serverId, startedAt, uptime);
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    private static CliResult BuildStatusResult(
+        bool running, string? project, string? pipe, string? error, int commandCount, ServerInfo serverInfo)
+    {
+        var jsonData = BuildStatusJson(running, project, pipe, error, commandCount, serverInfo);
+        var formattedText = BuildStatusText(running, project, pipe, error, commandCount, serverInfo);
 
         return running
             ? CliResult.Ok("Server is running", jsonData, formattedText)
@@ -92,33 +144,41 @@ public partial class Commands
     }
 
     private static string BuildStatusText(
-        bool running, string? project, string? pipe, string? error, int commandCount, int processId)
+        bool running, string? project, string? pipe, string? error, int commandCount, ServerInfo serverInfo)
     {
         var sb = new System.Text.StringBuilder();
 
-        sb.AppendLine($"Project: {project ?? "not found"}");
+        sb.AppendLine($"Project:   {project ?? "not found"}");
 
         if (pipe != null)
-            sb.AppendLine($"Pipe:    {pipe}");
+            sb.AppendLine($"Pipe:      {pipe}");
 
         if (running)
         {
-            sb.AppendLine($"Server:  running ({commandCount} commands available)");
-            if (processId > 0)
-                sb.Append($"PID:     {processId}");
-            else
+            sb.AppendLine($"Server:    running ({commandCount} commands available)");
+            if (serverInfo.ProcessId > 0)
+                sb.AppendLine($"PID:       {serverInfo.ProcessId}");
+            if (serverInfo.ServerId != null)
+                sb.AppendLine($"Server ID: {serverInfo.ServerId}");
+            if (serverInfo.StartedAt != null)
+                sb.AppendLine($"Started:   {serverInfo.StartedAt}");
+            if (serverInfo.UptimeSeconds > 0)
+                sb.AppendLine($"Uptime:    {serverInfo.UptimeSeconds:F1}s");
+
+            // Remove trailing newline
+            if (sb.Length >= Environment.NewLine.Length)
                 sb.Length -= Environment.NewLine.Length;
         }
         else
         {
-            sb.Append($"Server:  not running");
+            sb.Append($"Server:    not running");
         }
 
         return sb.ToString();
     }
 
     private static string BuildStatusJson(
-        bool running, string? project, string? pipe, string? error, int commandCount, int processId)
+        bool running, string? project, string? pipe, string? error, int commandCount, ServerInfo serverInfo)
     {
         var buffer = new ArrayBufferWriter<byte>();
         using var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = false });
@@ -139,8 +199,14 @@ public partial class Commands
         if (running)
         {
             writer.WriteNumber("commandCount", commandCount);
-            if (processId > 0)
-                writer.WriteNumber("processId", processId);
+            if (serverInfo.ProcessId > 0)
+                writer.WriteNumber("processId", serverInfo.ProcessId);
+            if (serverInfo.ServerId != null)
+                writer.WriteString("serverId", serverInfo.ServerId);
+            if (serverInfo.StartedAt != null)
+                writer.WriteString("startedAt", serverInfo.StartedAt);
+            if (serverInfo.UptimeSeconds > 0)
+                writer.WriteNumber("uptimeSeconds", serverInfo.UptimeSeconds);
         }
 
         if (error != null)

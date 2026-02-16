@@ -21,7 +21,13 @@ namespace UniCli.Server.Editor
         static UniCliServerBootstrap()
         {
             EnsurePidFile();
-            EditorApplication.delayCall += Initialize;
+            EditorApplication.update += InitializeOnce;
+        }
+
+        private static void InitializeOnce()
+        {
+            EditorApplication.update -= InitializeOnce;
+            Initialize();
         }
 
         private static void Initialize()
@@ -44,7 +50,6 @@ namespace UniCli.Server.Editor
             Application.runInBackground = true;
 
             var pipeName = ProjectIdentifier.GetPipeName();
-
             _dispatcher = new CommandDispatcher(Services);
             _server = new UniCliServer(
                 pipeName,

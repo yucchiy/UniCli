@@ -18,7 +18,6 @@ namespace UniCli.Server.Editor
         private readonly Action<CommandRequest, Action<CommandResponse>> _onCommandReceived;
         private readonly CancellationTokenSource _cts = new();
         private readonly TaskCompletionSource<bool> _shutdownTcs = new();
-        private readonly SemaphoreSlim _commandSemaphore = new(1, 1);
         private readonly Task _serverLoop;
 
         public PipeServer(
@@ -81,11 +80,11 @@ namespace UniCli.Server.Editor
 
         private async Task HandleClientAsync(NamedPipeServerStream server, CancellationToken cancellationToken)
         {
-            using (server)
+            await using (server)
             {
                 try
                 {
-                    if (!await PerformHandshakeAsync(server, cancellationToken))
+                    if (!await PerformHandshakeAsync(server, cancellationToken)) 
                         return;
 
                     while (!cancellationToken.IsCancellationRequested && server.IsConnected)
@@ -116,16 +115,14 @@ namespace UniCli.Server.Editor
                                 var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
                                 var request = JsonUtility.FromJson<CommandRequest>(json);
 
-                                // Send ACK to indicate the request was received
-                                await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
-                                await server.FlushAsync(cancellationToken);
-
-                                // Serialize command processing with semaphore
-                                await _commandSemaphore.WaitAsync(cancellationToken);
                                 try
                                 {
+                                    // Enqueue first, then ACK — client knows the request is accepted
                                     var responseTcs = new TaskCompletionSource<CommandResponse>();
                                     _onCommandReceived(request, response => responseTcs.TrySetResult(response));
+
+                                    await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
+                                    await server.FlushAsync(cancellationToken);
 
                                     var commandResponse = await responseTcs.Task;
 
@@ -141,10 +138,6 @@ namespace UniCli.Server.Editor
                                 {
                                     Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
                                     break;
-                                }
-                                finally
-                                {
-                                    _commandSemaphore.Release();
                                 }
                             }
                             finally
@@ -225,10 +218,8 @@ namespace UniCli.Server.Editor
         public void Dispose()
         {
             _cts.Cancel();
-            _serverLoop?.Wait(TimeSpan.FromSeconds(5));
+            _serverLoop?.Wait(TimeSpan.FromMilliseconds(500));
             _cts.Dispose();
-            _commandSemaphore.Dispose();
         }
     }
 }
-

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -19,6 +20,7 @@ namespace UniCli.Server.Editor
         private readonly Action<string> _logger;
         private readonly Action<string> _errorLogger;
         private readonly Task _serverLoop;
+        private Task? _currentCommand;
 
         public UniCliServer(
             string pipeName,
@@ -39,18 +41,23 @@ namespace UniCli.Server.Editor
                 _cts.Token);
         }
 
-        public void Stop()
+        private void Stop()
         {
             _cts.Cancel();
-            _serverLoop?.Wait(TimeSpan.FromSeconds(5));
+            _serverLoop.Wait(TimeSpan.FromMilliseconds(500));
         }
 
         public void ProcessCommands()
         {
-            while (_commandQueue.TryDequeue(out var item))
+            if (_currentCommand is { IsCompleted: false })
+                return;
+
+            _currentCommand = null;
+
+            if (_commandQueue.TryDequeue(out var item))
             {
                 var (request, callback) = item;
-                ProcessCommand(request, callback);
+                _currentCommand = ProcessCommandAsync(request, callback);
             }
         }
 
@@ -87,7 +94,7 @@ namespace UniCli.Server.Editor
             _commandQueue.Enqueue((request, callback));
         }
 
-        private async void ProcessCommand(CommandRequest request, Action<CommandResponse> callback)
+        private async Task ProcessCommandAsync(CommandRequest request, Action<CommandResponse> callback)
         {
             try
             {
