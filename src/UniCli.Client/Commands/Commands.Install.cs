@@ -12,11 +12,14 @@ public partial class Commands
     private const string DefaultGitUrl =
         "https://github.com/yucchiy/UniCli.git?path=src/UniCli.Unity/Packages/com.yucchiy.unicli-server";
 
+    private static string GetVersionedGitUrl() =>
+        $"{DefaultGitUrl}#v{VersionInfo.Version}";
+
     /// <summary>
     /// Install the UniCli server package into a Unity project
     /// </summary>
     [Command("install")]
-    public Task<int> Install(string source = DefaultGitUrl, bool json = false)
+    public Task<int> Install(string source = "", bool update = false, bool json = false)
     {
         var explicitPath = Environment.GetEnvironmentVariable("UNICLI_PROJECT");
         var projectRoot = explicitPath ?? ProjectIdentifier.FindUnityProjectRoot();
@@ -35,10 +38,17 @@ public partial class Commands
             return Task.FromResult(OutputWriter.Write(result, json));
         }
 
+        var effectiveSource = string.IsNullOrEmpty(source) ? GetVersionedGitUrl() : source;
+
+        if (update)
+        {
+            return Task.FromResult(HandleUpdate(manifestPath, effectiveSource, json));
+        }
+
         bool added;
         try
         {
-            added = ManifestEditor.AddPackage(manifestPath, source);
+            added = ManifestEditor.AddPackage(manifestPath, effectiveSource);
         }
         catch (Exception ex)
         {
@@ -46,8 +56,34 @@ public partial class Commands
             return Task.FromResult(OutputWriter.Write(result, json));
         }
 
-        var cliResult = BuildInstallResult(added, source);
+        var cliResult = BuildInstallResult(added, effectiveSource);
         return Task.FromResult(OutputWriter.Write(cliResult, json));
+    }
+
+    private static int HandleUpdate(string manifestPath, string newSource, bool json)
+    {
+        try
+        {
+            var updated = ManifestEditor.UpdatePackageSource(manifestPath, newSource);
+            if (!updated)
+            {
+                var result = CliResult.Error(
+                    $"{ManifestEditor.PackageName} is not installed. Run 'unicli install' first.");
+                return OutputWriter.Write(result, json);
+            }
+
+            var jsonData = BuildInstallJson(true, newSource);
+            var cliResult = CliResult.Ok(
+                $"Updated {ManifestEditor.PackageName}",
+                jsonData,
+                $"Updated {ManifestEditor.PackageName} source to {newSource}");
+            return OutputWriter.Write(cliResult, json);
+        }
+        catch (Exception ex)
+        {
+            var result = CliResult.Error($"Failed to update manifest.json: {ex.Message}");
+            return OutputWriter.Write(result, json);
+        }
     }
 
     private static CliResult BuildInstallResult(bool added, string source)

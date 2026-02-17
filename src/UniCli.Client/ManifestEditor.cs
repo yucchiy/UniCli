@@ -60,6 +60,32 @@ internal static class ManifestEditor
     }
 
     /// <summary>
+    /// Updates the source URL for the package in manifest.json.
+    /// Returns true if updated, false if the package is not installed.
+    /// </summary>
+    public static bool UpdatePackageSource(string manifestPath, string newSource)
+    {
+        if (!File.Exists(manifestPath))
+            throw new FileNotFoundException($"manifest.json not found: {manifestPath}");
+
+        var oldSource = FindPackageSource(manifestPath);
+        if (oldSource == null)
+            return false;
+
+        var text = File.ReadAllText(manifestPath);
+        var oldEntry = $"\"{PackageName}\": \"{oldSource}\"";
+        var newEntry = $"\"{PackageName}\": \"{newSource}\"";
+
+        var index = text.IndexOf(oldEntry, StringComparison.Ordinal);
+        if (index < 0)
+            return false;
+
+        var result = text.Remove(index, oldEntry.Length).Insert(index, newEntry);
+        File.WriteAllText(manifestPath, result);
+        return true;
+    }
+
+    /// <summary>
     /// Finds the position after the last entry value in the dependencies block
     /// (right after the closing quote of the last value, before any trailing whitespace/closing brace).
     /// </summary>
