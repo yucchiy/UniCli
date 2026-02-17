@@ -55,6 +55,7 @@ The `unicli` binary provides the following subcommands:
 | `check`       | Check package installation and Unity Editor connection      |
 | `install`     | Install the UniCli package into a Unity project             |
 | `exec`        | Execute a command on the Unity Editor                       |
+| `eval`        | Compile and execute C# code dynamically in the Unity Editor |
 | `commands`    | List all available commands                                 |
 | `status`      | Show connection status and project info                     |
 | `completions` | Generate shell completion scripts (bash / zsh / fish)       |
@@ -63,11 +64,40 @@ The `unicli` binary provides the following subcommands:
 unicli check             # verify installation and editor connection
 unicli install           # install the Unity package
 unicli commands          # list all available commands
+unicli eval '<code>'     # compile and execute C# code dynamically
 unicli status            # show connection details
 unicli completions bash  # generate shell completions
 ```
 
 Add `--json` to `check`, `commands`, or `status` for machine-readable JSON output.
+
+
+## Dynamic Code Execution (Eval)
+
+`unicli eval` compiles and executes arbitrary C# code in the Unity Editor context using `AssemblyBuilder`. Code has full access to Unity APIs including `UnityEngine` and `UnityEditor`.
+
+```bash
+unicli eval '<code>' [--json] [--declarations '<decl>'] [--timeout <ms>]
+```
+
+| Option | Description |
+|---|---|
+| `--json` | Output in JSON format |
+| `--declarations` | Additional type declarations (classes, structs, enums) |
+| `--timeout` | Timeout in milliseconds |
+
+For multi-line code, use shell heredocs:
+
+```bash
+unicli eval "$(cat <<'EOF'
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var objects = GameObject.FindObjectsOfType<GameObject>(true);
+return $"{scene.name}: {objects.Length} objects";
+EOF
+)" --json
+```
+
+The result is returned as raw JSON. If the return type is `[Serializable]`, it is serialized with `JsonUtility`. `UnityEngine.Object` types use `EditorJsonUtility`. Primitives and strings are returned directly. Code that doesn't return a value (`void` operations) returns `null`.
 
 
 ## Executing Commands
@@ -251,6 +281,41 @@ unicli exec Menu.Execute --menuPath "Window/General/Console"
 # Console logs
 unicli exec Console.GetLog
 unicli exec Console.Clear
+
+# Dynamic C# code execution (Eval)
+unicli eval 'return Application.unityVersion;' --json
+unicli eval 'return PlayerSettings.productName;' --json
+
+# Multi-line code with heredoc
+unicli eval "$(cat <<'EOF'
+var go = GameObject.Find("Main Camera");
+return go.transform.position;
+EOF
+)" --json
+
+# Void operations (no return value needed)
+unicli eval "$(cat <<'EOF'
+var go = new GameObject("Created by Eval");
+go.AddComponent<BoxCollider>();
+EOF
+)" --json
+
+# Custom type declarations with --declarations
+unicli eval "$(cat <<'EOF'
+var stats = new MyStats();
+stats.objectCount = GameObject.FindObjectsOfType<GameObject>().Length;
+stats.sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+return stats;
+EOF
+)" --declarations "$(cat <<'EOF'
+[System.Serializable]
+public class MyStats
+{
+    public int objectCount;
+    public string sceneName;
+}
+EOF
+)" --json
 ```
 
 
@@ -332,6 +397,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Scene              | `Scene.New`                          | Create a new scene                 |
 | Utility            | `TypeCache.List`                     | List types derived from a base type |
 | Utility            | `TypeInspect`                        | Inspect nested types of a given type |
+| Eval               | `Eval`                               | Compile and execute C# code dynamically |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 

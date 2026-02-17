@@ -3,6 +3,7 @@ namespace UniCli.Server.Editor
     public static class CommandNames
     {
         public const string Compile = "Compile";
+        public const string Eval = "Eval";
         public const string Search = "Search";
 
         public static class BuildPlayer

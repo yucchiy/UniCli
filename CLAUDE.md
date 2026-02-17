@@ -124,6 +124,25 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec EditorUserBuildSettings.Inspe
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TypeCache.List '{"baseType":"UniCli.Server.Editor.Handlers.ICommandHandler"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TypeInspect '{"typeName":"UnityEditor.PlayerSettings"}' --json
 
+# Dynamic C# code execution (Eval)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval 'return Application.unityVersion;' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval 'return PlayerSettings.productName;' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval "$(cat <<'EOF'
+var go = GameObject.Find("Main Camera");
+return go.transform.position;
+EOF
+)" --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval "$(cat <<'EOF'
+var stats = new MyStats();
+stats.objectCount = GameObject.FindObjectsOfType<GameObject>().Length;
+return stats;
+EOF
+)" --declarations "$(cat <<'EOF'
+[System.Serializable]
+public class MyStats { public int objectCount; }
+EOF
+)" --json
+
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
