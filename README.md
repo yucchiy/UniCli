@@ -99,6 +99,13 @@ EOF
 
 The result is returned as raw JSON. If the return type is `[Serializable]`, it is serialized with `JsonUtility`. `UnityEngine.Object` types use `EditorJsonUtility`. Primitives and strings are returned directly. Code that doesn't return a value (`void` operations) returns `null`.
 
+Eval code supports `async`/`await` and receives a `cancellationToken` variable (`System.Threading.CancellationToken`) that is cancelled when the client disconnects. Use it for cooperative cancellation of long-running operations:
+
+```bash
+# Wait asynchronously with cancellation support
+unicli eval 'await Task.Delay(5000, cancellationToken); return "done";' --json
+```
+
 
 ## Executing Commands
 
@@ -300,6 +307,9 @@ go.AddComponent<BoxCollider>();
 EOF
 )" --json
 
+# Async/await (the generated code receives a cancellationToken variable)
+unicli eval 'await Task.Delay(100, cancellationToken); return "done";' --json
+
 # Custom type declarations with --declarations
 unicli eval "$(cat <<'EOF'
 var stats = new MyStats();
@@ -464,6 +474,7 @@ Inherit from `CommandHandler<TRequest, TResponse>` and define `[Serializable]` r
 
 ```csharp
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Server.Editor.Handlers;
@@ -473,7 +484,7 @@ public sealed class GreetHandler : CommandHandler<GreetRequest, GreetResponse>
     public override string CommandName => "MyApp.Greet";
     public override string Description => "Returns a greeting message";
 
-    protected override ValueTask<GreetResponse> ExecuteAsync(GreetRequest request)
+    protected override ValueTask<GreetResponse> ExecuteAsync(GreetRequest request, CancellationToken cancellationToken)
     {
         return new ValueTask<GreetResponse>(new GreetResponse
         {
@@ -509,7 +520,7 @@ public sealed class PingHandler : CommandHandler<Unit, PingResponse>
     public override string CommandName => "MyApp.Ping";
     public override string Description => "Health check";
 
-    protected override ValueTask<PingResponse> ExecuteAsync(Unit request)
+    protected override ValueTask<PingResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
     {
         return new ValueTask<PingResponse>(new PingResponse { ok = true });
     }
@@ -527,6 +538,40 @@ protected override bool TryFormat(GreetResponse response, bool success, out stri
     return true;
 }
 ```
+
+### Async handlers and cancellation
+
+All command handlers receive a `CancellationToken` that is cancelled when the client disconnects (e.g., Ctrl+C). For long-running async operations, pass the token through to ensure prompt cancellation:
+
+```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using UniCli.Server.Editor;
+using UniCli.Server.Editor.Handlers;
+
+public sealed class LongRunningHandler : CommandHandler<MyRequest, MyResponse>
+{
+    public override string CommandName => "MyApp.LongTask";
+    public override string Description => "A long-running async operation";
+
+    protected override async ValueTask<MyResponse> ExecuteAsync(MyRequest request, CancellationToken cancellationToken)
+    {
+        var tcs = new TaskCompletionSource<string>();
+
+        // Start an async Unity operation
+        SomeAsyncUnityApi.Start(result => tcs.SetResult(result));
+
+        // Use WithCancellation to abort the wait if the client disconnects
+        var result = await tcs.Task.WithCancellation(cancellationToken);
+
+        return new MyResponse { value = result };
+    }
+}
+```
+
+The `WithCancellation` extension method (on `Task` / `Task<T>`) races the task against the cancellation token. If the client disconnects, the await throws `OperationCanceledException` and the server immediately becomes available for the next command.
+
+For synchronous handlers that complete instantly, the `cancellationToken` parameter can be ignored.
 
 ### Error handling
 
