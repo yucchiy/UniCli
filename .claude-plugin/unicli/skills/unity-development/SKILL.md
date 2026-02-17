@@ -163,6 +163,10 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `TypeCache.List` | List types derived from a base type |
 | `TypeInspect` | Inspect nested types of a given type |
 | `Eval` | Compile and execute C# code dynamically in the Unity Editor context |
+| `NuGet.List` | List all installed NuGet packages (requires NuGetForUnity) |
+| `NuGet.Install` | Install a NuGet package (requires NuGetForUnity) |
+| `NuGet.Uninstall` | Uninstall a NuGet package (requires NuGetForUnity) |
+| `NuGet.Restore` | Restore all NuGet packages (requires NuGetForUnity) |
 
 ### Settings Commands (auto-generated)
 
@@ -385,6 +389,23 @@ Options:
 - `--json` — JSON output
 - `--declarations '<code>'` — Additional type declarations (classes, structs, enums) included outside the Execute method
 - `--timeout <ms>` — Set command timeout
+
+**NuGet package management (requires NuGetForUnity):**
+
+```bash
+# List installed NuGet packages
+unicli exec NuGet.List --json
+
+# Install a NuGet package
+unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
+unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
+
+# Uninstall a NuGet package
+unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
+
+# Restore all NuGet packages
+unicli exec NuGet.Restore --json
+```
 
 ## Running Custom Code
 

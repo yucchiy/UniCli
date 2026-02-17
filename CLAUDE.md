@@ -143,6 +143,13 @@ public class MyStats { public int objectCount; }
 EOF
 )" --json
 
+# NuGet package management (requires NuGetForUnity)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Restore --json
+
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
