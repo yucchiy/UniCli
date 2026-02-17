@@ -40,4 +40,38 @@ namespace UniCli.Server.Editor.Handlers
             return new ValueTask<Unit>(Unit.Value);
         }
     }
+
+    public sealed class PlayModeStatusHandler : CommandHandler<Unit, PlayModeStatusResponse>
+    {
+        public override string CommandName => CommandNames.PlayMode.Status;
+        public override string Description => "Get the current play mode state";
+
+        protected override bool TryWriteFormatted(PlayModeStatusResponse response, bool success, IFormatWriter writer)
+        {
+            if (!success) return false;
+
+            writer.WriteLine($"isPlaying: {response.isPlaying}");
+            writer.WriteLine($"isPaused: {response.isPaused}");
+            writer.WriteLine($"isCompiling: {response.isCompiling}");
+            return true;
+        }
+
+        protected override ValueTask<PlayModeStatusResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
+        {
+            return new ValueTask<PlayModeStatusResponse>(new PlayModeStatusResponse
+            {
+                isPlaying = EditorApplication.isPlaying,
+                isPaused = EditorApplication.isPaused,
+                isCompiling = EditorApplication.isCompiling,
+            });
+        }
+    }
+
+    [System.Serializable]
+    public class PlayModeStatusResponse
+    {
+        public bool isPlaying;
+        public bool isPaused;
+        public bool isCompiling;
+    }
 }

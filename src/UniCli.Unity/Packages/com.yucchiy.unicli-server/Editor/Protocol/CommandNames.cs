@@ -23,6 +23,7 @@ namespace UniCli.Server.Editor
             public const string Enter = "PlayMode.Enter";
             public const string Exit = "PlayMode.Exit";
             public const string Pause = "PlayMode.Pause";
+            public const string Status = "PlayMode.Status";
         }
 
         public static class Menu
