@@ -18,6 +18,11 @@ namespace UniCli.Server.Editor.Handlers
         bool TryWriteFormatted(object response, bool success, IFormatWriter writer);
     }
 
+    public interface IRawJsonResponse
+    {
+        string ToJson();
+    }
+
     public abstract class CommandHandler<TRequest, TResponse> : ICommandHandler, IResponseFormatter
     {
         public abstract string CommandName { get; }

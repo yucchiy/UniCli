@@ -162,6 +162,7 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Scene.New` | Create a new scene |
 | `TypeCache.List` | List types derived from a base type |
 | `TypeInspect` | Inspect nested types of a given type |
+| `Eval` | Compile and execute C# code dynamically in the Unity Editor context |
 
 ### Settings Commands (auto-generated)
 
@@ -340,9 +341,61 @@ unicli exec EditorSettings.Inspect --json
 unicli exec Console.GetLog --json
 ```
 
+**Dynamic C# code execution (Eval):**
+
+`unicli eval` compiles and executes arbitrary C# code in the Unity Editor context. Use shell heredocs for multi-line code:
+
+```bash
+# Simple expression
+unicli eval 'return Application.unityVersion;' --json
+
+# Multi-line code with heredoc
+unicli eval "$(cat <<'EOF'
+var go = GameObject.Find("Main Camera");
+return go.transform.position;
+EOF
+)" --json
+
+# Void operations (no return needed)
+unicli eval "$(cat <<'EOF'
+var go = new GameObject("Created by Eval");
+go.AddComponent<BoxCollider>();
+EOF
+)" --json
+
+# With custom type declarations (--declarations)
+unicli eval "$(cat <<'EOF'
+var stats = new MyStats();
+stats.objectCount = GameObject.FindObjectsOfType<GameObject>().Length;
+stats.sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+return stats;
+EOF
+)" --declarations "$(cat <<'EOF'
+[System.Serializable]
+public class MyStats
+{
+    public int objectCount;
+    public string sceneName;
+}
+EOF
+)" --json
+```
+
+Options:
+- `--json` — JSON output
+- `--declarations '<code>'` — Additional type declarations (classes, structs, enums) included outside the Execute method
+- `--timeout <ms>` — Set command timeout
+
+## Running Custom Code
+
+When built-in commands don't cover what you need, choose the right approach based on the use case:
+
+1. **One-shot tasks**: Use Eval (`unicli eval`) for ad-hoc operations, quick inspections, prototyping, and tasks that don't need to be reused. No files to create or compile — just pass the code directly.
+2. **Reusable project commands**: Use `CommandHandler` when the operation will be called repeatedly or is part of the project's workflow. This provides type-safe parameters, structured responses, and discoverability via `unicli commands`.
+
 ## Custom Command Handlers
 
-When built-in commands are insufficient for complex or project-specific operations, implement a custom `CommandHandler` and call it via `unicli exec`. The server auto-discovers all `ICommandHandler` implementations via `TypeCache`, so no manual registration is required.
+The server auto-discovers all `ICommandHandler` implementations via `TypeCache`, so no manual registration is required.
 
 ### Directory structure
 

@@ -109,11 +109,15 @@ namespace UniCli.Server.Editor
                     }
                 }
 
+                var jsonData = result is IRawJsonResponse rawJson
+                    ? rawJson.ToJson()
+                    : JsonUtility.ToJson(result);
+
                 return new CommandResponse
                 {
                     success = true,
                     message = $"Command '{request.command}' succeeded",
-                    data = JsonUtility.ToJson(result),
+                    data = jsonData,
                     format = "json"
                 };
             }
@@ -146,11 +150,15 @@ namespace UniCli.Server.Editor
                     }
                 }
 
+                var failJsonData = ex.ResponseData is IRawJsonResponse failRawJson
+                    ? failRawJson.ToJson()
+                    : JsonUtility.ToJson(ex.ResponseData);
+
                 return new CommandResponse
                 {
                     success = false,
                     message = $"Command failed: {ex.Message}",
-                    data = JsonUtility.ToJson(ex.ResponseData),
+                    data = failJsonData,
                     format = "json"
                 };
             }
