@@ -59,7 +59,20 @@ namespace UniCli.Server.Editor.Handlers
 
                 try
                 {
-                    result = method.Invoke(null, null);
+                    var returnValue = method.Invoke(null, null);
+                    if (returnValue is Task<object> taskObj)
+                    {
+                        result = await taskObj;
+                    }
+                    else if (returnValue is Task task)
+                    {
+                        await task;
+                        result = null;
+                    }
+                    else
+                    {
+                        result = returnValue;
+                    }
                 }
                 catch (TargetInvocationException ex)
                 {
@@ -69,6 +82,18 @@ namespace UniCli.Server.Editor.Handlers
                         EvalResponse.FromError(
                             $"{inner.Message}\n{inner.StackTrace}",
                             inner.GetType().FullName));
+                }
+                catch (CommandFailedException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new CommandFailedException(
+                        $"Runtime error: {ex.Message}",
+                        EvalResponse.FromError(
+                            $"{ex.Message}\n{ex.StackTrace}",
+                            ex.GetType().FullName));
                 }
 
                 return EvalResponse.FromResult(result);
@@ -86,6 +111,7 @@ namespace UniCli.Server.Editor.Handlers
 $@"using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
 
@@ -93,7 +119,7 @@ using UnityEditor;
 
 public static class {className}
 {{
-    public static object Execute()
+    public static async System.Threading.Tasks.Task<object> Execute()
     {{
         {userCode}
         return null;
