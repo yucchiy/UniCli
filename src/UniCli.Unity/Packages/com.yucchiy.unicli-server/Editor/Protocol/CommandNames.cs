@@ -142,5 +142,15 @@ namespace UniCli.Server.Editor
             public const string Play = "Animator.Play";
             public const string CrossFade = "Animator.CrossFade";
         }
+
+        public static class Profiler
+        {
+            public const string Inspect = "Profiler.Inspect";
+            public const string StartRecording = "Profiler.StartRecording";
+            public const string StopRecording = "Profiler.StopRecording";
+            public const string SaveProfile = "Profiler.SaveProfile";
+            public const string GetFrameData = "Profiler.GetFrameData";
+            public const string TakeSnapshot = "Profiler.TakeSnapshot";
+        }
     }
 }

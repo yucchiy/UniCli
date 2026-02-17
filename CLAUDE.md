@@ -150,6 +150,18 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"Newtons
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Restore --json
 
+# Profiler operations
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.Inspect --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StartRecording --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StartRecording '{"deep":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StartRecording '{"editor":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StopRecording --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.GetFrameData --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.TakeSnapshot --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
