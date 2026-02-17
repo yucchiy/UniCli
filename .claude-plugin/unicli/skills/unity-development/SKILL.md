@@ -167,6 +167,12 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `NuGet.Install` | Install a NuGet package (requires NuGetForUnity) |
 | `NuGet.Uninstall` | Uninstall a NuGet package (requires NuGetForUnity) |
 | `NuGet.Restore` | Restore all NuGet packages (requires NuGetForUnity) |
+| `Profiler.Inspect` | Get profiler status and memory statistics |
+| `Profiler.StartRecording` | Start profiler recording |
+| `Profiler.StopRecording` | Stop profiler recording |
+| `Profiler.SaveProfile` | Save profiler data to a .raw file |
+| `Profiler.GetFrameData` | Get CPU profiler sample data for a specific frame |
+| `Profiler.TakeSnapshot` | Take a memory snapshot (.snap file) |
 
 ### Settings Commands (auto-generated)
 
@@ -410,6 +416,27 @@ unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
 
 # Restore all NuGet packages
 unicli exec NuGet.Restore --json
+```
+
+**Profiler operations:**
+
+```bash
+# Get profiler status and memory statistics
+unicli exec Profiler.Inspect --json
+
+# Record profiler data, then save
+unicli exec Profiler.StartRecording '{"editor":true}' --json
+# ... do work ...
+unicli exec Profiler.StopRecording --json
+unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
+
+# Get CPU sample data for the last recorded frame
+unicli exec Profiler.GetFrameData --json
+unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
+
+# Take a memory snapshot (.snap file for Memory Profiler)
+unicli exec Profiler.TakeSnapshot --json
+unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
 ```
 
 ## Running Custom Code

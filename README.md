@@ -328,6 +328,32 @@ EOF
 )" --json
 ```
 
+**Profiler operations:**
+
+```bash
+# Get profiler status and memory statistics
+unicli exec Profiler.Inspect --json
+
+# Start profiler recording (clears existing frames by default)
+unicli exec Profiler.StartRecording --json
+unicli exec Profiler.StartRecording '{"deep":true}' --json
+unicli exec Profiler.StartRecording '{"editor":true}' --json
+
+# Stop profiler recording
+unicli exec Profiler.StopRecording --json
+
+# Save profiler data to a .raw file
+unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
+
+# Get CPU sample data for the last frame (top 20 by default)
+unicli exec Profiler.GetFrameData --json
+unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
+
+# Take a memory snapshot (.snap file)
+unicli exec Profiler.TakeSnapshot --json
+unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+```
+
 **NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
 
 ```bash
@@ -429,6 +455,12 @@ The following commands are built in. You can also run `unicli commands` to see t
 | NuGet (optional)   | `NuGet.Install`                      | Install a NuGet package            |
 | NuGet (optional)   | `NuGet.Uninstall`                    | Uninstall a NuGet package          |
 | NuGet (optional)   | `NuGet.Restore`                      | Restore all NuGet packages         |
+| Profiler           | `Profiler.Inspect`                   | Get profiler status and memory statistics |
+| Profiler           | `Profiler.StartRecording`            | Start profiler recording           |
+| Profiler           | `Profiler.StopRecording`             | Stop profiler recording            |
+| Profiler           | `Profiler.SaveProfile`               | Save profiler data to a .raw file  |
+| Profiler           | `Profiler.GetFrameData`              | Get CPU profiler sample data for a specific frame |
+| Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 
