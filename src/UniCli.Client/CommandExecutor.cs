@@ -12,6 +12,7 @@ namespace UniCli.Client;
 internal static class CommandExecutor
 {
     private const int DefaultMaxRetries = 5;
+    private const int LaunchMaxRetries = 30;
     private const int RetryDelayMs = 1000;
 
     public static async Task<Result<CommandResponse, string>> SendAsync(
@@ -36,6 +37,7 @@ internal static class CommandExecutor
 
         string lastError = "";
         long focusSavedState = 0;
+        var launchAttempted = false;
 
         for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
@@ -45,6 +47,22 @@ internal static class CommandExecutor
             if (connectResult.IsError)
             {
                 lastError = connectResult.ErrorValue;
+
+                if (!launchAttempted && !UnityProcessActivator.IsUnityRunning(unityProjectRoot))
+                {
+                    launchAttempted = true;
+                    Console.Error.WriteLine("Unity is not running, launching...");
+                    var launchResult = UnityLauncher.Launch(unityProjectRoot);
+                    if (launchResult.IsError)
+                    {
+                        await RestoreFocusAsync(focusSavedState);
+                        return Result<CommandResponse, string>.Error(
+                            $"Failed to launch Unity Editor: {launchResult.ErrorValue}");
+                    }
+
+                    maxRetries = LaunchMaxRetries;
+                }
+
                 focusSavedState = await TryFocusOnceAsync(
                     focusEditor, focusSavedState, unityProjectRoot);
 
