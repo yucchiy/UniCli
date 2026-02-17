@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Unity.Profiling.Memory;
 
@@ -33,7 +34,7 @@ namespace UniCli.Server.Editor.Handlers
             return $"{bytes / (1024.0 * 1024 * 1024):F2} GB";
         }
 
-        protected override async ValueTask<ProfilerTakeSnapshotResponse> ExecuteAsync(ProfilerTakeSnapshotRequest request)
+        protected override async ValueTask<ProfilerTakeSnapshotResponse> ExecuteAsync(ProfilerTakeSnapshotRequest request, CancellationToken cancellationToken)
         {
             var path = request.path;
             if (string.IsNullOrEmpty(path))
@@ -61,7 +62,7 @@ namespace UniCli.Server.Editor.Handlers
                     tcs.TrySetException(new InvalidOperationException($"Failed to take memory snapshot at: {path}"));
             }, captureFlags);
 
-            var resultPath = await tcs.Task;
+            var resultPath = await tcs.Task.WithCancellation(cancellationToken);
 
             long size = 0;
             if (File.Exists(resultPath))

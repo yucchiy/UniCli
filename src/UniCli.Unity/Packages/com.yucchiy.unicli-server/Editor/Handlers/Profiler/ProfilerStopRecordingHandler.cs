@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UnityEditorInternal;
@@ -25,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ProfilerStopRecordingResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ProfilerStopRecordingResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var firstFrame = ProfilerDriver.firstFrameIndex;
             var lastFrame = ProfilerDriver.lastFrameIndex;

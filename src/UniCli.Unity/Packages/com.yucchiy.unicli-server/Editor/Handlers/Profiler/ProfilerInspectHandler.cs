@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UnityEditorInternal;
@@ -38,7 +39,7 @@ namespace UniCli.Server.Editor.Handlers
             return $"{bytes / (1024.0 * 1024 * 1024):F2} GB";
         }
 
-        protected override ValueTask<ProfilerInspectResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ProfilerInspectResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var firstFrame = ProfilerDriver.firstFrameIndex;
             var lastFrame = ProfilerDriver.lastFrameIndex;

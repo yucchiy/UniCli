@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditorInternal;
 
@@ -26,7 +27,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ProfilerStartRecordingResponse> ExecuteAsync(ProfilerStartRecordingRequest request)
+        protected override ValueTask<ProfilerStartRecordingResponse> ExecuteAsync(ProfilerStartRecordingRequest request, CancellationToken cancellationToken)
         {
             if (!request.keepFrames)
                 ProfilerDriver.ClearAllFrames();

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEditorInternal;
 
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ProfilerSaveProfileResponse> ExecuteAsync(ProfilerSaveProfileRequest request)
+        protected override ValueTask<ProfilerSaveProfileResponse> ExecuteAsync(ProfilerSaveProfileRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.path))
                 throw new ArgumentException("path is required");
