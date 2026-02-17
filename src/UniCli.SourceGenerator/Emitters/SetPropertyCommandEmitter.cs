@@ -35,7 +35,7 @@ namespace UniCli.SourceGenerator.Emitters
                 sb.AppendLine();
             }
 
-            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request)");
+            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request, CancellationToken cancellationToken)");
             sb.AppendLine("        {");
 
             var readExpr = EmitHelper.GetValueReadExpression(property.Symbol, settingsTypeFullName);

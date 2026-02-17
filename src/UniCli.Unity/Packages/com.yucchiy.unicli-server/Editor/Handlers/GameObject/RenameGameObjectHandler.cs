@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<RenameGameObjectResponse> ExecuteAsync(RenameGameObjectRequest request)
+        protected override ValueTask<RenameGameObjectResponse> ExecuteAsync(RenameGameObjectRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");

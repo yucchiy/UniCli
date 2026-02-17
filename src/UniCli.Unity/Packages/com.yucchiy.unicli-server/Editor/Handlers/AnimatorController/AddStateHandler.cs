@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -28,7 +29,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorControllerAddStateResponse> ExecuteAsync(
-            AnimatorControllerAddStateRequest request)
+            AnimatorControllerAddStateRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");

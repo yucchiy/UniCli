@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -22,7 +23,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorControllerRemoveParameterResponse> ExecuteAsync(
-            AnimatorControllerRemoveParameterRequest request)
+            AnimatorControllerRemoveParameterRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");

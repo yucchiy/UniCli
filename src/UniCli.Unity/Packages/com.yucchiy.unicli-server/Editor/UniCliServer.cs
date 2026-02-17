@@ -15,7 +15,7 @@ namespace UniCli.Server.Editor
     {
         private readonly string _pipeName;
         private readonly CommandDispatcher _dispatcher;
-        private readonly ConcurrentQueue<(CommandRequest request, Action<CommandResponse> callback)> _commandQueue;
+        private readonly ConcurrentQueue<(CommandRequest request, CancellationToken cancellationToken, Action<CommandResponse> callback)> _commandQueue;
         private readonly CancellationTokenSource _cts;
         private readonly Action<string> _logger;
         private readonly Action<string> _errorLogger;
@@ -33,7 +33,7 @@ namespace UniCli.Server.Editor
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _errorLogger = errorLogger ?? throw new ArgumentNullException(nameof(errorLogger));
 
-            _commandQueue = new ConcurrentQueue<(CommandRequest, Action<CommandResponse>)>();
+            _commandQueue = new ConcurrentQueue<(CommandRequest, CancellationToken, Action<CommandResponse>)>();
             _cts = new CancellationTokenSource();
 
             _serverLoop = Task.Run(
@@ -56,8 +56,8 @@ namespace UniCli.Server.Editor
 
             if (_commandQueue.TryDequeue(out var item))
             {
-                var (request, callback) = item;
-                _currentCommand = ProcessCommandAsync(request, callback);
+                var (request, cancellationToken, callback) = item;
+                _currentCommand = ProcessCommandAsync(request, cancellationToken, callback);
             }
         }
 
@@ -89,17 +89,27 @@ namespace UniCli.Server.Editor
             }
         }
 
-        private void OnCommandReceived(CommandRequest request, Action<CommandResponse> callback)
+        private void OnCommandReceived(CommandRequest request, CancellationToken cancellationToken, Action<CommandResponse> callback)
         {
-            _commandQueue.Enqueue((request, callback));
+            _commandQueue.Enqueue((request, cancellationToken, callback));
         }
 
-        private async Task ProcessCommandAsync(CommandRequest request, Action<CommandResponse> callback)
+        private async Task ProcessCommandAsync(CommandRequest request, CancellationToken cancellationToken, Action<CommandResponse> callback)
         {
             try
             {
-                var response = await _dispatcher.DispatchAsync(request);
+                var response = await _dispatcher.DispatchAsync(request, cancellationToken);
                 callback(response);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger($"[UniCli] Command '{request.command}' cancelled (client disconnected)");
+                callback(new CommandResponse
+                {
+                    success = false,
+                    message = "Command cancelled: client disconnected",
+                    data = ""
+                });
             }
             catch (Exception ex)
             {

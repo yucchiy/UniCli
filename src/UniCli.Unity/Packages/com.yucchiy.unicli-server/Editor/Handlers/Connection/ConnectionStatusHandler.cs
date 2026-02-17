@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -25,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ConnectionStatusResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ConnectionStatusResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var currentId = ProfilerDriver.connectedProfiler;
             return new ValueTask<ConnectionStatusResponse>(new ConnectionStatusResponse

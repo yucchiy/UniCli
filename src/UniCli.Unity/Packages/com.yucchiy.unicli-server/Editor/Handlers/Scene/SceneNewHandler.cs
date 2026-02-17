@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor.SceneManagement;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneNewRequest request)
+        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneNewRequest request, CancellationToken cancellationToken)
         {
             var setup = request.empty
                 ? NewSceneSetup.EmptyScene

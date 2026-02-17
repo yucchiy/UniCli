@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace UniCli.Server.Editor.Handlers
                 writer.WriteLine($"    {msg.message}");
         }
 
-        protected override ValueTask<BuildResponse> ExecuteAsync(BuildRequest request)
+        protected override ValueTask<BuildResponse> ExecuteAsync(BuildRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.locationPathName))
                 throw new ArgumentException("locationPathName is required.");

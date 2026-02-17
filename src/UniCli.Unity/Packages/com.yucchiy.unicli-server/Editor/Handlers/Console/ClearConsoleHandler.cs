@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -16,7 +17,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Console.Clear;
         public override string Description => "Clear Unity Editor console logs";
 
-        protected override ValueTask<ClearConsoleResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ClearConsoleResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var count = _logManager.GetLogCount();
             _logManager.ClearLogs();

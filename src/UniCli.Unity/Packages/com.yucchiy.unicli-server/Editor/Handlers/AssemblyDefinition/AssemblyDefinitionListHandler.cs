@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +46,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<AssemblyDefinitionListResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<AssemblyDefinitionListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var assemblies = CompilationPipeline.GetAssemblies(AssembliesType.Editor);
             var entries = new List<AssemblyDefinitionEntry>();

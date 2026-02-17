@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.GameObject.Find;
         public override string Description => "Find GameObjects by name, tag, layer, or component";
 
-        protected override ValueTask<FindGameObjectsResponse> ExecuteAsync(FindGameObjectsRequest request)
+        protected override ValueTask<FindGameObjectsResponse> ExecuteAsync(FindGameObjectsRequest request, CancellationToken cancellationToken)
         {
             var results = new List<GameObjectResult>();
             var totalFound = 0;

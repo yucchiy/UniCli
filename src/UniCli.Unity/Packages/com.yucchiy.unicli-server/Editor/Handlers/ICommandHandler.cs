@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Server.Editor.Internal;
@@ -10,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
         string CommandName { get; }
         string Description { get; }
         CommandInfo GetCommandInfo();
-        ValueTask<object> ExecuteAsync(object request);
+        ValueTask<object> ExecuteAsync(object request, CancellationToken cancellationToken);
     }
 
     public interface IResponseFormatter
@@ -39,7 +40,7 @@ namespace UniCli.Server.Editor.Handlers
             };
         }
 
-        public async ValueTask<object> ExecuteAsync(object request)
+        public async ValueTask<object> ExecuteAsync(object request, CancellationToken cancellationToken)
         {
             if (request is not CommandRequest commandRequest)
             {
@@ -64,7 +65,7 @@ namespace UniCli.Server.Editor.Handlers
                 }
             }
 
-            return await ExecuteAsync(typedRequest);
+            return await ExecuteAsync(typedRequest, cancellationToken);
         }
 
         public bool TryWriteFormatted(object response, bool success, IFormatWriter writer)
@@ -79,6 +80,6 @@ namespace UniCli.Server.Editor.Handlers
             return false;
         }
 
-        protected abstract ValueTask<TResponse> ExecuteAsync(TRequest request);
+        protected abstract ValueTask<TResponse> ExecuteAsync(TRequest request, CancellationToken cancellationToken);
     }
 }

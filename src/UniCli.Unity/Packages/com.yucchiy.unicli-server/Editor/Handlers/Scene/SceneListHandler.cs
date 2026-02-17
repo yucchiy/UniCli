@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -30,7 +31,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneListResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<SceneListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var count = SceneManager.sceneCount;
             var scenes = new SceneInfo[count];

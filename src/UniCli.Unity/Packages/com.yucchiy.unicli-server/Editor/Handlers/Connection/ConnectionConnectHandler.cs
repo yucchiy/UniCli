@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditorInternal;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ConnectionStatusResponse> ExecuteAsync(ConnectionConnectRequest request)
+        protected override ValueTask<ConnectionStatusResponse> ExecuteAsync(ConnectionConnectRequest request, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrEmpty(request.deviceId))
             {

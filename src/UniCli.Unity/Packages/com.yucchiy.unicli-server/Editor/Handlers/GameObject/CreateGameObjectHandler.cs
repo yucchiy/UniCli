@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(CreateGameObjectRequest request)
+        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(CreateGameObjectRequest request, CancellationToken cancellationToken)
         {
             var name = string.IsNullOrEmpty(request.name) ? "GameObject" : request.name;
 

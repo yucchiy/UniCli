@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => "TypeCache.List";
         public override string Description => "List types derived from a base type or matching a pattern";
 
-        protected override ValueTask<TypeCacheListResponse> ExecuteAsync(TypeCacheListRequest request)
+        protected override ValueTask<TypeCacheListResponse> ExecuteAsync(TypeCacheListRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.baseType))
             {

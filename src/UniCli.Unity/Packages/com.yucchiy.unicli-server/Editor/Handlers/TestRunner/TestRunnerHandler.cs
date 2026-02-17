@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UnityEditor.TestTools.TestRunner.Api;
@@ -14,9 +15,9 @@ namespace UniCli.Server.Editor.Handlers
         protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
             => TestRunnerResponseFormatter.TryWriteFormatted(response, success, writer);
 
-        protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request)
+        protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
-            return await TestRunnerHelper.RunTestsAsync(TestMode.EditMode, request);
+            return await TestRunnerHelper.RunTestsAsync(TestMode.EditMode, request, cancellationToken);
         }
     }
 
@@ -28,9 +29,9 @@ namespace UniCli.Server.Editor.Handlers
         protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
             => TestRunnerResponseFormatter.TryWriteFormatted(response, success, writer);
 
-        protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request)
+        protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
-            return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request);
+            return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request, cancellationToken);
         }
     }
 
@@ -62,7 +63,7 @@ namespace UniCli.Server.Editor.Handlers
 
     internal static class TestRunnerHelper
     {
-        public static async ValueTask<TestRunnerResponse> RunTestsAsync(TestMode testMode, TestRunRequest request)
+        public static async ValueTask<TestRunnerResponse> RunTestsAsync(TestMode testMode, TestRunRequest request, CancellationToken cancellationToken)
         {
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
             var tcs = new TaskCompletionSource<TestRunnerResponse>();
@@ -86,7 +87,7 @@ namespace UniCli.Server.Editor.Handlers
             try
             {
                 api.Execute(new ExecutionSettings(filter));
-                var response = await tcs.Task;
+                var response = await tcs.Task.WithCancellation(cancellationToken);
                 if (response.failed > 0)
                     throw new CommandFailedException($"{response.failed} test(s) failed", response);
                 return response;

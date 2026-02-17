@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,7 +12,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Menu.List;
         public override string Description => "List available Unity Editor menu items with filtering";
 
-        protected override ValueTask<GetMenuItemsResponse> ExecuteAsync(GetMenuItemsRequest request)
+        protected override ValueTask<GetMenuItemsResponse> ExecuteAsync(GetMenuItemsRequest request, CancellationToken cancellationToken)
         {
             var methods = TypeCache.GetMethodsWithAttribute<MenuItem>();
             var items = new List<MenuItemInfo>();

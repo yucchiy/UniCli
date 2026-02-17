@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorControllerAddTransitionConditionResponse> ExecuteAsync(
-            AnimatorControllerAddTransitionConditionRequest request)
+            AnimatorControllerAddTransitionConditionRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.sourceStateName))
                 throw new ArgumentException("sourceStateName is required");

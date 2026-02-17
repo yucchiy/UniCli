@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -20,7 +21,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneInfoResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<SceneInfoResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var scene = SceneManager.GetActiveScene();
 

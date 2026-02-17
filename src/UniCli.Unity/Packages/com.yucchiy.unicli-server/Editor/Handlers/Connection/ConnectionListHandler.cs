@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ConnectionListResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ConnectionListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var connectedId = ProfilerDriver.connectedProfiler;
             var connectedUrl = ProfilerDriver.directConnectionUrl;

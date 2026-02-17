@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<AddComponentResponse> ExecuteAsync(AddComponentRequest request)
+        protected override ValueTask<AddComponentResponse> ExecuteAsync(AddComponentRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.typeName))
                 throw new ArgumentException("typeName is required");

@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssetDatabase.Find;
         public override string Description => "Find assets by filter (e.g. t:Texture, l:MyLabel)";
 
-        protected override ValueTask<AssetFindResponse> ExecuteAsync(AssetFindRequest request)
+        protected override ValueTask<AssetFindResponse> ExecuteAsync(AssetFindRequest request, CancellationToken cancellationToken)
         {
             var guids = request.searchInFolders != null && request.searchInFolders.Length > 0
                 ? AssetDatabase.FindAssets(request.filter, request.searchInFolders)

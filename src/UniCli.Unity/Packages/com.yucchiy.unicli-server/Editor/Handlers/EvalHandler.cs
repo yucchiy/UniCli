@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UnityEditor;
@@ -32,7 +33,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override async ValueTask<EvalResponse> ExecuteAsync(EvalRequest request)
+        protected override async ValueTask<EvalResponse> ExecuteAsync(EvalRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.code))
                 throw new ArgumentException("code must not be empty");
@@ -50,7 +51,7 @@ namespace UniCli.Server.Editor.Handlers
                 var source = WrapUserCode(className, request.code, request.declarations);
                 await File.WriteAllTextAsync(sourcePath, source);
 
-                await CompileAsync(sourcePath, dllPath);
+                await CompileAsync(sourcePath, dllPath, cancellationToken);
 
                 var assembly = System.Reflection.Assembly.Load(await File.ReadAllBytesAsync(dllPath));
                 var type = assembly.GetType(className);
@@ -59,14 +60,14 @@ namespace UniCli.Server.Editor.Handlers
 
                 try
                 {
-                    var returnValue = method.Invoke(null, null);
+                    var returnValue = method.Invoke(null, new object[] { cancellationToken });
                     if (returnValue is Task<object> taskObj)
                     {
-                        result = await taskObj;
+                        result = await taskObj.WithCancellation(cancellationToken);
                     }
                     else if (returnValue is Task task)
                     {
-                        await task;
+                        await task.WithCancellation(cancellationToken);
                         result = null;
                     }
                     else
@@ -113,6 +114,7 @@ $@"#pragma warning disable CS0162 // Unreachable code detected
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
@@ -121,7 +123,7 @@ using UnityEditor;
 
 public static class {className}
 {{
-    public static async System.Threading.Tasks.Task<object> Execute()
+    public static async System.Threading.Tasks.Task<object> Execute(System.Threading.CancellationToken cancellationToken)
     {{
         {userCode}
         return null;
@@ -149,7 +151,7 @@ public static class {className}
             return refs.ToArray();
         }
 
-        private static async Task CompileAsync(string sourcePath, string dllPath)
+        private static async Task CompileAsync(string sourcePath, string dllPath, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<CompilerMessage[]>();
 
@@ -165,7 +167,7 @@ public static class {className}
                 throw new CommandFailedException("AssemblyBuilder.Build() failed to start",
                     EvalResponse.FromError("Failed to start compilation", "CompileError"));
 
-            var messages = await tcs.Task;
+            var messages = await tcs.Task.WithCancellation(cancellationToken);
 
             var errors = new System.Collections.Generic.List<string>();
             foreach (var msg in messages)

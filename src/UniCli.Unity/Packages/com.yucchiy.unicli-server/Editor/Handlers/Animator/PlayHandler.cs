@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<AnimatorPlayResponse> ExecuteAsync(AnimatorPlayRequest request)
+        protected override ValueTask<AnimatorPlayResponse> ExecuteAsync(AnimatorPlayRequest request, CancellationToken cancellationToken)
         {
             if (!EditorApplication.isPlaying)
             {

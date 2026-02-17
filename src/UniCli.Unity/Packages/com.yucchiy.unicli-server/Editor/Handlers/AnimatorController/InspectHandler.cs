@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorControllerInspectResponse> ExecuteAsync(
-            AnimatorControllerInspectRequest request)
+            AnimatorControllerInspectRequest request, CancellationToken cancellationToken)
         {
             var controller = AnimatorControllerResolver.Resolve(request.assetPath);
 

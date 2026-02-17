@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,13 +37,13 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override async ValueTask<PackageManagerGetInfoResponse> ExecuteAsync(PackageManagerGetInfoRequest request)
+        protected override async ValueTask<PackageManagerGetInfoResponse> ExecuteAsync(PackageManagerGetInfoRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 
             var listRequest = Client.List(true);
-            await PackageManagerRequestHelper.WaitForCompletion(listRequest);
+            await PackageManagerRequestHelper.WaitForCompletion(listRequest, cancellationToken);
 
             if (listRequest.Status == StatusCode.Failure)
                 throw new CommandFailedException(

@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,7 +40,7 @@ namespace UniCli.Server.Editor.Handlers
             }
         }
 
-        protected override ValueTask<CompilePlayerResponse> ExecuteAsync(CompilePlayerRequest request)
+        protected override ValueTask<CompilePlayerResponse> ExecuteAsync(CompilePlayerRequest request, CancellationToken cancellationToken)
         {
             var target = ResolveTarget(request.target);
             var targetGroup = BuildPipeline.GetBuildTargetGroup(target);

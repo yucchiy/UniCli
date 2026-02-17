@@ -25,7 +25,7 @@ namespace UniCli.SourceGenerator.Emitters
             sb.AppendLine($"        public override string CommandName => \"{info.CommandPrefix}.Inspect\";");
             sb.AppendLine($"        public override string Description => \"Inspect all {info.CommandPrefix} values\";");
             sb.AppendLine();
-            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync(Unit request)");
+            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync(Unit request, CancellationToken cancellationToken)");
             sb.AppendLine("        {");
             sb.AppendLine($"            var response = new {responseName}();");
 

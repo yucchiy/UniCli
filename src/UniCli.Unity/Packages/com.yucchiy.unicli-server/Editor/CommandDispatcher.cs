@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Server.Editor.Handlers;
@@ -64,7 +65,7 @@ namespace UniCli.Server.Editor
             return infos.ToArray();
         }
 
-        public async ValueTask<CommandResponse> DispatchAsync(CommandRequest request)
+        public async ValueTask<CommandResponse> DispatchAsync(CommandRequest request, CancellationToken cancellationToken)
         {
             if (!_handlers.TryGetValue(request.command, out var handler))
             {
@@ -80,7 +81,7 @@ namespace UniCli.Server.Editor
 
             try
             {
-                var result = await handler.ExecuteAsync(request);
+                var result = await handler.ExecuteAsync(request, cancellationToken);
 
                 if (result is Unit)
                 {

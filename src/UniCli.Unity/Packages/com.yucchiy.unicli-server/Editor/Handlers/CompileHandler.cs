@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace UniCli.Server.Editor.Handlers
             }
         }
 
-        protected override async ValueTask<CompileResponse> ExecuteAsync(Unit request)
+        protected override async ValueTask<CompileResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var errors = new List<CompileIssue>();
             var warnings = new List<CompileIssue>();
@@ -78,7 +79,7 @@ namespace UniCli.Server.Editor.Handlers
                     CompilationPipeline.RequestScriptCompilation();
                 }
 
-                await tcs.Task;
+                await tcs.Task.WithCancellation(cancellationToken);
             }
             finally
             {

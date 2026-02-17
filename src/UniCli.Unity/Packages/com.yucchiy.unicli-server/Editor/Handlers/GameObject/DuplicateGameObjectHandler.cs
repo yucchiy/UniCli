@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(DuplicateGameObjectRequest request)
+        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(DuplicateGameObjectRequest request, CancellationToken cancellationToken)
         {
             var go = GameObjectResolver.Resolve(request.instanceId, request.path);
             if (go == null)

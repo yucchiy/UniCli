@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,14 +37,14 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override async ValueTask<PackageManagerSearchResponse> ExecuteAsync(PackageManagerSearchRequest request)
+        protected override async ValueTask<PackageManagerSearchResponse> ExecuteAsync(PackageManagerSearchRequest request, CancellationToken cancellationToken)
         {
             PackageSearchEntry[] entries;
 
             if (string.IsNullOrEmpty(request.query))
             {
                 var searchRequest = Client.SearchAll();
-                await PackageManagerRequestHelper.WaitForCompletion(searchRequest);
+                await PackageManagerRequestHelper.WaitForCompletion(searchRequest, cancellationToken);
 
                 if (searchRequest.Status == StatusCode.Failure)
                     throw new CommandFailedException(
@@ -58,7 +59,7 @@ namespace UniCli.Server.Editor.Handlers
             else
             {
                 var searchRequest = Client.Search(request.query);
-                await PackageManagerRequestHelper.WaitForCompletion(searchRequest);
+                await PackageManagerRequestHelper.WaitForCompletion(searchRequest, cancellationToken);
 
                 if (searchRequest.Status == StatusCode.Failure)
                     throw new CommandFailedException(

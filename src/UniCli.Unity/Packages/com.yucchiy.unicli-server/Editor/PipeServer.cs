@@ -15,14 +15,14 @@ namespace UniCli.Server.Editor
         private const byte AckByte = 0x01;
 
         private readonly string _pipeName;
-        private readonly Action<CommandRequest, Action<CommandResponse>> _onCommandReceived;
+        private readonly Action<CommandRequest, CancellationToken, Action<CommandResponse>> _onCommandReceived;
         private readonly CancellationTokenSource _cts = new();
         private readonly TaskCompletionSource<bool> _shutdownTcs = new();
         private readonly Task _serverLoop;
 
         public PipeServer(
             string pipeName,
-            Action<CommandRequest, Action<CommandResponse>> onCommandReceived)
+            Action<CommandRequest, CancellationToken, Action<CommandResponse>> onCommandReceived)
         {
             _pipeName = pipeName ?? throw new ArgumentNullException(nameof(pipeName));
             _onCommandReceived = onCommandReceived ?? throw new ArgumentNullException(nameof(onCommandReceived));
@@ -117,13 +117,24 @@ namespace UniCli.Server.Editor
 
                                 try
                                 {
-                                    // Enqueue first, then ACK — client knows the request is accepted
                                     var responseTcs = new TaskCompletionSource<CommandResponse>();
-                                    _onCommandReceived(request, response => responseTcs.TrySetResult(response));
+                                    var commandCts = new CancellationTokenSource();
+
+                                    _onCommandReceived(request, commandCts.Token, response => responseTcs.TrySetResult(response));
 
                                     await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
                                     await server.FlushAsync(cancellationToken);
 
+                                    var monitorTask = MonitorDisconnectAsync(server, commandCts);
+                                    await Task.WhenAny(responseTcs.Task, monitorTask);
+
+                                    if (!responseTcs.Task.IsCompleted)
+                                    {
+                                        commandCts.Cancel();
+                                        break;
+                                    }
+
+                                    commandCts.Cancel();
                                     var commandResponse = await responseTcs.Task;
 
                                     var responseJson = JsonUtility.ToJson(commandResponse);
@@ -213,6 +224,20 @@ namespace UniCli.Server.Editor
                 totalRead += bytesRead;
             }
             return true;
+        }
+
+        private static async Task MonitorDisconnectAsync(NamedPipeServerStream server, CancellationTokenSource commandCts)
+        {
+            try
+            {
+                var buffer = new byte[1];
+                var bytesRead = await server.ReadAsync(buffer, 0, 1, commandCts.Token);
+                if (bytesRead == 0)
+                    commandCts.Cancel();
+            }
+            catch (OperationCanceledException) { }
+            catch (IOException) { commandCts.Cancel(); }
+            catch (ObjectDisposedException) { commandCts.Cancel(); }
         }
 
         public void Dispose()

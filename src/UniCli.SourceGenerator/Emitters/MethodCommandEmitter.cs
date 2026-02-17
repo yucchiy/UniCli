@@ -39,7 +39,7 @@ namespace UniCli.SourceGenerator.Emitters
                 sb.AppendLine();
             }
 
-            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request)");
+            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request, CancellationToken cancellationToken)");
             sb.AppendLine("        {");
 
             // Build parameter list
@@ -119,7 +119,7 @@ namespace UniCli.SourceGenerator.Emitters
                 sb.AppendLine();
             }
 
-            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request)");
+            sb.AppendLine($"        protected override ValueTask<{responseName}> ExecuteAsync({requestName} request, CancellationToken cancellationToken)");
             sb.AppendLine("        {");
 
             var paramExprs = method.Parameters

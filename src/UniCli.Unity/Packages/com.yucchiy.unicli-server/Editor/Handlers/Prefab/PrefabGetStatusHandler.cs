@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -25,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<PrefabGetStatusResponse> ExecuteAsync(PrefabGetStatusRequest request)
+        protected override ValueTask<PrefabGetStatusResponse> ExecuteAsync(PrefabGetStatusRequest request, CancellationToken cancellationToken)
         {
             var go = GameObjectResolver.Resolve(request.instanceId, request.path);
             if (go == null)

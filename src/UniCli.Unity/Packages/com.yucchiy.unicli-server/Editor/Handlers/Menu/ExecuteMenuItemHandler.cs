@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -9,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Menu.Execute;
         public override string Description => "Execute a Unity Editor menu item by path";
 
-        protected override ValueTask<ExecuteMenuItemResponse> ExecuteAsync(ExecuteMenuItemRequest request)
+        protected override ValueTask<ExecuteMenuItemResponse> ExecuteAsync(ExecuteMenuItemRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.menuItemPath))
             {
