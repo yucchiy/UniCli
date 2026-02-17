@@ -108,7 +108,9 @@ namespace UniCli.Server.Editor.Handlers
         private static string WrapUserCode(string className, string userCode, string declarations)
         {
             return
-$@"using System;
+$@"#pragma warning disable CS0162 // Unreachable code detected
+#pragma warning disable CS1998 // Async method lacks await
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
