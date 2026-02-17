@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor.PackageManager;
@@ -17,13 +18,13 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override async ValueTask<PackageManagerAddResponse> ExecuteAsync(PackageManagerAddRequest request)
+        protected override async ValueTask<PackageManagerAddResponse> ExecuteAsync(PackageManagerAddRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.identifier))
                 throw new ArgumentException("identifier is required");
 
             var addRequest = Client.Add(request.identifier);
-            await PackageManagerRequestHelper.WaitForCompletion(addRequest);
+            await PackageManagerRequestHelper.WaitForCompletion(addRequest, cancellationToken);
 
             if (addRequest.Status == StatusCode.Failure)
                 throw new CommandFailedException(

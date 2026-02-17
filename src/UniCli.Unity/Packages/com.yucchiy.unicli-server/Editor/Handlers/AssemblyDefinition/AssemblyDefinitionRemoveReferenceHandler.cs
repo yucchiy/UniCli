@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<AssemblyDefinitionRemoveReferenceResponse> ExecuteAsync(AssemblyDefinitionRemoveReferenceRequest request)
+        protected override ValueTask<AssemblyDefinitionRemoveReferenceResponse> ExecuteAsync(AssemblyDefinitionRemoveReferenceRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("Assembly definition name is required");

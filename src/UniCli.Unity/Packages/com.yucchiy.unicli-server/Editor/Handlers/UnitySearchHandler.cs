@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.Search;
         public override string Description => "Search Unity project using Unity Search API";
 
-        protected override ValueTask<UnitySearchResponse> ExecuteAsync(UnitySearchRequest request)
+        protected override ValueTask<UnitySearchResponse> ExecuteAsync(UnitySearchRequest request, CancellationToken cancellationToken)
         {
             var flags = SearchFlags.Synchronous;
             if (request.includePackages)

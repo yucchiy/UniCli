@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
             return true;
         }
 
-        protected override ValueTask<NuGetUninstallResponse> ExecuteAsync(NuGetUninstallRequest request)
+        protected override ValueTask<NuGetUninstallResponse> ExecuteAsync(NuGetUninstallRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.id))
                 throw new ArgumentException("id is required");

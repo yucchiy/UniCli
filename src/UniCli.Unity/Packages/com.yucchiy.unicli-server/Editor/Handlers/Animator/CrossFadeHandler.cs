@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -22,7 +23,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<AnimatorCrossFadeResponse> ExecuteAsync(AnimatorCrossFadeRequest request)
+        protected override ValueTask<AnimatorCrossFadeResponse> ExecuteAsync(AnimatorCrossFadeRequest request, CancellationToken cancellationToken)
         {
             if (!EditorApplication.isPlaying)
             {

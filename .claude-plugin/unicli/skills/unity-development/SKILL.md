@@ -367,6 +367,9 @@ go.AddComponent<BoxCollider>();
 EOF
 )" --json
 
+# Async/await (a cancellationToken variable is available in eval code)
+unicli eval 'await Task.Delay(100, cancellationToken); return "done";' --json
+
 # With custom type declarations (--declarations)
 unicli eval "$(cat <<'EOF'
 var stats = new MyStats();
@@ -389,6 +392,8 @@ Options:
 - `--json` — JSON output
 - `--declarations '<code>'` — Additional type declarations (classes, structs, enums) included outside the Execute method
 - `--timeout <ms>` — Set command timeout
+
+The generated eval code receives a `cancellationToken` variable (`System.Threading.CancellationToken`) that is cancelled when the client disconnects. Use it with `async`/`await` for cooperative cancellation (e.g., `await Task.Delay(1000, cancellationToken)`).
 
 **NuGet package management (requires NuGetForUnity):**
 
@@ -450,6 +455,7 @@ unicli exec MyCategory.MyAction --targetName "test" --json
 ### Handler implementation
 
 ```csharp
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Server.Editor.Handlers;
@@ -473,7 +479,7 @@ namespace MyProject.UniCli.Editor.Handlers
         public override string CommandName => "MyCategory.MyAction";
         public override string Description => "Description shown in unicli commands";
 
-        protected override ValueTask<MyResponse> ExecuteAsync(MyRequest request)
+        protected override ValueTask<MyResponse> ExecuteAsync(MyRequest request, CancellationToken cancellationToken)
         {
             return new ValueTask<MyResponse>(new MyResponse
             {
@@ -488,8 +494,27 @@ Key rules:
 - Request/Response types must be `[Serializable]` with **public fields** (not properties) — required by `JsonUtility`
 - Use `Unit` as `TRequest` when no input is needed, or as `TResponse` when no output is needed
 - Throw `CommandFailedException` with response data on failure
-- For async operations, use `TaskCompletionSource` + `await` to wait for Unity callbacks
+- For async operations, use `TaskCompletionSource` + `await` with `WithCancellation(cancellationToken)` to wait for Unity callbacks
 - Constructor parameters are resolved from `ServiceRegistry` for dependency injection
+
+### Async handlers and cancellation
+
+All handlers receive a `CancellationToken` that is cancelled when the client disconnects (e.g., Ctrl+C). For long-running async operations, use `WithCancellation` to ensure the server releases the command slot immediately on disconnect:
+
+```csharp
+protected override async ValueTask<MyResponse> ExecuteAsync(MyRequest request, CancellationToken cancellationToken)
+{
+    var tcs = new TaskCompletionSource<string>();
+    SomeAsyncUnityApi.Start(result => tcs.SetResult(result));
+
+    // Cancels the await if the client disconnects
+    var result = await tcs.Task.WithCancellation(cancellationToken);
+
+    return new MyResponse { value = result };
+}
+```
+
+For synchronous handlers that complete instantly, the `cancellationToken` parameter can be ignored.
 
 ## Tips
 

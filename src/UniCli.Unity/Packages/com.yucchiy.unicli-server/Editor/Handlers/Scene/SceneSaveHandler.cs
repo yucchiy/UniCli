@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneSaveResponse> ExecuteAsync(SceneSaveRequest request)
+        protected override ValueTask<SceneSaveResponse> ExecuteAsync(SceneSaveRequest request, CancellationToken cancellationToken)
         {
             if (request.all)
                 return SaveAllScenes();

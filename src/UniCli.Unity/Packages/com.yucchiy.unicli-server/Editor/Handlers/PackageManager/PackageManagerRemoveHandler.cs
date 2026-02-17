@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UniCli.Server.Editor;
@@ -18,13 +19,13 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override async ValueTask<PackageManagerRemoveResponse> ExecuteAsync(PackageManagerRemoveRequest request)
+        protected override async ValueTask<PackageManagerRemoveResponse> ExecuteAsync(PackageManagerRemoveRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 
             var removeRequest = Client.Remove(request.name);
-            await PackageManagerRequestHelper.WaitForCompletion(removeRequest);
+            await PackageManagerRequestHelper.WaitForCompletion(removeRequest, cancellationToken);
 
             if (removeRequest.Status == StatusCode.Failure)
                 throw new CommandFailedException(

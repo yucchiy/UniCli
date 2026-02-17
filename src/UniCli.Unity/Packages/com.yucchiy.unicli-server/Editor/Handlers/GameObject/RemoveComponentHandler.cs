@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -20,7 +21,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<RemoveComponentResponse> ExecuteAsync(RemoveComponentRequest request)
+        protected override ValueTask<RemoveComponentResponse> ExecuteAsync(RemoveComponentRequest request, CancellationToken cancellationToken)
         {
             if (request.componentInstanceId == 0)
                 throw new ArgumentException("componentInstanceId is required");

@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -24,7 +25,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorSetControllerResponse> ExecuteAsync(
-            AnimatorSetControllerRequest request)
+            AnimatorSetControllerRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.controllerAssetPath))
                 throw new ArgumentException("controllerAssetPath is required");

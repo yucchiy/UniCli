@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor.SceneManagement;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneOpenRequest request)
+        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneOpenRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.path))
                 throw new ArgumentException("path is required");

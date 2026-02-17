@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -9,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.GameObject.SetActive;
         public override string Description => "Set active state of a GameObject";
 
-        protected override ValueTask<SetActiveResponse> ExecuteAsync(SetActiveRequest request)
+        protected override ValueTask<SetActiveResponse> ExecuteAsync(SetActiveRequest request, CancellationToken cancellationToken)
         {
             var go = GameObjectResolver.Resolve(request.instanceId, request.path);
             if (go == null)

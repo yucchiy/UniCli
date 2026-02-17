@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -9,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssetDatabase.Delete;
         public override string Description => "Delete an asset";
 
-        protected override ValueTask<AssetDeleteResponse> ExecuteAsync(AssetDeleteRequest request)
+        protected override ValueTask<AssetDeleteResponse> ExecuteAsync(AssetDeleteRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.path))
                 throw new ArgumentException("path must be specified");

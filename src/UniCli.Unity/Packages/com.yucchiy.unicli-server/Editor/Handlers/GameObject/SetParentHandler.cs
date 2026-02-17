@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -20,7 +21,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SetParentResponse> ExecuteAsync(SetParentRequest request)
+        protected override ValueTask<SetParentResponse> ExecuteAsync(SetParentRequest request, CancellationToken cancellationToken)
         {
             var go = GameObjectResolver.Resolve(request.instanceId, request.path);
             if (go == null)

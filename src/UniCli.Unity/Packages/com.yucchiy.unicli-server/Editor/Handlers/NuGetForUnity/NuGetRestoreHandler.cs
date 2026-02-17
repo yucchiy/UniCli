@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
             return true;
         }
 
-        protected override ValueTask<NuGetRestoreResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<NuGetRestoreResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             PackageRestorer.Restore(false);
 

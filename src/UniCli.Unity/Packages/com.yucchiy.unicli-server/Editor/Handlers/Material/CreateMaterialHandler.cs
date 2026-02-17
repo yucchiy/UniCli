@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<CreateMaterialResponse> ExecuteAsync(CreateMaterialRequest request)
+        protected override ValueTask<CreateMaterialResponse> ExecuteAsync(CreateMaterialRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.assetPath))
                 throw new ArgumentException("assetPath is required");

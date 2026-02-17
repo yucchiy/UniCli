@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
             return true;
         }
 
-        protected override ValueTask<NuGetListResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<NuGetListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var packages = InstalledPackagesManager.InstalledPackages
                 .Select(p => new NuGetPackageEntry

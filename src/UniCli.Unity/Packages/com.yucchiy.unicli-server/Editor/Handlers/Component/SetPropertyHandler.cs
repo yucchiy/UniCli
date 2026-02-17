@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SetPropertyResponse> ExecuteAsync(SetPropertyRequest request)
+        protected override ValueTask<SetPropertyResponse> ExecuteAsync(SetPropertyRequest request, CancellationToken cancellationToken)
         {
             if (request.componentInstanceId == 0)
                 throw new ArgumentException("componentInstanceId is required");

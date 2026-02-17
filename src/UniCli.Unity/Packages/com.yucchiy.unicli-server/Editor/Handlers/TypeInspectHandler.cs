@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => "TypeInspect";
         public override string Description => "Inspect nested types of a given type";
 
-        protected override ValueTask<TypeInspectResponse> ExecuteAsync(TypeInspectRequest request)
+        protected override ValueTask<TypeInspectResponse> ExecuteAsync(TypeInspectRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.typeName))
             {

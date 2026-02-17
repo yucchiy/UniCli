@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
         }
 
         protected override ValueTask<AnimatorSetParameterResponse> ExecuteAsync(
-            AnimatorSetParameterRequest request)
+            AnimatorSetParameterRequest request, CancellationToken cancellationToken)
         {
             if (!EditorApplication.isPlaying)
             {

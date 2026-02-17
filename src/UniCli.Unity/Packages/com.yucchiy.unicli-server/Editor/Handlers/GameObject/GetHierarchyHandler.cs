@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ namespace UniCli.Server.Editor.Handlers
                 WriteNode(child, indent + 1, writer);
         }
 
-        protected override ValueTask<GetHierarchyResponse> ExecuteAsync(GetHierarchyRequest request)
+        protected override ValueTask<GetHierarchyResponse> ExecuteAsync(GetHierarchyRequest request, CancellationToken cancellationToken)
         {
             var scenes = new List<HierarchyScene>();
 

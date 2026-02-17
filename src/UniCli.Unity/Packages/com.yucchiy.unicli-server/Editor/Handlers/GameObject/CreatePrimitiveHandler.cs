@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(CreatePrimitiveRequest request)
+        protected override ValueTask<CreateGameObjectResponse> ExecuteAsync(CreatePrimitiveRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.primitiveType))
                 throw new ArgumentException("primitiveType is required (Cube, Sphere, Capsule, Cylinder, Plane, Quad)");

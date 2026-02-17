@@ -105,6 +105,7 @@ namespace UniCli.SourceGenerator.Emitters
         public static void AppendUsings(StringBuilder sb)
         {
             sb.AppendLine("using System;");
+            sb.AppendLine("using System.Threading;");
             sb.AppendLine("using System.Threading.Tasks;");
             sb.AppendLine("using UniCli.Protocol;");
             sb.AppendLine("using UniCli.Server.Editor.Handlers;");

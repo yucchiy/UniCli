@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<PrefabSaveResponse> ExecuteAsync(PrefabSaveRequest request)
+        protected override ValueTask<PrefabSaveResponse> ExecuteAsync(PrefabSaveRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.assetPath))
                 throw new ArgumentException("assetPath is required");

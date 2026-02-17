@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 
@@ -15,7 +16,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => "Commands.List";
         public override string Description => "List all available commands with their metadata";
 
-        protected override ValueTask<CommandListResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<CommandListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var response = new CommandListResponse
             {

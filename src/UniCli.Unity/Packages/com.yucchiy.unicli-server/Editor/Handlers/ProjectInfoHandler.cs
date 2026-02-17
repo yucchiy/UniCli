@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<ProjectInfoResponse> ExecuteAsync(Unit request)
+        protected override ValueTask<ProjectInfoResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
             var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(ProjectInfoHandler).Assembly);
 

@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
@@ -19,7 +20,7 @@ namespace UniCli.Server.Editor.Handlers
             return true;
         }
 
-        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneSetActiveRequest request)
+        protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneSetActiveRequest request, CancellationToken cancellationToken)
         {
             var scene = SceneResolver.Resolve(request.name, request.path, request.sceneIndex);
             if (!scene.IsValid())

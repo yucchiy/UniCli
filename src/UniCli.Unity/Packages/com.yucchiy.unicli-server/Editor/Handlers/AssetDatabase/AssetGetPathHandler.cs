@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -9,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.AssetDatabase.GetPath;
         public override string Description => "Convert between asset GUID and path";
 
-        protected override ValueTask<AssetGetPathResponse> ExecuteAsync(AssetGetPathRequest request)
+        protected override ValueTask<AssetGetPathResponse> ExecuteAsync(AssetGetPathRequest request, CancellationToken cancellationToken)
         {
             string guid;
             string path;

@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace UniCli.Server.Editor.Handlers
         public override string CommandName => CommandNames.GameObject.GetComponents;
         public override string Description => "Get detailed component information for a GameObject";
 
-        protected override ValueTask<GetComponentsResponse> ExecuteAsync(GetComponentsRequest request)
+        protected override ValueTask<GetComponentsResponse> ExecuteAsync(GetComponentsRequest request, CancellationToken cancellationToken)
         {
             var go = GameObjectResolver.Resolve(request.instanceId, request.path);
             if (go == null)
