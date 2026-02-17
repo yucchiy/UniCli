@@ -29,6 +29,7 @@ namespace UniCli.Server.Editor.Handlers
             writer.WriteLine($"Playing:   {(response.isPlaying ? "Yes" : "No")}");
             writer.WriteLine($"PID:       {response.processId}");
             writer.WriteLine($"Server ID: {response.serverId}");
+            writer.WriteLine($"Version:   {response.serverVersion}");
             writer.WriteLine($"Started:   {response.startedAt}");
             writer.WriteLine($"Uptime:    {response.uptimeSeconds:F1}s");
 
@@ -37,6 +38,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<ProjectInfoResponse> ExecuteAsync(Unit request)
         {
+            var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(ProjectInfoHandler).Assembly);
+
             var response = new ProjectInfoResponse
             {
                 unityVersion = Application.unityVersion,
@@ -47,6 +50,7 @@ namespace UniCli.Server.Editor.Handlers
                 isPlaying = EditorApplication.isPlaying,
                 processId = Process.GetCurrentProcess().Id,
                 serverId = _context.ServerId,
+                serverVersion = packageInfo?.version ?? "unknown",
                 startedAt = _context.StartedAt.ToString("yyyy-MM-dd HH:mm:ss"),
                 uptimeSeconds = (DateTime.Now - _context.StartedAt).TotalSeconds
             };
@@ -66,6 +70,7 @@ namespace UniCli.Server.Editor.Handlers
         public bool isPlaying;
         public int processId;
         public string serverId;
+        public string serverVersion;
         public string startedAt;
         public double uptimeSeconds;
     }

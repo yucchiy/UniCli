@@ -29,46 +29,76 @@ public partial class Commands
         var installed = source != null;
 
         var serverRunning = false;
+        string? serverVersion = null;
         if (installed)
         {
-            serverRunning = await ProbeServerAsync(projectRoot);
+            (serverRunning, serverVersion) = await ProbeServerAsync(projectRoot);
         }
 
-        var cliResult = BuildCheckResult(installed, source, serverRunning);
+        var clientVersion = VersionInfo.Version;
+        var versionMatch = serverVersion != null && serverVersion == clientVersion;
+
+        var cliResult = BuildCheckResult(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
         return OutputWriter.Write(cliResult, json);
     }
 
-    private static async Task<bool> ProbeServerAsync(string projectRoot)
+    private static async Task<(bool running, string? serverVersion)> ProbeServerAsync(string projectRoot)
     {
         var pipeName = ProjectIdentifier.GetPipeName(projectRoot);
 
         using var client = new PipeClient(pipeName);
         var connectResult = await client.ConnectAsync(timeoutMs: 2000);
         if (connectResult.IsError)
-            return false;
+            return (false, null);
 
         var request = new CommandRequest
         {
-            command = "Commands.List",
-            data = ""
+            command = "Project.Inspect",
+            data = "",
+            format = "json"
         };
 
         var sendResult = await client.SendCommandAsync(request, timeoutMs: 2000);
         return sendResult.Match(
-            onSuccess: response => response.success,
-            onError: _ => false);
+            onSuccess: response =>
+            {
+                if (!response.success)
+                    return (false, (string?)null);
+
+                string? version = null;
+                if (!string.IsNullOrEmpty(response.data))
+                {
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(response.data);
+                        if (doc.RootElement.TryGetProperty("serverVersion", out var versionEl))
+                            version = versionEl.GetString();
+                    }
+                    catch
+                    {
+                        // ignore parse failures
+                    }
+                }
+
+                return (true, version);
+            },
+            onError: _ => (false, null));
     }
 
-    private static CliResult BuildCheckResult(bool installed, string? source, bool serverRunning)
+    private static CliResult BuildCheckResult(
+        bool installed, string? source, bool serverRunning,
+        string clientVersion, string? serverVersion, bool versionMatch)
     {
-        var jsonData = BuildCheckJson(installed, source, serverRunning);
-        var formattedText = BuildCheckText(installed, source, serverRunning);
+        var jsonData = BuildCheckJson(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
+        var formattedText = BuildCheckText(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
         var message = installed ? "Package is installed" : "Package is not installed";
 
         return CliResult.Ok(message, jsonData, formattedText);
     }
 
-    private static string BuildCheckJson(bool installed, string? source, bool serverRunning)
+    private static string BuildCheckJson(
+        bool installed, string? source, bool serverRunning,
+        string clientVersion, string? serverVersion, bool versionMatch)
     {
         var buffer = new ArrayBufferWriter<byte>();
         using var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = false });
@@ -82,13 +112,23 @@ public partial class Commands
             writer.WriteNull("source");
 
         writer.WriteBoolean("serverRunning", serverRunning);
+        writer.WriteString("clientVersion", clientVersion);
+
+        if (serverVersion != null)
+            writer.WriteString("serverVersion", serverVersion);
+        else
+            writer.WriteNull("serverVersion");
+
+        writer.WriteBoolean("versionMatch", versionMatch);
         writer.WriteEndObject();
         writer.Flush();
 
         return System.Text.Encoding.UTF8.GetString(buffer.WrittenSpan);
     }
 
-    private static string BuildCheckText(bool installed, string? source, bool serverRunning)
+    private static string BuildCheckText(
+        bool installed, string? source, bool serverRunning,
+        string clientVersion, string? serverVersion, bool versionMatch)
     {
         var sb = new System.Text.StringBuilder();
 
@@ -97,7 +137,21 @@ public partial class Commands
         else
             sb.AppendLine("Package: not installed");
 
-        sb.Append($"Server:  {(serverRunning ? "running" : "not running")}");
+        sb.AppendLine($"Server:  {(serverRunning ? "running" : "not running")}");
+        sb.Append($"Client Version: {clientVersion}");
+
+        if (serverVersion != null)
+        {
+            sb.AppendLine();
+            sb.Append($"Server Version: {serverVersion}");
+            if (!versionMatch)
+                sb.Append(" (mismatch! run 'unicli install --update')");
+        }
+        else if (serverRunning)
+        {
+            sb.AppendLine();
+            sb.Append("Server Version: unknown");
+        }
 
         return sb.ToString();
     }
