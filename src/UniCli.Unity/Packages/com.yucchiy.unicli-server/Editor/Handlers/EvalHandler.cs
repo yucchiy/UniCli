@@ -237,9 +237,8 @@ public static class {className}
 
             try
             {
-                var json = JsonUtility.ToJson(result);
-                if (json != "{}")
-                    return (json, json);
+                var json = ReflectionSerialize(result);
+                return (json, json);
             }
             catch
             {
@@ -248,6 +247,79 @@ public static class {className}
 
             var str = result.ToString();
             return (EscapeJsonString(str), str);
+        }
+
+        private static string ReflectionSerialize(object obj)
+        {
+            if (obj == null) return "null";
+
+            var type = obj.GetType();
+
+            if (type == typeof(string))
+                return EscapeJsonString((string)obj);
+
+            if (type == typeof(bool))
+                return (bool)obj ? "true" : "false";
+
+            if (type.IsPrimitive)
+            {
+                if (type == typeof(float))
+                    return ((float)obj).ToString("G9");
+                if (type == typeof(double))
+                    return ((double)obj).ToString("G17");
+                return obj.ToString();
+            }
+
+            if (type.IsEnum)
+                return EscapeJsonString(obj.ToString());
+
+            if (type.IsArray)
+            {
+                var array = (Array)obj;
+                var sb = new StringBuilder();
+                sb.Append('[');
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (i > 0) sb.Append(',');
+                    sb.Append(ReflectionSerialize(array.GetValue(i)));
+                }
+                sb.Append(']');
+                return sb.ToString();
+            }
+
+            if (obj is System.Collections.IList list)
+            {
+                var sb = new StringBuilder();
+                sb.Append('[');
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (i > 0) sb.Append(',');
+                    sb.Append(ReflectionSerialize(list[i]));
+                }
+                sb.Append(']');
+                return sb.ToString();
+            }
+
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            if (fields.Length > 0)
+            {
+                var sb = new StringBuilder();
+                sb.Append('{');
+                var first = true;
+                foreach (var field in fields)
+                {
+                    if (!first) sb.Append(',');
+                    first = false;
+                    sb.Append('"');
+                    sb.Append(field.Name);
+                    sb.Append("\":");
+                    sb.Append(ReflectionSerialize(field.GetValue(obj)));
+                }
+                sb.Append('}');
+                return sb.ToString();
+            }
+
+            return EscapeJsonString(obj.ToString());
         }
 
         private static string EscapeJsonString(string s)
