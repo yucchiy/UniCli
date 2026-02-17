@@ -318,6 +318,23 @@ EOF
 )" --json
 ```
 
+**NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
+
+```bash
+# List installed NuGet packages
+unicli exec NuGet.List --json
+
+# Install a NuGet package
+unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
+unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
+
+# Uninstall a NuGet package
+unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
+
+# Restore all NuGet packages
+unicli exec NuGet.Restore --json
+```
+
 
 ## Available Commands
 
@@ -398,6 +415,10 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Utility            | `TypeCache.List`                     | List types derived from a base type |
 | Utility            | `TypeInspect`                        | Inspect nested types of a given type |
 | Eval               | `Eval`                               | Compile and execute C# code dynamically |
+| NuGet (optional)   | `NuGet.List`                         | List all installed NuGet packages  |
+| NuGet (optional)   | `NuGet.Install`                      | Install a NuGet package            |
+| NuGet (optional)   | `NuGet.Uninstall`                    | Uninstall a NuGet package          |
+| NuGet (optional)   | `NuGet.Restore`                      | Restore all NuGet packages         |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 

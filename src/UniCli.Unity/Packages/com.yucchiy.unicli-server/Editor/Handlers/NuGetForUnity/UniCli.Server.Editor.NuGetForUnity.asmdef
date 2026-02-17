@@ -1,0 +1,29 @@
+{
+    "name": "UniCli.Server.Editor.NuGetForUnity",
+    "rootNamespace": "UniCli.Server.Editor.Handlers.NuGetForUnity",
+    "references": [
+        "UniCli.Server.Editor",
+        "NuGetForUnity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NuGetForUnity.PluginAPI.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "NUGET_FOR_UNITY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.github-glitchenzo.nugetforunity",
+            "expression": "",
+            "define": "NUGET_FOR_UNITY"
+        }
+    ],
+    "noEngineReferences": false
+}
