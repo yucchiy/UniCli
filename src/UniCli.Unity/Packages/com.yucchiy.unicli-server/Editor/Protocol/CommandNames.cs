@@ -150,8 +150,11 @@ namespace UniCli.Server.Editor
             public const string StartRecording = "Profiler.StartRecording";
             public const string StopRecording = "Profiler.StopRecording";
             public const string SaveProfile = "Profiler.SaveProfile";
+            public const string LoadProfile = "Profiler.LoadProfile";
             public const string GetFrameData = "Profiler.GetFrameData";
             public const string TakeSnapshot = "Profiler.TakeSnapshot";
+            public const string AnalyzeFrames = "Profiler.AnalyzeFrames";
+            public const string FindSpikes = "Profiler.FindSpikes";
         }
 
         public static class Selection

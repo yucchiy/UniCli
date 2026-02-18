@@ -157,10 +157,18 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StartRecording '{"de
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StartRecording '{"editor":true}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.StopRecording --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.LoadProfile '{"path":"Profiles/capture.raw"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.LoadProfile '{"path":"Profiles/capture.raw","keepExistingData":true}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.GetFrameData --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.TakeSnapshot --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.AnalyzeFrames --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.AnalyzeFrames '{"startFrame":100,"endFrame":200,"topSampleCount":20}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.AnalyzeFrames '{"sampleNameFilter":"BehaviourUpdate"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6,"gcThresholdBytes":1024,"limit":5}' --json
 
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json

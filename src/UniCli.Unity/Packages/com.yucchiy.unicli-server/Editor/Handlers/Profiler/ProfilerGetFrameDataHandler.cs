@@ -29,7 +29,7 @@ namespace UniCli.Server.Editor.Handlers
                 writer.WriteLine(new string('-', 86));
                 foreach (var s in response.samples)
                 {
-                    writer.WriteLine($"{Truncate(s.name, 50),-50} {s.totalTimeMs,7:F2}ms {s.selfTimeMs,7:F2}ms {s.calls,6} {FormatBytes(s.gcAllocBytes),10}");
+                    writer.WriteLine($"{ProfilerFrameHelper.Truncate(s.name, 50),-50} {s.totalTimeMs,7:F2}ms {s.selfTimeMs,7:F2}ms {s.calls,6} {ProfilerFrameHelper.FormatBytes(s.gcAllocBytes),10}");
                 }
             }
             else
@@ -38,20 +38,6 @@ namespace UniCli.Server.Editor.Handlers
             }
 
             return true;
-        }
-
-        private static string Truncate(string s, int maxLen)
-        {
-            if (s == null) return "";
-            return s.Length <= maxLen ? s : s.Substring(0, maxLen - 3) + "...";
-        }
-
-        private static string FormatBytes(long bytes)
-        {
-            if (bytes == 0) return "0 B";
-            if (bytes < 1024L) return $"{bytes} B";
-            if (bytes < 1024L * 1024) return $"{bytes / 1024.0:F1} KB";
-            return $"{bytes / (1024.0 * 1024):F1} MB";
         }
 
         protected override ValueTask<ProfilerGetFrameDataResponse> ExecuteAsync(ProfilerGetFrameDataRequest request, CancellationToken cancellationToken)
@@ -76,61 +62,18 @@ namespace UniCli.Server.Editor.Handlers
                 var frameTimeMs = frameData.frameTimeMs;
                 var totalSamples = frameData.sampleCount;
 
-                var samples = CollectTopSamples(frameData, limit);
+                var allSamples = ProfilerFrameHelper.CollectAllSamples(frameData);
+                allSamples.Sort((a, b) => b.totalTimeMs.CompareTo(a.totalTimeMs));
+                if (allSamples.Count > limit)
+                    allSamples.RemoveRange(limit, allSamples.Count - limit);
 
                 return new ValueTask<ProfilerGetFrameDataResponse>(new ProfilerGetFrameDataResponse
                 {
                     frameIndex = frameIndex,
                     frameTimeMs = frameTimeMs,
                     totalSampleCount = totalSamples,
-                    samples = samples
+                    samples = allSamples.ToArray()
                 });
-            }
-        }
-
-        private static ProfilerSampleInfo[] CollectTopSamples(HierarchyFrameDataView frameData, int limit)
-        {
-            var rootId = frameData.GetRootItemID();
-            var children = new List<int>();
-            frameData.GetItemChildren(rootId, children);
-
-            var allSamples = new List<ProfilerSampleInfo>();
-
-            foreach (var childId in children)
-            {
-                CollectSamplesRecursive(frameData, childId, allSamples);
-            }
-
-            allSamples.Sort((a, b) => b.totalTimeMs.CompareTo(a.totalTimeMs));
-
-            if (allSamples.Count > limit)
-                allSamples.RemoveRange(limit, allSamples.Count - limit);
-
-            return allSamples.ToArray();
-        }
-
-        private static void CollectSamplesRecursive(HierarchyFrameDataView frameData, int itemId, List<ProfilerSampleInfo> results)
-        {
-            var name = frameData.GetItemName(itemId);
-            var totalTime = frameData.GetItemColumnDataAsFloat(itemId, HierarchyFrameDataView.columnTotalTime);
-            var selfTime = frameData.GetItemColumnDataAsFloat(itemId, HierarchyFrameDataView.columnSelfTime);
-            var calls = (int)frameData.GetItemColumnDataAsFloat(itemId, HierarchyFrameDataView.columnCalls);
-            var gcAlloc = (long)frameData.GetItemColumnDataAsFloat(itemId, HierarchyFrameDataView.columnGcMemory);
-
-            results.Add(new ProfilerSampleInfo
-            {
-                name = name,
-                totalTimeMs = totalTime,
-                selfTimeMs = selfTime,
-                calls = calls,
-                gcAllocBytes = gcAlloc
-            });
-
-            var children = new List<int>();
-            frameData.GetItemChildren(itemId, children);
-            foreach (var childId in children)
-            {
-                CollectSamplesRecursive(frameData, childId, results);
             }
         }
     }

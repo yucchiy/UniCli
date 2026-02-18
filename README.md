@@ -345,6 +345,9 @@ unicli exec Profiler.StopRecording --json
 # Save profiler data to a .raw file
 unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
 
+# Load profiler data from a .raw file
+unicli exec Profiler.LoadProfile '{"path":"Profiles/capture.raw"}' --json
+
 # Get CPU sample data for the last frame (top 20 by default)
 unicli exec Profiler.GetFrameData --json
 unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
@@ -352,6 +355,14 @@ unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
 # Take a memory snapshot (.snap file)
 unicli exec Profiler.TakeSnapshot --json
 unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+
+# Analyze recorded frames (aggregate statistics)
+unicli exec Profiler.AnalyzeFrames --json
+unicli exec Profiler.AnalyzeFrames '{"startFrame":100,"endFrame":200,"topSampleCount":20}' --json
+
+# Find spike frames (frame time or GC threshold)
+unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
+unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 ```
 
 **NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
@@ -459,8 +470,11 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Profiler           | `Profiler.StartRecording`            | Start profiler recording           |
 | Profiler           | `Profiler.StopRecording`             | Stop profiler recording            |
 | Profiler           | `Profiler.SaveProfile`               | Save profiler data to a .raw file  |
+| Profiler           | `Profiler.LoadProfile`               | Load profiler data from a .raw file |
 | Profiler           | `Profiler.GetFrameData`              | Get CPU profiler sample data for a specific frame |
 | Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
+| Profiler           | `Profiler.AnalyzeFrames`             | Analyze recorded frames and return aggregate statistics |
+| Profiler           | `Profiler.FindSpikes`                | Find frames exceeding frame time or GC allocation thresholds |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 

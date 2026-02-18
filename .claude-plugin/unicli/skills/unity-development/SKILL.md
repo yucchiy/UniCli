@@ -171,8 +171,11 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Profiler.StartRecording` | Start profiler recording |
 | `Profiler.StopRecording` | Stop profiler recording |
 | `Profiler.SaveProfile` | Save profiler data to a .raw file |
+| `Profiler.LoadProfile` | Load profiler data from a .raw file |
 | `Profiler.GetFrameData` | Get CPU profiler sample data for a specific frame |
 | `Profiler.TakeSnapshot` | Take a memory snapshot (.snap file) |
+| `Profiler.AnalyzeFrames` | Analyze recorded frames and return aggregate statistics |
+| `Profiler.FindSpikes` | Find frames exceeding frame time or GC allocation thresholds |
 
 ### Settings Commands (auto-generated)
 
@@ -430,6 +433,9 @@ unicli exec Profiler.StartRecording '{"editor":true}' --json
 unicli exec Profiler.StopRecording --json
 unicli exec Profiler.SaveProfile '{"path":"Profiles/capture.raw"}' --json
 
+# Load profiler data from a .raw file
+unicli exec Profiler.LoadProfile '{"path":"Profiles/capture.raw"}' --json
+
 # Get CPU sample data for the last recorded frame
 unicli exec Profiler.GetFrameData --json
 unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
@@ -437,6 +443,14 @@ unicli exec Profiler.GetFrameData '{"frame":10,"limit":5}' --json
 # Take a memory snapshot (.snap file for Memory Profiler)
 unicli exec Profiler.TakeSnapshot --json
 unicli exec Profiler.TakeSnapshot '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+
+# Analyze recorded frames (aggregate statistics)
+unicli exec Profiler.AnalyzeFrames --json
+unicli exec Profiler.AnalyzeFrames '{"startFrame":100,"endFrame":200,"topSampleCount":20}' --json
+
+# Find spike frames (frame time or GC threshold)
+unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
+unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 ```
 
 ## Running Custom Code
