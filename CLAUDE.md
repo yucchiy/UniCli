@@ -9,6 +9,9 @@
         - `src/UniCli.Unity/Assets/Samples`: Sample implementations for the server package
     - `src/UniCli.SourceGenerator`: Roslyn Source Generator for auto-generating Settings command handlers
 - `src/UniCli.Protocol`: Shared type definitions between `UniCli.Client` and `UniCli.Unity`
+- `samples`: Sample Unity projects for multi-version testing
+    - `samples/UniCli.Samples.Unity2022LTS`: Unity 2022.3 LTS project
+    - `samples/UniCli.Samples.Unity6LTS`: Unity 6 (6000.0) LTS project
 - `doc`: Documentation directory
 
 ## Quick Commands
@@ -216,6 +219,20 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 # 3. Run tests
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
+```
+
+### Multi-version testing with sample projects
+
+Sample Unity projects under `samples/` are used to verify commands across different Unity versions. Install the server package and test against each:
+
+```bash
+# Unity 2022.3 LTS
+UNICLI_PROJECT=samples/UniCli.Samples.Unity2022LTS .build/unicli exec Compile --json
+UNICLI_PROJECT=samples/UniCli.Samples.Unity2022LTS .build/unicli exec TestRunner.RunEditMode --json
+
+# Unity 6 LTS (6000.0) — supports BuildProfile commands
+UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec Compile --json
+UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec TestRunner.RunEditMode --json
 ```
 
 ### Maintaining documentation
