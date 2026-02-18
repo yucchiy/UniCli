@@ -157,6 +157,11 @@ namespace UniCli.Server.Editor
             public const string FindSpikes = "Profiler.FindSpikes";
         }
 
+        public static class Screenshot
+        {
+            public const string Capture = "Screenshot.Capture";
+        }
+
         public static class Selection
         {
             public const string Get = "Selection.Get";

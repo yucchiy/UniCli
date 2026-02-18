@@ -176,6 +176,7 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Profiler.TakeSnapshot` | Take a memory snapshot (.snap file) |
 | `Profiler.AnalyzeFrames` | Analyze recorded frames and return aggregate statistics |
 | `Profiler.FindSpikes` | Find frames exceeding frame time or GC allocation thresholds |
+| `Screenshot.Capture` | Capture a screenshot of the Game View and save as PNG (requires Play Mode) |
 
 ### Settings Commands (auto-generated)
 
@@ -451,6 +452,19 @@ unicli exec Profiler.AnalyzeFrames '{"startFrame":100,"endFrame":200,"topSampleC
 # Find spike frames (frame time or GC threshold)
 unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
 unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
+```
+
+**Screenshot operations (requires Play Mode):**
+
+```bash
+# Capture the Game View with default settings
+unicli exec Screenshot.Capture --json
+
+# Capture with a specific output path
+unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json
+
+# Capture with super-sampling (2x resolution)
+unicli exec Screenshot.Capture '{"path":"Screenshots/hires.png","superSize":2}' --json
 ```
 
 ## Running Custom Code

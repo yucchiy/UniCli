@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -32,7 +33,8 @@ internal static class CommandExecutor
         {
             command = command,
             data = data,
-            format = format
+            format = format,
+            cwd = Directory.GetCurrentDirectory()
         };
 
         string lastError = "";
