@@ -100,6 +100,8 @@ namespace UniCli.Server.Editor.Handlers
                     return property.rectValue.ToString();
                 case SerializedPropertyType.Bounds:
                     return property.boundsValue.ToString();
+                case SerializedPropertyType.Quaternion:
+                    return property.quaternionValue.ToString();
                 case SerializedPropertyType.LayerMask:
                     return property.intValue.ToString();
                 default:

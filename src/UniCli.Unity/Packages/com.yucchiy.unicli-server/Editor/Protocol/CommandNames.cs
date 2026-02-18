@@ -153,5 +153,22 @@ namespace UniCli.Server.Editor
             public const string GetFrameData = "Profiler.GetFrameData";
             public const string TakeSnapshot = "Profiler.TakeSnapshot";
         }
+
+        public static class Selection
+        {
+            public const string Get = "Selection.Get";
+            public const string SetGameObject = "Selection.SetGameObject";
+            public const string SetGameObjects = "Selection.SetGameObjects";
+            public const string SetAsset = "Selection.SetAsset";
+            public const string SetAssets = "Selection.SetAssets";
+        }
+
+        public static class Window
+        {
+            public const string Open = "Window.Open";
+            public const string Create = "Window.Create";
+            public const string List = "Window.List";
+            public const string Focus = "Window.Focus";
+        }
     }
 }
