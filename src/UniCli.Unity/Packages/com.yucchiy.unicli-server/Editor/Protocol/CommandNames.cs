@@ -12,6 +12,16 @@ namespace UniCli.Server.Editor
             public const string Compile = "BuildPlayer.Compile";
         }
 
+#if UNITY_6000_0_OR_NEWER
+        public static class BuildProfile
+        {
+            public const string List = "BuildProfile.List";
+            public const string GetActive = "BuildProfile.GetActive";
+            public const string SetActive = "BuildProfile.SetActive";
+            public const string Inspect = "BuildProfile.Inspect";
+        }
+#endif
+
         public static class Console
         {
             public const string GetLog = "Console.GetLog";

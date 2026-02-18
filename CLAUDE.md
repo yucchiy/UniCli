@@ -101,6 +101,14 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Compile --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Compile --target Android --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
 
+# BuildProfile operations (Unity 6+ only)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.GetActive --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.SetActive '{"path":"Assets/Settings/MyProfile.asset"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.SetActive '{"path":"none"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.Inspect '{"path":"Assets/Settings/MyProfile.asset"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildProfile.Inspect --json
+
 # Connection operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.List --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Status --json

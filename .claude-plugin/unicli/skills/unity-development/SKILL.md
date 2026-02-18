@@ -87,6 +87,10 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 |---|---|
 | `BuildPlayer.Build` | Build the player |
 | `BuildPlayer.Compile` | Compile player scripts for a build target |
+| `BuildProfile.List` | List all build profiles (Unity 6+ only) |
+| `BuildProfile.GetActive` | Get the active build profile (Unity 6+ only) |
+| `BuildProfile.SetActive` | Set the active build profile (Unity 6+ only) |
+| `BuildProfile.Inspect` | Inspect a build profile's details (Unity 6+ only) |
 | `Compile` | Compile scripts and return results |
 | `Connection.List` | List available connection targets (players/devices) |
 | `Connection.Connect` | Connect to a target by ID, IP, or device ID |
@@ -226,6 +230,16 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Andr
 unicli exec BuildPlayer.Compile --json
 unicli exec BuildPlayer.Compile --target Android --json
 unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
+```
+
+**Manage build profiles (Unity 6+ only):**
+
+```bash
+unicli exec BuildProfile.List --json
+unicli exec BuildProfile.GetActive --json
+unicli exec BuildProfile.SetActive '{"path":"Assets/Settings/MyProfile.asset"}' --json
+unicli exec BuildProfile.SetActive '{"path":"none"}' --json
+unicli exec BuildProfile.Inspect '{"path":"Assets/Settings/MyProfile.asset"}' --json
 ```
 
 **Run tests:**
