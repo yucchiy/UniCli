@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -29,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers
         public abstract string CommandName { get; }
         public abstract string Description { get; }
 
+        protected string ClientWorkingDirectory { get; private set; }
+
         public CommandInfo GetCommandInfo()
         {
             return new CommandInfo
@@ -46,6 +49,8 @@ namespace UniCli.Server.Editor.Handlers
             {
                 throw new System.ArgumentException($"Invalid request type. Expected CommandRequest, got {request?.GetType().Name ?? "null"}");
             }
+
+            ClientWorkingDirectory = commandRequest.cwd ?? "";
 
             TRequest typedRequest;
             if (typeof(TRequest) == typeof(Unit))
@@ -66,6 +71,15 @@ namespace UniCli.Server.Editor.Handlers
             }
 
             return await ExecuteAsync(typedRequest, cancellationToken);
+        }
+
+        protected string ResolvePath(string path)
+        {
+            if (string.IsNullOrEmpty(path) || Path.IsPathRooted(path))
+                return path;
+            if (string.IsNullOrEmpty(ClientWorkingDirectory))
+                return path;
+            return Path.Combine(ClientWorkingDirectory, path);
         }
 
         public bool TryWriteFormatted(object response, bool success, IFormatWriter writer)

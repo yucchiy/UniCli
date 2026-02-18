@@ -170,6 +170,11 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameT
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6,"gcThresholdBytes":1024,"limit":5}' --json
 
+# Screenshot operations (requires Play Mode)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"Screenshots/hires.png","superSize":2}' --json
+
 # Compile Unity project (also serves as a build verification for the server)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
