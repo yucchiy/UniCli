@@ -57,7 +57,7 @@ namespace UniCli.Server.Editor.Handlers
             {
                 profile = BuildProfile.GetActiveBuildProfile();
                 if (profile == null)
-                    throw new CommandFailedException("No active build profile. Specify a path or set an active profile.");
+                    throw new CommandFailedException("No active build profile. Specify a path or set an active profile.", new BuildProfileInspectResponse());
                 path = AssetDatabase.GetAssetPath(profile);
             }
             else
@@ -65,7 +65,7 @@ namespace UniCli.Server.Editor.Handlers
                 path = request.path;
                 profile = AssetDatabase.LoadAssetAtPath<BuildProfile>(path);
                 if (profile == null)
-                    throw new CommandFailedException($"Build profile not found at '{path}'");
+                    throw new CommandFailedException($"Build profile not found at '{path}'", new BuildProfileInspectResponse { path = path });
             }
 
             var activeProfile = BuildProfile.GetActiveBuildProfile();
