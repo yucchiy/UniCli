@@ -170,6 +170,14 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameT
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6,"gcThresholdBytes":1024,"limit":5}' --json
 
+# Recorder operations (requires Play Mode and com.unity.recorder package)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording '{"path":"Recordings/test.mp4"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording '{"format":"WebM","quality":"High","frameRate":60}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording '{"width":1920,"height":1080}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.Status --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StopRecording --json
+
 # Screenshot operations (requires Play Mode)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json

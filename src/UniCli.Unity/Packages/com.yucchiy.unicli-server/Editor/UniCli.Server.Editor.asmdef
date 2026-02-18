@@ -1,7 +1,9 @@
 {
     "name": "UniCli.Server.Editor",
     "rootNamespace": "UniCli.Server.Editor",
-    "references": [],
+    "references": [
+        "Unity.Recorder.Editor"
+    ],
     "includePlatforms": [
         "Editor"
     ],
@@ -12,6 +14,12 @@
     ],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.recorder",
+            "expression": "",
+            "define": "UNICLI_RECORDER"
+        }
+    ],
     "noEngineReferences": false
 }
