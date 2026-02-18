@@ -157,6 +157,15 @@ namespace UniCli.Server.Editor
             public const string FindSpikes = "Profiler.FindSpikes";
         }
 
+#if UNICLI_RECORDER
+        public static class Recorder
+        {
+            public const string StartRecording = "Recorder.StartRecording";
+            public const string StopRecording = "Recorder.StopRecording";
+            public const string Status = "Recorder.Status";
+        }
+#endif
+
         public static class Screenshot
         {
             public const string Capture = "Screenshot.Capture";

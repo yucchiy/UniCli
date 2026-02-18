@@ -176,6 +176,9 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Profiler.TakeSnapshot` | Take a memory snapshot (.snap file) |
 | `Profiler.AnalyzeFrames` | Analyze recorded frames and return aggregate statistics |
 | `Profiler.FindSpikes` | Find frames exceeding frame time or GC allocation thresholds |
+| `Recorder.StartRecording` | Start recording Game View as video (requires Play Mode and com.unity.recorder) |
+| `Recorder.StopRecording` | Stop the current video recording |
+| `Recorder.Status` | Get the current recording status |
 | `Screenshot.Capture` | Capture a screenshot of the Game View and save as PNG (requires Play Mode) |
 
 ### Settings Commands (auto-generated)
@@ -465,6 +468,22 @@ unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json
 
 # Capture with super-sampling (2x resolution)
 unicli exec Screenshot.Capture '{"path":"Screenshots/hires.png","superSize":2}' --json
+```
+
+**Video recording (requires Play Mode and com.unity.recorder):**
+
+```bash
+# Start recording with default settings (MP4, 30fps)
+unicli exec Recorder.StartRecording --json
+
+# Start with custom settings
+unicli exec Recorder.StartRecording '{"path":"Recordings/demo.mp4","format":"MP4","frameRate":60,"width":1920,"height":1080}' --json
+
+# Check recording status
+unicli exec Recorder.Status --json
+
+# Stop recording and save file
+unicli exec Recorder.StopRecording --json
 ```
 
 ## Running Custom Code
