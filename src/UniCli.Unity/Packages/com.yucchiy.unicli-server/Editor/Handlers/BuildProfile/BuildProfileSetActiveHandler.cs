@@ -43,7 +43,7 @@ namespace UniCli.Server.Editor.Handlers
 
             var profile = AssetDatabase.LoadAssetAtPath<BuildProfile>(request.path);
             if (profile == null)
-                throw new CommandFailedException($"Build profile not found at '{request.path}'");
+                throw new CommandFailedException($"Build profile not found at '{request.path}'", new BuildProfileSetActiveResponse { name = "", path = request.path });
 
             BuildProfile.SetActiveBuildProfile(profile);
 
