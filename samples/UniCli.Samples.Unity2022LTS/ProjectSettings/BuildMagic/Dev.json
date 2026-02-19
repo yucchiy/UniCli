@@ -1,0 +1,27 @@
+{
+    "_name": "Dev",
+    "_postBuildConfigurations": [],
+    "_internalPrepareConfigurations": [],
+    "_preBuildConfigurations": [
+        {
+            "rid": 1000
+        }
+    ],
+    "_baseSchemeName": "",
+    "references": {
+        "version": 2,
+        "RefIds": [
+            {
+                "rid": 1000,
+                "type": {
+                    "class": "EditorUserBuildSettingsSetDevelopmentTaskConfiguration",
+                    "ns": "BuildMagicEditor.BuiltIn",
+                    "asm": "BuildMagic.Editor"
+                },
+                "data": {
+                    "_value": true
+                }
+            }
+        ]
+    }
+}

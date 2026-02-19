@@ -141,6 +141,13 @@
       "source": "local",
       "dependencies": {}
     },
+    "jp.co.cyberagent.buildmagic": {
+      "version": "https://github.com/CyberAgentGameEntertainment/BuildMagic.git?path=/Packages/jp.co.cyberagent.buildmagic",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "98b119d519dcca44c17d1868257a90b8c88d55cc"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

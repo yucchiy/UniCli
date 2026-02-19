@@ -37,6 +37,7 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
+    "jp.co.cyberagent.buildmagic": "https://github.com/CyberAgentGameEntertainment/BuildMagic.git?path=/Packages/jp.co.cyberagent.buildmagic",
     "com.yucchiy.unicli-server": "file:../../../src/UniCli.Unity/Packages/com.yucchiy.unicli-server"
   }
 }
