@@ -1,0 +1,27 @@
+{
+    "name": "UniCli.Server.Editor.BuildMagic",
+    "rootNamespace": "UniCli.Server.Editor.Handlers.BuildMagic",
+    "references": [
+        "UniCli.Server.Editor",
+        "BuildMagic.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNICLI_BUILDMAGIC"
+    ],
+    "versionDefines": [
+        {
+            "name": "jp.co.cyberagent.buildmagic",
+            "expression": "",
+            "define": "UNICLI_BUILDMAGIC"
+        }
+    ],
+    "noEngineReferences": false
+}
