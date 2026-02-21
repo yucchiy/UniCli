@@ -47,7 +47,7 @@ namespace UniCli.Server.Editor
                 }
                 _shutdownTcs.TrySetResult(true);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 _shutdownTcs.TrySetCanceled();
             }
