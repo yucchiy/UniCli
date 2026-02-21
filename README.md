@@ -15,10 +15,10 @@ UniCli consists of two components:
 ### Architecture
 
 ```
-┌──────────┐   Named Pipe    ┌────────────────┐  PlayerConnection  ┌────────────────┐
-│  unicli   │◄──────────────►│  Unity Editor  │◄──────────────────►│     Device     │
-│  (CLI)    │ Length-prefixed │  (Server)      │ Chunked messages   │  (Dev Build)   │
-│           │ JSON messages   │                │                    │                │
+┌──────────┐  Named Pipe     ┌────────────────┐  PlayerConnection  ┌────────────────┐
+│  unicli  │◄───────────────►│  Unity Editor  │◄──────────────────►│     Device     │
+│  (CLI)   │ Length-prefixed │  (Server)      │ Chunked messages   │  (Dev Build)   │
+│          │ JSON messages   │                │                    │                │
 └──────────┘                 └────────────────┘                    └────────────────┘
 ```
 
