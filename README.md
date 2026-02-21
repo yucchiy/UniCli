@@ -186,6 +186,13 @@ unicli exec Connection.Connect '{"id":-1}'
 unicli exec Connection.Connect '{"ip":"192.168.1.100"}'
 unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}'
 
+# List debug commands on connected runtime player
+unicli exec Remote.List
+
+# Invoke a debug command on connected runtime player
+unicli exec Remote.Invoke '{"command":"Debug.ShowStats"}'
+unicli exec Remote.Invoke '{"command":"Debug.ToggleHitboxes","data":"{\"enabled\":true}"}'
+
 # Run tests
 unicli exec TestRunner.RunEditMode
 unicli exec TestRunner.RunPlayMode
@@ -475,6 +482,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
 | Profiler           | `Profiler.AnalyzeFrames`             | Analyze recorded frames and return aggregate statistics |
 | Profiler           | `Profiler.FindSpikes`                | Find frames exceeding frame time or GC allocation thresholds |
+| Remote             | `Remote.List`                        | List debug commands on connected runtime player |
+| Remote             | `Remote.Invoke`                      | Invoke a debug command on connected runtime player |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 

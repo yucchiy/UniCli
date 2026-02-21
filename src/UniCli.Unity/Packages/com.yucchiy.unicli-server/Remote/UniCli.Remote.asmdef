@@ -1,0 +1,17 @@
+{
+  "name": "UniCli.Remote",
+  "rootNamespace": "UniCli.Remote",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UNICLI_REMOTE || UNITY_EDITOR",
+    "DEVELOPMENT_BUILD || UNITY_EDITOR"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

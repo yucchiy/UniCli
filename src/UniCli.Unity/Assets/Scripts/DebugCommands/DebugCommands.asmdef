@@ -1,0 +1,19 @@
+{
+  "name": "DebugCommands",
+  "rootNamespace": "",
+  "references": [
+    "UniCli.Remote"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UNICLI_REMOTE || UNITY_EDITOR",
+    "DEVELOPMENT_BUILD || UNITY_EDITOR"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

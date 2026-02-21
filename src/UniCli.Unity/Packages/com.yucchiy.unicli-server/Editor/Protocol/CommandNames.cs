@@ -63,6 +63,7 @@ namespace UniCli.Server.Editor
             public const string Rename = "GameObject.Rename";
             public const string SetParent = "GameObject.SetParent";
             public const string CreatePrimitive = "GameObject.CreatePrimitive";
+            public const string CreateMultiple = "GameObject.CreateMultiple";
         }
 
         public static class Component
@@ -127,6 +128,12 @@ namespace UniCli.Server.Editor
             public const string List = "Connection.List";
             public const string Connect = "Connection.Connect";
             public const string Status = "Connection.Status";
+        }
+
+        public static class Remote
+        {
+            public const string List = "Remote.List";
+            public const string Invoke = "Remote.Invoke";
         }
 
         public static class Material

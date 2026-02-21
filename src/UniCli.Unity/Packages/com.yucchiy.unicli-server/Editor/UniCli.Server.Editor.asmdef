@@ -2,6 +2,7 @@
     "name": "UniCli.Server.Editor",
     "rootNamespace": "UniCli.Server.Editor",
     "references": [
+        "UniCli.Remote",
         "Unity.Recorder.Editor"
     ],
     "includePlatforms": [

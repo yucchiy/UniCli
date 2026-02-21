@@ -119,6 +119,12 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"id":-1}
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"ip":"192.168.1.100"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}' --json
 
+# Remote debug commands (requires Development Build connected via PlayerConnection)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.ShowStats"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.ToggleHitboxes","data":"{\"enabled\":true}"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.ShowStats","playerId":1}' --json
+
 # Material operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Material.Create '{"assetPath":"Assets/Materials/MyMat.mat"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Material.Create '{"assetPath":"Assets/Materials/MyMat.mat","shader":"Standard"}' --json
