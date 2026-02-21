@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class SceneListHandler : CommandHandler<Unit, SceneListResponse>
     {
         public override string CommandName => CommandNames.Scene.List;
-        public override string Description => "List all loaded scenes (SceneManager)";
+        public override string Description => "List all loaded scenes via SceneManager";
 
         protected override bool TryWriteFormatted(SceneListResponse response, bool success, IFormatWriter writer)
         {

@@ -60,7 +60,7 @@ When a command uses a concept-based name that differs from the Unity API, includ
 
 ```csharp
 // Good: users can find this via `unicli commands | grep PrefabUtility`
-public override string Description => "Save a GameObject as a prefab asset (PrefabUtility.SaveAsPrefabAsset)";
+public override string Description => "Save a GameObject as a prefab asset via PrefabUtility";
 
 // Good: API name matches, no extra annotation needed
 public override string Description => "Search assets in the AssetDatabase";
@@ -96,5 +96,5 @@ When naming a new command, walk through these questions:
    - No -> Reconsider the name
 
 4. **Does the command name differ from the Unity API name?**
-   - Yes -> Include the API name in the `Description` (e.g., `"... (PrefabUtility.SaveAsPrefabAsset)"`)
+   - Yes -> Include the API name naturally in the `Description` (e.g., `"... via PrefabUtility"`)
    - No -> No extra annotation needed

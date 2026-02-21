@@ -255,6 +255,8 @@ When adding or modifying commands, update the following files to keep them in sy
 - `README.md` — Available Commands table and Examples section
 - `.claude-plugin/unicli/skills/unity-development/SKILL.md` — Built-in Commands table and Common Workflows section
 
+When creating new commands, follow the naming conventions in `doc/command-naming-guidelines.md`.
+
 ### Releasing a new version
 
 1. Create a `release/vX.Y.Z` branch from `main`

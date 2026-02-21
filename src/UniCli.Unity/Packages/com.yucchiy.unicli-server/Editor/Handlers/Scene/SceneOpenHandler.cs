@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class SceneOpenHandler : CommandHandler<SceneOpenRequest, SceneInfoResponse>
     {
         public override string CommandName => CommandNames.Scene.Open;
-        public override string Description => "Open a scene by asset path (EditorSceneManager)";
+        public override string Description => "Open a scene by asset path via EditorSceneManager";
 
         protected override bool TryWriteFormatted(SceneInfoResponse response, bool success, IFormatWriter writer)
         {

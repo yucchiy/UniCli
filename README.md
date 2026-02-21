@@ -586,6 +586,8 @@ Once the handler is placed anywhere in your Unity project, it becomes immediatel
 unicli exec MyApp.Greet --name "World"
 ```
 
+For naming conventions (when to use concept-based names like `Scene.*` vs API-direct names like `AssetDatabase.*`), see [`doc/command-naming-guidelines.md`](doc/command-naming-guidelines.md).
+
 For commands that require no input or produce no output, use `Unit` as the type parameter:
 
 ```csharp

@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class PrefabSaveHandler : CommandHandler<PrefabSaveRequest, PrefabSaveResponse>
     {
         public override string CommandName => CommandNames.Prefab.Save;
-        public override string Description => "Save a GameObject as a prefab asset (PrefabUtility)";
+        public override string Description => "Save a GameObject as a prefab asset via PrefabUtility";
 
         protected override bool TryWriteFormatted(PrefabSaveResponse response, bool success, IFormatWriter writer)
         {
