@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(UNICLI_PROJECT=* .build/unicli *)",
+      "Bash(UNICLI_PROJECT=* unicli *)",
+      "Bash(.build/unicli *)",
+      "Bash(unicli *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet publish *)",
+      "Bash(dotnet restore *)"
+    ]
+  }
+}
