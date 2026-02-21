@@ -5,8 +5,8 @@ namespace UniCli.Remote
 {
     [Preserve]
     [Serializable]
-    public struct RuntimeUnit
+    public struct Unit
     {
-        public static readonly RuntimeUnit Value = default;
+        public static readonly Unit Value = default;
     }
 }

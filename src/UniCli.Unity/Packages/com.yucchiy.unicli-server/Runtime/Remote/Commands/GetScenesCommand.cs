@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.GetScenes", "List all loaded scenes")]
-    public sealed class GetScenesCommand : DebugCommand<RuntimeUnit, GetScenesCommand.Response>
+    public sealed class GetScenesCommand : DebugCommand<Unit, GetScenesCommand.Response>
     {
-        protected override Response ExecuteCommand(RuntimeUnit request)
+        protected override Response ExecuteCommand(Unit request)
         {
             var activeScene = SceneManager.GetActiveScene();
             var scenes = new List<SceneInfo>();

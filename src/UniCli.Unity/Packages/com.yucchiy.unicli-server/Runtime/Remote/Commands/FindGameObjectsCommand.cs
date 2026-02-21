@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.FindGameObjects", "Find GameObjects by name (substring match)")]
     public sealed class FindGameObjectsCommand : DebugCommand<FindGameObjectsCommand.Request, FindGameObjectsCommand.Response>
     {

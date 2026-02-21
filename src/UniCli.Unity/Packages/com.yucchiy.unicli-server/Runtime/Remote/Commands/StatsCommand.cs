@@ -2,15 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.Stats", "Get runtime performance statistics")]
-    public sealed class StatsCommand : DebugCommand<RuntimeUnit, StatsCommand.Response>
+    public sealed class StatsCommand : DebugCommand<Unit, StatsCommand.Response>
     {
-        protected override Response ExecuteCommand(RuntimeUnit request)
+        protected override Response ExecuteCommand(Unit request)
         {
             var resolution = Screen.currentResolution;
 

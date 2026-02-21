@@ -1,10 +1,8 @@
 using System;
 using UnityEngine;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.GetPlayerPref", "Get a PlayerPrefs value by key")]
     public sealed class GetPlayerPrefCommand : DebugCommand<GetPlayerPrefCommand.Request, GetPlayerPrefCommand.Response>
     {

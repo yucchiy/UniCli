@@ -1,14 +1,12 @@
 using System;
 using UnityEngine;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.SystemInfo", "Get device and application information")]
-    public sealed class SystemInfoCommand : DebugCommand<RuntimeUnit, SystemInfoCommand.Response>
+    public sealed class SystemInfoCommand : DebugCommand<Unit, SystemInfoCommand.Response>
     {
-        protected override Response ExecuteCommand(RuntimeUnit request)
+        protected override Response ExecuteCommand(Unit request)
         {
             return new Response
             {

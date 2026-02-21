@@ -17,9 +17,9 @@ namespace UniCli.Remote
         public override string Execute(string requestJson)
         {
             TRequest request;
-            if (typeof(TRequest) == typeof(RuntimeUnit))
+            if (typeof(TRequest) == typeof(Unit))
             {
-                request = (TRequest)(object)RuntimeUnit.Value;
+                request = (TRequest)(object)Unit.Value;
             }
             else if (string.IsNullOrEmpty(requestJson))
             {
@@ -32,7 +32,7 @@ namespace UniCli.Remote
 
             var response = ExecuteCommand(request);
 
-            if (response is RuntimeUnit)
+            if (response is Unit)
                 return "";
 
             return JsonUtility.ToJson(response);
