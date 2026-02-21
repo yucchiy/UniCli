@@ -13,6 +13,7 @@ namespace UniCli.Server.Editor
     public sealed class PipeServer : IDisposable
     {
         private const byte AckByte = 0x01;
+        private static readonly byte[] AckBuffer = { AckByte };
 
         private readonly string _pipeName;
         private readonly Action<CommandRequest, CancellationToken, Action<CommandResponse>> _onCommandReceived;
@@ -42,24 +43,17 @@ namespace UniCli.Server.Editor
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    try
-                    {
-                        await AcceptClientAsync(cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"[UniCli] Server error: {ex.Message}");
-                        await Task.Delay(1000, cancellationToken);
-                    }
+                    await AcceptClientAsync(cancellationToken);
                 }
-            }
-            finally
-            {
                 _shutdownTcs.TrySetResult(true);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                _shutdownTcs.TrySetCanceled();
+            }
+            catch (Exception ex)
+            {
+                _shutdownTcs.TrySetException(ex);
             }
         }
 
@@ -97,7 +91,7 @@ namespace UniCli.Server.Editor
                                 break; // Client disconnected
 
                             var length = BitConverter.ToInt32(lengthBuffer, 0);
-                            if (length <= 0 || length > 1024 * 1024)
+                            if (length <= 0 || length > ProtocolConstants.MaxMessageSize)
                             {
                                 Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
                                 break;
@@ -115,14 +109,14 @@ namespace UniCli.Server.Editor
                                 var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
                                 var request = JsonUtility.FromJson<CommandRequest>(json);
 
+                                var commandCts = new CancellationTokenSource();
                                 try
                                 {
                                     var responseTcs = new TaskCompletionSource<CommandResponse>();
-                                    var commandCts = new CancellationTokenSource();
 
                                     _onCommandReceived(request, commandCts.Token, response => responseTcs.TrySetResult(response));
 
-                                    await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
+                                    await server.WriteAsync(AckBuffer, 0, 1, cancellationToken);
                                     await server.FlushAsync(cancellationToken);
 
                                     var monitorTask = MonitorDisconnectAsync(server, commandCts);
@@ -138,17 +132,30 @@ namespace UniCli.Server.Editor
                                     var commandResponse = await responseTcs.Task;
 
                                     var responseJson = JsonUtility.ToJson(commandResponse);
-                                    var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-                                    var responseLengthBytes = BitConverter.GetBytes(responseBytes.Length);
+                                    var responseByteCount = Encoding.UTF8.GetByteCount(responseJson);
+                                    var responseBuffer = ArrayPool<byte>.Shared.Rent(responseByteCount);
+                                    try
+                                    {
+                                        Encoding.UTF8.GetBytes(responseJson, 0, responseJson.Length, responseBuffer, 0);
+                                        var responseLengthBytes = BitConverter.GetBytes(responseByteCount);
 
-                                    await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
-                                    await server.WriteAsync(responseBytes, 0, responseBytes.Length, cancellationToken);
-                                    await server.FlushAsync(cancellationToken);
+                                        await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
+                                        await server.WriteAsync(responseBuffer, 0, responseByteCount, cancellationToken);
+                                        await server.FlushAsync(cancellationToken);
+                                    }
+                                    finally
+                                    {
+                                        ArrayPool<byte>.Shared.Return(responseBuffer);
+                                    }
                                 }
                                 catch (IOException ex)
                                 {
                                     Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
                                     break;
+                                }
+                                finally
+                                {
+                                    commandCts.Dispose();
                                 }
                             }
                             finally
@@ -181,10 +188,7 @@ namespace UniCli.Server.Editor
                     return false;
                 }
 
-                if (recvBuffer[0] != ProtocolConstants.MagicBytes[0] ||
-                    recvBuffer[1] != ProtocolConstants.MagicBytes[1] ||
-                    recvBuffer[2] != ProtocolConstants.MagicBytes[2] ||
-                    recvBuffer[3] != ProtocolConstants.MagicBytes[3])
+                if (!ProtocolConstants.ValidateMagicBytes(recvBuffer))
                 {
                     Debug.LogWarning("[UniCli] Handshake failed: invalid magic bytes from client");
                     return false;
@@ -194,7 +198,9 @@ namespace UniCli.Server.Editor
                 if (clientVersion != ProtocolConstants.ProtocolVersion)
                 {
                     Debug.LogWarning(
-                        $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion})");
+                        $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion}). "
+                        + "Please update unicli or the Unity server package.");
+                    return false;
                 }
             }
             finally
@@ -202,9 +208,7 @@ namespace UniCli.Server.Editor
                 ArrayPool<byte>.Shared.Return(recvBuffer);
             }
 
-            var sendBuffer = new byte[ProtocolConstants.HandshakeSize];
-            Array.Copy(ProtocolConstants.MagicBytes, 0, sendBuffer, 0, 4);
-            BitConverter.GetBytes(ProtocolConstants.ProtocolVersion).CopyTo(sendBuffer, 4);
+            var sendBuffer = ProtocolConstants.BuildHandshakeBuffer();
 
             await server.WriteAsync(sendBuffer, 0, ProtocolConstants.HandshakeSize, cancellationToken);
             await server.FlushAsync(cancellationToken);
