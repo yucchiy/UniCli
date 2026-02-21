@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,11 +16,14 @@ namespace UniCli.Server.Editor
         private readonly Dictionary<string, ICommandHandler> _handlers =
             new(StringComparer.OrdinalIgnoreCase);
         private readonly StringBuilder _formatBuffer = new();
+        private readonly Lazy<CommandInfo[]> _commandInfoCache;
 
         public CommandDispatcher(ServiceRegistry services)
         {
             services.AddSingleton(this);
             RegisterClassHandlers(services);
+            _commandInfoCache = new Lazy<CommandInfo[]>(
+                () => _handlers.Values.Select(h => h.GetCommandInfo()).ToArray());
         }
 
         private void RegisterClassHandlers(ServiceRegistry services)
@@ -55,15 +59,7 @@ namespace UniCli.Server.Editor
             }
         }
 
-        public CommandInfo[] GetAllCommandInfo()
-        {
-            var infos = new List<CommandInfo>(_handlers.Count);
-            foreach (var handler in _handlers.Values)
-            {
-                infos.Add(handler.GetCommandInfo());
-            }
-            return infos.ToArray();
-        }
+        public CommandInfo[] GetAllCommandInfo() => _commandInfoCache.Value;
 
         public async ValueTask<CommandResponse> DispatchAsync(CommandRequest request, CancellationToken cancellationToken)
         {

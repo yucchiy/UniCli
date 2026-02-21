@@ -39,7 +39,7 @@ PipeServer 周辺のコード品質・パフォーマンス・テスタビリテ
   - UniCliServer と PipeServer がコンストラクタで即サーバーループ起動
   - テスト時にモックパイプを差し込めない
 
-- [ ] **CommandInfo のキャッシュを追加**
+- [x] **CommandInfo のキャッシュを追加**
   - `CommandDispatcher.GetAllCommandInfo()` が毎回 List + ToArray() を生成
   - `commands` コマンドは頻繁に呼ばれるがキャッシュなし
 
@@ -52,7 +52,7 @@ PipeServer 周辺のコード品質・パフォーマンス・テスタビリテ
   - `PipeServer.cs:100` と `PipeClient.cs:195` で `1024 * 1024` がハードコード
   - `ProtocolConstants.MaxMessageSize` として定数化
 
-- [ ] **ハンドシェイクバージョン検証の非対称性を修正** （ReadExact 共通化の後）
+- [x] **ハンドシェイクバージョン検証の非対称性を修正** （ReadExact 共通化の後）
   - クライアントはバージョン不一致時にエラーで接続拒否
   - サーバーは LogWarning して接続を続行
   - 振る舞いを統一する

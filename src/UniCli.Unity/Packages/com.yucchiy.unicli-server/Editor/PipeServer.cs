@@ -205,7 +205,9 @@ namespace UniCli.Server.Editor
                 if (clientVersion != ProtocolConstants.ProtocolVersion)
                 {
                     Debug.LogWarning(
-                        $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion})");
+                        $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion}). "
+                        + "Please update unicli or the Unity server package.");
+                    return false;
                 }
             }
             finally
