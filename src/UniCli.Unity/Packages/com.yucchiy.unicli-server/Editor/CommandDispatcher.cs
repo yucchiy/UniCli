@@ -83,7 +83,7 @@ namespace UniCli.Server.Editor
             }
         }
 
-        private CommandResponse BuildResponse(bool success, string message, object data, ICommandHandler handler, bool wantsText)
+        internal CommandResponse BuildResponse(bool success, string message, object data, ICommandHandler handler, bool wantsText)
         {
             if (data is Unit or null)
                 return MakeResponse(success, message);
@@ -103,7 +103,7 @@ namespace UniCli.Server.Editor
             return MakeResponse(success, message, json);
         }
 
-        private static CommandResponse MakeResponse(bool success, string message, string data = "", string format = "json")
+        internal static CommandResponse MakeResponse(bool success, string message, string data = "", string format = "json")
         {
             return new CommandResponse
             {

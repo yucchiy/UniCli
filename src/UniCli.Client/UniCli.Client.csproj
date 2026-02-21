@@ -16,6 +16,10 @@
     <PackageReference Include="ConsoleAppFramework" Version="5.2.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="UniCli.Client.Tests" />
+  </ItemGroup>
+
   <!-- Protocolファイルはビルド時にコピーされ、自動的にインクルードされる -->
 
 </Project>
