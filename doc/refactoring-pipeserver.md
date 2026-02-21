@@ -29,15 +29,13 @@ PipeServer 周辺のコード品質・パフォーマンス・テスタビリテ
   - `PipeServer.cs:121` で `new CancellationTokenSource()` が using も Dispose() もなし
   - `MonitorDisconnect` の `new byte[1]` も毎コマンドで生成
 
-- [ ] **PipeServer / UniCliServer の二重ループを整理**
+- [x] **PipeServer / UniCliServer の二重ループを整理**
   - `UniCliServer.RunServerLoopAsync` が PipeServer を作成 → `WaitForShutdownAsync` → 例外で再作成のループ
   - `PipeServer.RunLoopAsync` も内部でループ — 二重のリトライ/エラーハンドリング
   - リトライ間隔が不統一（UniCliServer: 2秒、PipeServer: 1秒）
   - **ブロック**: Start() 分離の前提
 
-- [ ] **コンストラクタ即起動を Start() メソッドに分離** （二重ループ整理の後）
-  - UniCliServer と PipeServer がコンストラクタで即サーバーループ起動
-  - テスト時にモックパイプを差し込めない
+- ~~**コンストラクタ即起動を Start() メソッドに分離**~~ （スキップ: 現状ユニットテスト不要、複雑さが増すだけ）
 
 - [x] **CommandInfo のキャッシュを追加**
   - `CommandDispatcher.GetAllCommandInfo()` が毎回 List + ToArray() を生成

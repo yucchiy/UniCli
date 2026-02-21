@@ -82,9 +82,14 @@ namespace UniCli.Server.Editor
                     _errorLogger($"[UniCli] Server error: {ex.Message}");
                 }
 
-                if (!cancellationToken.IsCancellationRequested)
+                try
                 {
-                    await Task.Delay(2000, cancellationToken);
+                    if (!cancellationToken.IsCancellationRequested)
+                        await Task.Delay(2000, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
                 }
             }
         }

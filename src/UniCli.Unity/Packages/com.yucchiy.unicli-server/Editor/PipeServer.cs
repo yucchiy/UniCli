@@ -43,24 +43,17 @@ namespace UniCli.Server.Editor
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    try
-                    {
-                        await AcceptClientAsync(cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"[UniCli] Server error: {ex.Message}");
-                        await Task.Delay(1000, cancellationToken);
-                    }
+                    await AcceptClientAsync(cancellationToken);
                 }
-            }
-            finally
-            {
                 _shutdownTcs.TrySetResult(true);
+            }
+            catch (OperationCanceledException)
+            {
+                _shutdownTcs.TrySetCanceled();
+            }
+            catch (Exception ex)
+            {
+                _shutdownTcs.TrySetException(ex);
             }
         }
 
