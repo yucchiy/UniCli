@@ -12,7 +12,21 @@ UniCli consists of two components:
 - **CLI** (`unicli`) — A NativeAOT-compiled binary that you run from the terminal
 - **Unity Package** (`com.yucchiy.unicli-server`) — An Editor plugin that receives and executes commands inside Unity
 
-The CLI communicates with the Unity Editor over named pipes using length-prefixed JSON messages, providing fast local IPC without network overhead.
+### Architecture
+
+```
+┌─────────┐    Named Pipe     ┌──────────────────┐   PlayerConnection   ┌──────────────┐
+│  unicli  │◄────────────────►│   Unity Editor   │◄────────────────────►│    Device     │
+│  (CLI)   │  Length-prefixed  │   (Server)       │   Chunked messages   │  (Dev Build)  │
+│          │  JSON messages    │                  │                      │              │
+└─────────┘                   └──────────────────┘                      └──────────────┘
+```
+
+**CLI ↔ Editor (Named Pipe):**
+The CLI and Unity Editor communicate over a named pipe. The pipe name is derived from a SHA256 hash of the project's `Assets` path, so each project gets its own connection. Messages use a length-prefixed JSON framing protocol with a handshake (magic bytes `UCLI` + protocol version). The server plugin initializes via `[InitializeOnLoad]`, creates a background listener on the named pipe, and enqueues incoming commands to a `ConcurrentQueue`. Commands are dequeued and executed on Unity's main thread every frame via `EditorApplication.update`.
+
+**Editor ↔ Device (PlayerConnection):**
+For remote debugging, the Editor relays commands to a running Development Build via Unity's `PlayerConnection`. The runtime module (`UniCli.Remote`) auto-initializes a `RuntimeDebugReceiver` on the device, which discovers debug commands via reflection and registers message handlers. Responses are split into 16 KB chunks to work around PlayerConnection's undocumented message size limits. The Editor's `RemoteBridge` reassembles chunks and returns the complete response to the CLI.
 
 ## Requirements
 
