@@ -12,7 +12,21 @@ UniCli consists of two components:
 - **CLI** (`unicli`) — A NativeAOT-compiled binary that you run from the terminal
 - **Unity Package** (`com.yucchiy.unicli-server`) — An Editor plugin that receives and executes commands inside Unity
 
-The CLI communicates with the Unity Editor over named pipes using length-prefixed JSON messages, providing fast local IPC without network overhead.
+### Architecture
+
+```
+┌──────────┐  Named Pipe     ┌────────────────┐  PlayerConnection  ┌────────────────┐
+│  unicli  │◄───────────────►│  Unity Editor  │◄──────────────────►│     Device     │
+│  (CLI)   │ Length-prefixed │  (Server)      │ Chunked messages   │  (Dev Build)   │
+│          │ JSON messages   │                │                    │                │
+└──────────┘                 └────────────────┘                    └────────────────┘
+```
+
+**CLI ↔ Editor (Named Pipe):**
+The CLI and Unity Editor communicate over a named pipe. The pipe name is derived from a SHA256 hash of the project's `Assets` path, so each project gets its own connection. Messages use a length-prefixed JSON framing protocol with a handshake (magic bytes `UCLI` + protocol version). The server plugin initializes via `[InitializeOnLoad]`, creates a background listener on the named pipe, and enqueues incoming commands to a `ConcurrentQueue`. Commands are dequeued and executed on Unity's main thread every frame via `EditorApplication.update`.
+
+**Editor ↔ Device (PlayerConnection):**
+For remote debugging, the Editor relays commands to a running Development Build via Unity's `PlayerConnection`. The runtime module (`UniCli.Remote`) auto-initializes a `RuntimeDebugReceiver` on the device, which discovers debug commands via reflection and registers message handlers. Responses are split into 16 KB chunks to work around PlayerConnection's undocumented message size limits. The Editor's `RemoteBridge` reassembles chunks and returns the complete response to the CLI.
 
 ## Requirements
 
@@ -70,6 +84,20 @@ unicli completions bash  # generate shell completions
 ```
 
 Add `--json` to `check`, `commands`, or `status` for machine-readable JSON output.
+
+### Project Discovery
+
+By default, `unicli` searches the current directory and its ancestors for a Unity project (a directory containing an `Assets` folder). If you run `unicli` from outside a Unity project, or want to target a specific project, set the `UNICLI_PROJECT` environment variable:
+
+```bash
+# Run from anywhere by specifying the project path
+UNICLI_PROJECT=/path/to/my/unity-project unicli exec Compile --json
+
+# Useful when the current directory is not inside the Unity project
+UNICLI_PROJECT=src/UniCli.Unity unicli commands --json
+```
+
+The pipe name used for communication is derived from the project path, so each Unity project gets its own connection.
 
 
 ## Dynamic Code Execution (Eval)
@@ -185,13 +213,6 @@ unicli exec Connection.Status
 unicli exec Connection.Connect '{"id":-1}'
 unicli exec Connection.Connect '{"ip":"192.168.1.100"}'
 unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}'
-
-# List debug commands on connected runtime player
-unicli exec Remote.List
-
-# Invoke a debug command on connected runtime player
-unicli exec Remote.Invoke '{"command":"Debug.ShowStats"}'
-unicli exec Remote.Invoke '{"command":"Debug.ToggleHitboxes","data":"{\"enabled\":true}"}'
 
 # Run tests
 unicli exec TestRunner.RunEditMode
@@ -482,8 +503,6 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
 | Profiler           | `Profiler.AnalyzeFrames`             | Analyze recorded frames and return aggregate statistics |
 | Profiler           | `Profiler.FindSpikes`                | Find frames exceeding frame time or GC allocation thresholds |
-| Remote             | `Remote.List`                        | List debug commands on connected runtime player |
-| Remote             | `Remote.Invoke`                      | Invoke a debug command on connected runtime player |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 
@@ -584,12 +603,12 @@ public sealed class PingHandler : CommandHandler<Unit, PingResponse>
 
 ### Text formatting
 
-Override `TryFormat` to provide human-readable output (used when `--json` is not specified):
+Override `TryWriteFormatted` to provide human-readable output (used when `--json` is not specified):
 
 ```csharp
-protected override bool TryFormat(GreetResponse response, bool success, out string formatted)
+protected override bool TryWriteFormatted(GreetResponse response, bool success, IFormatWriter writer)
 {
-    formatted = response.message;
+    writer.WriteLine(response.message);
     return true;
 }
 ```
@@ -636,6 +655,112 @@ Throw `CommandFailedException` to report failures while still returning structur
 if (hasErrors)
     throw new CommandFailedException("Validation failed", response);
 ```
+
+## Remote Commands
+
+UniCli can invoke debug commands on a running Development Build via Unity's `PlayerConnection`. This lets you inspect runtime state, query performance stats, and execute custom debug operations on a connected device — all from the terminal.
+
+**Communication path:** CLI → Unity Editor (Named Pipe) → Device (PlayerConnection)
+
+### Prerequisites
+
+1. **Define symbol** — Add `UNICLI_REMOTE` to your project's Scripting Define Symbols (Player Settings → Other Settings).
+   - The remote module's asmdef has two define constraints: `UNICLI_REMOTE || UNITY_EDITOR` and `DEVELOPMENT_BUILD || UNITY_EDITOR`.
+   - In the Editor, both constraints are satisfied automatically — no additional setup needed for development.
+   - In player builds, `UNICLI_REMOTE` must be defined **and** the build must be a Development Build for the module to be included.
+   - This means release builds and builds without `UNICLI_REMOTE` will never contain the remote module code.
+2. **Development Build** — Build with the "Development Build" and "Autoconnect Profiler" options enabled to allow PlayerConnection communication.
+3. **Connect** — Use `Connection.Connect` to connect the Editor to the running player before sending remote commands.
+
+### Editor-side commands
+
+| Command | Description |
+|---|---|
+| `Remote.List` | List all debug commands registered on the connected player |
+| `Remote.Invoke` | Invoke a debug command on the connected player |
+
+```bash
+# List debug commands on connected runtime player
+unicli exec Remote.List
+
+# Invoke a debug command
+unicli exec Remote.Invoke '{"command":"Debug.Stats"}'
+
+# Invoke with parameters
+unicli exec Remote.Invoke '{"command":"Debug.GetPlayerPref","data":"{\"key\":\"HighScore\",\"type\":\"int\"}"}'
+
+# Specify a particular player (when multiple are connected)
+unicli exec Remote.Invoke '{"command":"Debug.SystemInfo","playerId":1}'
+```
+
+### Built-in debug commands
+
+The following debug commands are included in the package and available on any Development Build with `UNICLI_REMOTE` defined:
+
+| Command | Description |
+|---|---|
+| `Debug.SystemInfo` | Device model, OS, CPU, GPU, memory, battery, screen, quality settings |
+| `Debug.Stats` | FPS, frame time, memory usage, GC collection counts, scene/object counts |
+| `Debug.GetLogs` | Recent log entries from a ring buffer (supports limit and type filter) |
+| `Debug.GetHierarchy` | Active scene hierarchy tree with depth, active state, component names |
+| `Debug.FindGameObjects` | Substring search across all GameObjects (including inactive) |
+| `Debug.GetScenes` | All loaded scenes with name, path, build index, root count |
+| `Debug.GetPlayerPref` | Read a PlayerPrefs value by key (string, int, or float) |
+
+### Creating custom debug commands
+
+Inherit from `DebugCommand<TRequest, TResponse>` and annotate with `[DebugCommand]`. Commands are auto-discovered at runtime via reflection.
+
+```csharp
+using System;
+using UniCli.Remote;
+using UnityEngine;
+
+[DebugCommand("Debug.ToggleHitboxes", "Toggle hitbox visualization")]
+public sealed class ToggleHitboxesCommand : DebugCommand<ToggleHitboxesCommand.Request, ToggleHitboxesCommand.Response>
+{
+    protected override Response ExecuteCommand(Request request)
+    {
+        HitboxVisualizer.Enabled = request.enabled;
+        return new Response { enabled = HitboxVisualizer.Enabled };
+    }
+
+    [Serializable]
+    public class Request
+    {
+        public bool enabled;
+    }
+
+    [Serializable]
+    public class Response
+    {
+        public bool enabled;
+    }
+}
+```
+
+Use `Unit` as the type parameter when no input or output is needed:
+
+```csharp
+[DebugCommand("Debug.ResetState", "Reset game state")]
+public sealed class ResetStateCommand : DebugCommand<Unit, Unit>
+{
+    protected override Unit ExecuteCommand(Unit request)
+    {
+        GameManager.ResetAll();
+        return Unit.Value;
+    }
+}
+```
+
+Key points:
+
+- Request/Response types must be `[Serializable]` with **public fields** (required by `JsonUtility`)
+- The base class uses `[RequireDerived]` to protect all subclasses from Managed Stripping automatically
+- Commands run synchronously on the main thread
+- The `[DebugCommand]` attribute takes a name (by convention `Debug.*`) and an optional description
+- Place custom commands anywhere in your project — they are discovered automatically via reflection at startup
+
 
 ## Claude Code Integration
 
