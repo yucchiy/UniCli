@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class SceneCloseHandler : CommandHandler<SceneCloseRequest, SceneCloseResponse>
     {
         public override string CommandName => CommandNames.Scene.Close;
-        public override string Description => "Close a loaded scene";
+        public override string Description => "Close a loaded scene via EditorSceneManager";
 
         protected override bool TryWriteFormatted(SceneCloseResponse response, bool success, IFormatWriter writer)
         {

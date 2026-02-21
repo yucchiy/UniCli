@@ -10,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class SceneSaveHandler : CommandHandler<SceneSaveRequest, SceneSaveResponse>
     {
         public override string CommandName => CommandNames.Scene.Save;
-        public override string Description => "Save a scene or all open scenes";
+        public override string Description => "Save a scene or all open scenes via EditorSceneManager";
 
         protected override bool TryWriteFormatted(SceneSaveResponse response, bool success, IFormatWriter writer)
         {
