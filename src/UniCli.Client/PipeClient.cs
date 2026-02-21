@@ -63,18 +63,26 @@ namespace UniCli.Client
             }
             catch (TimeoutException)
             {
+                _pipeStream?.Dispose();
+                _pipeStream = null;
                 return Result<bool, string>.Error("Connection timeout - Unity server may not be running");
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
+                _pipeStream?.Dispose();
+                _pipeStream = null;
                 return Result<bool, string>.Error("Connection timeout - Unity server may not be running");
             }
             catch (IOException ex)
             {
+                _pipeStream?.Dispose();
+                _pipeStream = null;
                 return Result<bool, string>.Error($"Connection failed: {ex.Message}");
             }
             catch (Exception ex)
             {
+                _pipeStream?.Dispose();
+                _pipeStream = null;
                 return Result<bool, string>.Error($"Unexpected error: {ex.Message}");
             }
         }

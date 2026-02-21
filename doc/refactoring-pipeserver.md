@@ -43,7 +43,7 @@ PipeServer 周辺のコード品質・パフォーマンス・テスタビリテ
   - `CommandDispatcher.GetAllCommandInfo()` が毎回 List + ToArray() を生成
   - `commands` コマンドは頻繁に呼ばれるがキャッシュなし
 
-- [ ] **PipeClient の接続失敗時リソースリーク修正** （ReadExact 共通化の後）
+- [x] **PipeClient の接続失敗時リソースリーク修正** （ReadExact 共通化の後）
   - `ConnectAsync` で `_pipeStream` を new した後に例外で catch に入った場合、Dispose されずリーク
 
 ### 低優先度
