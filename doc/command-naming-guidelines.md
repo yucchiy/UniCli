@@ -54,7 +54,21 @@ Merging these under a single `Animator.*` would create ambiguity (e.g., `Animato
 - Use `Prefab`, not `Prefabs` or `PrefabUtility`
 - Use `GameObject`, not `GameObjects` (even though operations may return multiple results)
 
-### 5. Use `Verb` or `Adjective+Noun` for action names
+### 5. Include the Unity API name in the description when the command name differs
+
+When a command uses a concept-based name that differs from the Unity API, include the original API name in the handler's `Description` property. This allows users to discover commands by searching for the API name they already know.
+
+```csharp
+// Good: users can find this via `unicli commands | grep PrefabUtility`
+public override string Description => "Save a GameObject as a prefab asset (PrefabUtility.SaveAsPrefabAsset)";
+
+// Good: API name matches, no extra annotation needed
+public override string Description => "Search assets in the AssetDatabase";
+```
+
+This solves the discoverability problem: even if a user thinks in terms of Unity API names, `unicli commands --json | grep <APIName>` will find the right command.
+
+### 6. Use `Verb` or `Adjective+Noun` for action names
 
 | Pattern | Examples |
 |---|---|
@@ -80,3 +94,7 @@ When naming a new command, walk through these questions:
 3. **Would a Unity developer immediately understand the command from `unicli commands` output?**
    - Yes -> Good to go
    - No -> Reconsider the name
+
+4. **Does the command name differ from the Unity API name?**
+   - Yes -> Include the API name in the `Description` (e.g., `"... (PrefabUtility.SaveAsPrefabAsset)"`)
+   - No -> No extra annotation needed
