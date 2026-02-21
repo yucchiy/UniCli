@@ -13,6 +13,7 @@ namespace UniCli.Server.Editor
     public sealed class PipeServer : IDisposable
     {
         private const byte AckByte = 0x01;
+        private static readonly byte[] AckBuffer = { AckByte };
 
         private readonly string _pipeName;
         private readonly Action<CommandRequest, CancellationToken, Action<CommandResponse>> _onCommandReceived;
@@ -115,14 +116,14 @@ namespace UniCli.Server.Editor
                                 var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
                                 var request = JsonUtility.FromJson<CommandRequest>(json);
 
+                                var commandCts = new CancellationTokenSource();
                                 try
                                 {
                                     var responseTcs = new TaskCompletionSource<CommandResponse>();
-                                    var commandCts = new CancellationTokenSource();
 
                                     _onCommandReceived(request, commandCts.Token, response => responseTcs.TrySetResult(response));
 
-                                    await server.WriteAsync(new[] { AckByte }, 0, 1, cancellationToken);
+                                    await server.WriteAsync(AckBuffer, 0, 1, cancellationToken);
                                     await server.FlushAsync(cancellationToken);
 
                                     var monitorTask = MonitorDisconnectAsync(server, commandCts);
@@ -138,17 +139,30 @@ namespace UniCli.Server.Editor
                                     var commandResponse = await responseTcs.Task;
 
                                     var responseJson = JsonUtility.ToJson(commandResponse);
-                                    var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-                                    var responseLengthBytes = BitConverter.GetBytes(responseBytes.Length);
+                                    var responseByteCount = Encoding.UTF8.GetByteCount(responseJson);
+                                    var responseBuffer = ArrayPool<byte>.Shared.Rent(responseByteCount);
+                                    try
+                                    {
+                                        Encoding.UTF8.GetBytes(responseJson, 0, responseJson.Length, responseBuffer, 0);
+                                        var responseLengthBytes = BitConverter.GetBytes(responseByteCount);
 
-                                    await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
-                                    await server.WriteAsync(responseBytes, 0, responseBytes.Length, cancellationToken);
-                                    await server.FlushAsync(cancellationToken);
+                                        await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
+                                        await server.WriteAsync(responseBuffer, 0, responseByteCount, cancellationToken);
+                                        await server.FlushAsync(cancellationToken);
+                                    }
+                                    finally
+                                    {
+                                        ArrayPool<byte>.Shared.Return(responseBuffer);
+                                    }
                                 }
                                 catch (IOException ex)
                                 {
                                     Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
                                     break;
+                                }
+                                finally
+                                {
+                                    commandCts.Dispose();
                                 }
                             }
                             finally
