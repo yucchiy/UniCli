@@ -1,0 +1,142 @@
+using System;
+using System.Text;
+using UnityEngine;
+using UnityEngine.Networking.PlayerConnection;
+using UnityEngine.Scripting;
+
+namespace UniCli.Remote
+{
+    [Preserve]
+    public sealed class RuntimeDebugReceiver : MonoBehaviour
+    {
+        private const int ChunkSize = 16 * 1024;
+
+        private static RuntimeDebugReceiver _instance;
+
+        private DebugCommandRegistry _registry;
+        private RuntimeLogCapture _logCapture;
+
+        public static RuntimeLogCapture RuntimeLogCapture => _instance != null ? _instance._logCapture : null;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void AutoInitialize()
+        {
+            if (_instance != null)
+                return;
+
+            var go = new GameObject("[UniCli.Remote]");
+            DontDestroyOnLoad(go);
+            _instance = go.AddComponent<RuntimeDebugReceiver>();
+        }
+
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _instance = this;
+
+            _logCapture = new RuntimeLogCapture();
+            _logCapture.Start();
+
+            _registry = new DebugCommandRegistry();
+            _registry.DiscoverCommands();
+
+            PlayerConnection.instance.Register(RuntimeMessageGuids.CommandRequest, OnCommandRequest);
+            PlayerConnection.instance.Register(RuntimeMessageGuids.ListRequest, OnListRequest);
+
+            UnityEngine.Debug.Log("[UniCli.Remote] RuntimeDebugReceiver initialized");
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                PlayerConnection.instance.Unregister(RuntimeMessageGuids.CommandRequest, OnCommandRequest);
+                PlayerConnection.instance.Unregister(RuntimeMessageGuids.ListRequest, OnListRequest);
+                _logCapture?.Stop();
+                _instance = null;
+            }
+        }
+
+        private void OnCommandRequest(MessageEventArgs args)
+        {
+            var json = Encoding.UTF8.GetString(args.data);
+            var request = JsonUtility.FromJson<RuntimeCommandRequest>(json);
+
+            var response = new RuntimeCommandResponse
+            {
+                requestId = request.requestId
+            };
+
+            try
+            {
+                if (!_registry.TryGetCommand(request.command, out var command))
+                {
+                    response.success = false;
+                    response.message = $"Unknown debug command: {request.command}";
+                    response.data = "";
+                }
+                else
+                {
+                    var resultJson = command.Execute(request.data);
+                    response.success = true;
+                    response.message = $"Command '{request.command}' succeeded";
+                    response.data = resultJson;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.success = false;
+                response.message = $"Command '{request.command}' failed: {ex.Message}";
+                response.data = "";
+            }
+
+            var responseJson = JsonUtility.ToJson(response);
+            SendChunked(request.requestId, responseJson);
+        }
+
+        private void OnListRequest(MessageEventArgs args)
+        {
+            var json = Encoding.UTF8.GetString(args.data);
+            var request = JsonUtility.FromJson<RuntimeListRequest>(json);
+
+            var response = new RuntimeListResponse
+            {
+                requestId = request.requestId,
+                commands = _registry.GetCommandInfos()
+            };
+
+            var responseJson = JsonUtility.ToJson(response);
+            SendChunked(request.requestId, responseJson);
+        }
+
+        private void SendChunked(string requestId, string responseJson)
+        {
+            var totalChunks = (responseJson.Length + ChunkSize - 1) / ChunkSize;
+            if (totalChunks == 0)
+                totalChunks = 1;
+
+            for (var i = 0; i < totalChunks; i++)
+            {
+                var start = i * ChunkSize;
+                var length = Math.Min(ChunkSize, responseJson.Length - start);
+
+                var chunk = new RuntimeChunkedMessage
+                {
+                    requestId = requestId,
+                    chunkIndex = i,
+                    totalChunks = totalChunks,
+                    data = responseJson.Substring(start, length)
+                };
+
+                var chunkJson = JsonUtility.ToJson(chunk);
+                var chunkBytes = Encoding.UTF8.GetBytes(chunkJson);
+                PlayerConnection.instance.Send(RuntimeMessageGuids.ChunkedResponse, chunkBytes);
+            }
+        }
+    }
+}

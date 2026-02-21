@@ -184,6 +184,8 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Recorder.StopRecording` | Stop the current video recording |
 | `Recorder.Status` | Get the current recording status |
 | `Screenshot.Capture` | Capture a screenshot of the Game View and save as PNG (requires Play Mode) |
+| `Remote.List` | List debug commands registered on connected runtime player |
+| `Remote.Invoke` | Invoke a debug command on connected runtime player |
 
 ### Settings Commands (auto-generated)
 
@@ -213,6 +215,14 @@ unicli exec Connection.List --json
 unicli exec Connection.Status --json
 unicli exec Connection.Connect '{"id":-1}' --json
 unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}' --json
+```
+
+**List and invoke runtime debug commands on a connected player:**
+
+```bash
+unicli exec Remote.List --json
+unicli exec Remote.Invoke '{"command":"Debug.ShowStats"}' --json
+unicli exec Remote.Invoke '{"command":"Debug.ToggleHitboxes","data":"{\"enabled\":true}"}' --json
 ```
 
 **Build the player:**

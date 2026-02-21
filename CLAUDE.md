@@ -5,7 +5,8 @@
 - `src`: Source code directory
     - `src/UniCli.Client`: CLI project for `unicli`
     - `src/UniCli.Unity`: Unity server implementation for `unicli` (Unity project)
-        - `src/UniCli.Unity/Packages`: Server package
+        - `src/UniCli.Unity/Packages/com.yucchiy.unicli-server/Editor`: Editor-side command handlers
+        - `src/UniCli.Unity/Packages/com.yucchiy.unicli-server/Runtime/Remote`: Runtime debug commands (runs on device via PlayerConnection)
         - `src/UniCli.Unity/Assets/Samples`: Sample implementations for the server package
     - `src/UniCli.SourceGenerator`: Roslyn Source Generator for auto-generating Settings command handlers
 - `src/UniCli.Protocol`: Shared type definitions between `UniCli.Client` and `UniCli.Unity`
@@ -118,6 +119,17 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Status --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"id":-1}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"ip":"192.168.1.100"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}' --json
+
+# Remote debug commands (requires Development Build connected via PlayerConnection)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.Stats"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.SystemInfo"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.GetHierarchy"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.GetLogs","data":"{\"limit\":100}"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.GetScenes"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.FindGameObjects","data":"{\"name\":\"Player\"}"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.GetPlayerPref","data":"{\"key\":\"HighScore\",\"type\":\"int\"}"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Remote.Invoke '{"command":"Debug.Stats","playerId":1}' --json
 
 # Material operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Material.Create '{"assetPath":"Assets/Materials/MyMat.mat"}' --json
