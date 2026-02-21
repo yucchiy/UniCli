@@ -97,7 +97,7 @@ namespace UniCli.Server.Editor
                                 break; // Client disconnected
 
                             var length = BitConverter.ToInt32(lengthBuffer, 0);
-                            if (length <= 0 || length > 1024 * 1024)
+                            if (length <= 0 || length > ProtocolConstants.MaxMessageSize)
                             {
                                 Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
                                 break;
@@ -181,10 +181,7 @@ namespace UniCli.Server.Editor
                     return false;
                 }
 
-                if (recvBuffer[0] != ProtocolConstants.MagicBytes[0] ||
-                    recvBuffer[1] != ProtocolConstants.MagicBytes[1] ||
-                    recvBuffer[2] != ProtocolConstants.MagicBytes[2] ||
-                    recvBuffer[3] != ProtocolConstants.MagicBytes[3])
+                if (!ProtocolConstants.ValidateMagicBytes(recvBuffer))
                 {
                     Debug.LogWarning("[UniCli] Handshake failed: invalid magic bytes from client");
                     return false;
@@ -202,9 +199,7 @@ namespace UniCli.Server.Editor
                 ArrayPool<byte>.Shared.Return(recvBuffer);
             }
 
-            var sendBuffer = new byte[ProtocolConstants.HandshakeSize];
-            Array.Copy(ProtocolConstants.MagicBytes, 0, sendBuffer, 0, 4);
-            BitConverter.GetBytes(ProtocolConstants.ProtocolVersion).CopyTo(sendBuffer, 4);
+            var sendBuffer = ProtocolConstants.BuildHandshakeBuffer();
 
             await server.WriteAsync(sendBuffer, 0, ProtocolConstants.HandshakeSize, cancellationToken);
             await server.FlushAsync(cancellationToken);

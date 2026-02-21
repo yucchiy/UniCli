@@ -68,111 +68,54 @@ namespace UniCli.Server.Editor
         public async ValueTask<CommandResponse> DispatchAsync(CommandRequest request, CancellationToken cancellationToken)
         {
             if (!_handlers.TryGetValue(request.command, out var handler))
-            {
-                return new CommandResponse
-                {
-                    success = false,
-                    message = $"Unknown command: {request.command}",
-                    data = ""
-                };
-            }
+                return MakeResponse(false, $"Unknown command: {request.command}");
 
             var wantsText = request.format == "text";
 
             try
             {
                 var result = await handler.ExecuteAsync(request, cancellationToken);
-
-                if (result is Unit)
-                {
-                    return new CommandResponse
-                    {
-                        success = true,
-                        message = $"Command '{request.command}' succeeded",
-                        data = "",
-                        format = "json"
-                    };
-                }
-
-                if (wantsText && handler is IResponseFormatter formatter)
-                {
-                    _formatBuffer.Clear();
-                    var writer = new StringFormatWriter(_formatBuffer);
-                    if (formatter.TryWriteFormatted(result, true, writer))
-                    {
-                        return new CommandResponse
-                        {
-                            success = true,
-                            message = $"Command '{request.command}' succeeded",
-                            data = _formatBuffer.ToString(),
-                            format = "text"
-                        };
-                    }
-                }
-
-                var jsonData = result is IRawJsonResponse rawJson
-                    ? rawJson.ToJson()
-                    : JsonUtility.ToJson(result);
-
-                return new CommandResponse
-                {
-                    success = true,
-                    message = $"Command '{request.command}' succeeded",
-                    data = jsonData,
-                    format = "json"
-                };
+                return BuildResponse(true, $"Command '{request.command}' succeeded", result, handler, wantsText);
             }
             catch (CommandFailedException ex)
             {
-                if (ex.ResponseData is Unit or null)
-                {
-                    return new CommandResponse
-                    {
-                        success = false,
-                        message = $"Command failed: {ex.Message}",
-                        data = "",
-                        format = "json"
-                    };
-                }
-
-                if (wantsText && handler is IResponseFormatter failFormatter)
-                {
-                    _formatBuffer.Clear();
-                    var failWriter = new StringFormatWriter(_formatBuffer);
-                    if (failFormatter.TryWriteFormatted(ex.ResponseData, false, failWriter))
-                    {
-                        return new CommandResponse
-                        {
-                            success = false,
-                            message = $"Command failed: {ex.Message}",
-                            data = _formatBuffer.ToString(),
-                            format = "text"
-                        };
-                    }
-                }
-
-                var failJsonData = ex.ResponseData is IRawJsonResponse failRawJson
-                    ? failRawJson.ToJson()
-                    : JsonUtility.ToJson(ex.ResponseData);
-
-                return new CommandResponse
-                {
-                    success = false,
-                    message = $"Command failed: {ex.Message}",
-                    data = failJsonData,
-                    format = "json"
-                };
+                return BuildResponse(false, $"Command failed: {ex.Message}", ex.ResponseData, handler, wantsText);
             }
             catch (Exception ex)
             {
-                return new CommandResponse
-                {
-                    success = false,
-                    message = $"Command failed: {ex.Message}",
-                    data = "",
-                    format = "json"
-                };
+                return MakeResponse(false, $"Command failed: {ex.Message}");
             }
+        }
+
+        private CommandResponse BuildResponse(bool success, string message, object data, ICommandHandler handler, bool wantsText)
+        {
+            if (data is Unit or null)
+                return MakeResponse(success, message);
+
+            if (wantsText && handler is IResponseFormatter formatter)
+            {
+                _formatBuffer.Clear();
+                var writer = new StringFormatWriter(_formatBuffer);
+                if (formatter.TryWriteFormatted(data, success, writer))
+                    return MakeResponse(success, message, _formatBuffer.ToString(), "text");
+            }
+
+            var json = data is IRawJsonResponse rawJson
+                ? rawJson.ToJson()
+                : JsonUtility.ToJson(data);
+
+            return MakeResponse(success, message, json);
+        }
+
+        private static CommandResponse MakeResponse(bool success, string message, string data = "", string format = "json")
+        {
+            return new CommandResponse
+            {
+                success = success,
+                message = message,
+                data = data,
+                format = format
+            };
         }
     }
 }

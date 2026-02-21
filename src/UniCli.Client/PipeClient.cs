@@ -81,34 +81,17 @@ namespace UniCli.Client
 
         private async Task<Result<bool, string>> PerformHandshakeAsync(CancellationToken cancellationToken)
         {
-            var sendBuffer = new byte[ProtocolConstants.HandshakeSize];
-            Array.Copy(ProtocolConstants.MagicBytes, 0, sendBuffer, 0, 4);
-            BitConverter.GetBytes(ProtocolConstants.ProtocolVersion).CopyTo(sendBuffer, 4);
+            var sendBuffer = ProtocolConstants.BuildHandshakeBuffer();
 
             await _pipeStream!.WriteAsync(sendBuffer.AsMemory(0, ProtocolConstants.HandshakeSize), cancellationToken);
             await _pipeStream.FlushAsync(cancellationToken);
 
             var recvBuffer = new byte[ProtocolConstants.HandshakeSize];
-            var totalRead = 0;
-            while (totalRead < ProtocolConstants.HandshakeSize)
-            {
-                var bytesRead = await _pipeStream.ReadAsync(
-                    recvBuffer.AsMemory(totalRead, ProtocolConstants.HandshakeSize - totalRead),
-                    cancellationToken);
+            if (!await ReadExactAsync(recvBuffer, ProtocolConstants.HandshakeSize, cancellationToken))
+                return Result<bool, string>.Error("Server closed connection during handshake");
 
-                if (bytesRead == 0)
-                    return Result<bool, string>.Error("Server closed connection during handshake");
-
-                totalRead += bytesRead;
-            }
-
-            if (recvBuffer[0] != ProtocolConstants.MagicBytes[0] ||
-                recvBuffer[1] != ProtocolConstants.MagicBytes[1] ||
-                recvBuffer[2] != ProtocolConstants.MagicBytes[2] ||
-                recvBuffer[3] != ProtocolConstants.MagicBytes[3])
-            {
+            if (!ProtocolConstants.ValidateMagicBytes(recvBuffer))
                 return Result<bool, string>.Error("Handshake failed: not a UniCli server (invalid magic bytes)");
-            }
 
             var serverVersion = BitConverter.ToUInt16(recvBuffer, 4);
             if (serverVersion != ProtocolConstants.ProtocolVersion)
@@ -169,57 +152,29 @@ namespace UniCli.Client
                         + $"  Expected: 0x01");
 
                 // --- Phase 2: Read response (no timeout, only external cancellation) ---
-                // Read response length (4 bytes)
                 var responseLengthBytes = new byte[4];
-                var lengthBytesRead = 0;
-                while (lengthBytesRead < 4)
-                {
-                    var bytesRead = await _pipeStream.ReadAsync(
-                        responseLengthBytes,
-                        lengthBytesRead,
-                        4 - lengthBytesRead,
-                        cancellationToken);
-
-                    if (bytesRead == 0)
-                        return Result<CommandResponse, string>.Error(
-                            $"Server closed connection while reading response length header\n"
-                            + $"  Command: {request.command}\n"
-                            + $"  Pipe: {_pipeName}\n"
-                            + $"  Bytes read: {lengthBytesRead}/4\n"
-                            + $"  The server may have crashed or restarted during command execution.");
-
-                    lengthBytesRead += bytesRead;
-                }
+                if (!await ReadExactAsync(responseLengthBytes, 4, cancellationToken))
+                    return Result<CommandResponse, string>.Error(
+                        $"Server closed connection while reading response length header\n"
+                        + $"  Command: {request.command}\n"
+                        + $"  Pipe: {_pipeName}\n"
+                        + $"  The server may have crashed or restarted during command execution.");
 
                 var responseLength = BitConverter.ToInt32(responseLengthBytes, 0);
-                if (responseLength <= 0 || responseLength > 1024 * 1024)
+                if (responseLength <= 0 || responseLength > ProtocolConstants.MaxMessageSize)
                     return Result<CommandResponse, string>.Error(
                         $"Invalid response length: {responseLength} bytes\n"
                         + $"  Command: {request.command}\n"
                         + $"  Pipe: {_pipeName}\n"
-                        + $"  Expected: 1 to {1024 * 1024} bytes\n"
+                        + $"  Expected: 1 to {ProtocolConstants.MaxMessageSize} bytes\n"
                         + $"  Raw header: [{responseLengthBytes[0]:X2} {responseLengthBytes[1]:X2} {responseLengthBytes[2]:X2} {responseLengthBytes[3]:X2}]");
 
-                // Read response JSON (may require multiple reads)
                 var responseBytes = new byte[responseLength];
-                var totalBytesRead = 0;
-                while (totalBytesRead < responseLength)
-                {
-                    var bytesRead = await _pipeStream.ReadAsync(
-                        responseBytes,
-                        totalBytesRead,
-                        responseLength - totalBytesRead,
-                        cancellationToken);
-
-                    if (bytesRead == 0)
-                        return Result<CommandResponse, string>.Error(
-                            $"Server closed connection while reading response body\n"
-                            + $"  Command: {request.command}\n"
-                            + $"  Pipe: {_pipeName}\n"
-                            + $"  Bytes read: {totalBytesRead}/{responseLength}");
-
-                    totalBytesRead += bytesRead;
-                }
+                if (!await ReadExactAsync(responseBytes, responseLength, cancellationToken))
+                    return Result<CommandResponse, string>.Error(
+                        $"Server closed connection while reading response body\n"
+                        + $"  Command: {request.command}\n"
+                        + $"  Pipe: {_pipeName}");
 
                 var responseJson = Encoding.UTF8.GetString(responseBytes);
                 var response = JsonSerializer.Deserialize(responseJson, ProtocolJsonContext.Default.CommandResponse);
@@ -251,6 +206,20 @@ namespace UniCli.Client
                     $"Unexpected error during '{request.command}': {ex.Message}\n"
                     + $"  Pipe: {_pipeName}");
             }
+        }
+
+        private async Task<bool> ReadExactAsync(byte[] buffer, int count, CancellationToken cancellationToken)
+        {
+            var totalRead = 0;
+            while (totalRead < count)
+            {
+                var bytesRead = await _pipeStream!.ReadAsync(
+                    buffer.AsMemory(totalRead, count - totalRead), cancellationToken);
+                if (bytesRead == 0)
+                    return false;
+                totalRead += bytesRead;
+            }
+            return true;
         }
 
         public void Dispose()
