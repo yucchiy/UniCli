@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.GetHierarchy", "Get scene hierarchy including inactive objects")]
-    public sealed class GetHierarchyCommand : DebugCommand<RuntimeUnit, GetHierarchyCommand.Response>
+    public sealed class GetHierarchyCommand : DebugCommand<Unit, GetHierarchyCommand.Response>
     {
-        protected override Response ExecuteCommand(RuntimeUnit request)
+        protected override Response ExecuteCommand(Unit request)
         {
             var scene = SceneManager.GetActiveScene();
             var rootObjects = scene.GetRootGameObjects();
@@ -29,12 +27,21 @@ namespace UniCli.Remote.Commands
         private static void CollectNodes(Transform transform, int depth, List<HierarchyNode> nodes)
         {
             var go = transform.gameObject;
+            var components = go.GetComponents<Component>();
+            var componentNames = new List<string>(components.Length);
+            foreach (var component in components)
+            {
+                if (component != null)
+                    componentNames.Add(component.GetType().FullName);
+            }
+
             nodes.Add(new HierarchyNode
             {
                 name = go.name,
                 depth = depth,
                 isActive = go.activeSelf,
-                componentCount = go.GetComponents<Component>().Length
+                componentCount = components.Length,
+                components = componentNames.ToArray()
             });
 
             for (var i = 0; i < transform.childCount; i++)
@@ -55,6 +62,7 @@ namespace UniCli.Remote.Commands
             public int depth;
             public bool isActive;
             public int componentCount;
+            public string[] components;
         }
     }
 }

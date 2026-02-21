@@ -16,5 +16,8 @@ namespace UniCli.Remote
 
         public static readonly System.Guid ListResponse =
             new System.Guid("a1b2c3d4-e5f6-7890-abcd-ef0123456792");
+
+        public static readonly System.Guid ChunkedResponse =
+            new System.Guid("a1b2c3d4-e5f6-7890-abcd-ef0123456793");
     }
 }

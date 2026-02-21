@@ -9,6 +9,8 @@ namespace UniCli.Remote
     [Preserve]
     public sealed class RuntimeDebugReceiver : MonoBehaviour
     {
+        private const int ChunkSize = 16 * 1024;
+
         private static RuntimeDebugReceiver _instance;
 
         private DebugCommandRegistry _registry;
@@ -94,8 +96,7 @@ namespace UniCli.Remote
             }
 
             var responseJson = JsonUtility.ToJson(response);
-            var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-            PlayerConnection.instance.Send(RuntimeMessageGuids.CommandResponse, responseBytes);
+            SendChunked(request.requestId, responseJson);
         }
 
         private void OnListRequest(MessageEventArgs args)
@@ -110,8 +111,32 @@ namespace UniCli.Remote
             };
 
             var responseJson = JsonUtility.ToJson(response);
-            var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-            PlayerConnection.instance.Send(RuntimeMessageGuids.ListResponse, responseBytes);
+            SendChunked(request.requestId, responseJson);
+        }
+
+        private void SendChunked(string requestId, string responseJson)
+        {
+            var totalChunks = (responseJson.Length + ChunkSize - 1) / ChunkSize;
+            if (totalChunks == 0)
+                totalChunks = 1;
+
+            for (var i = 0; i < totalChunks; i++)
+            {
+                var start = i * ChunkSize;
+                var length = Math.Min(ChunkSize, responseJson.Length - start);
+
+                var chunk = new RuntimeChunkedMessage
+                {
+                    requestId = requestId,
+                    chunkIndex = i,
+                    totalChunks = totalChunks,
+                    data = responseJson.Substring(start, length)
+                };
+
+                var chunkJson = JsonUtility.ToJson(chunk);
+                var chunkBytes = Encoding.UTF8.GetBytes(chunkJson);
+                PlayerConnection.instance.Send(RuntimeMessageGuids.ChunkedResponse, chunkBytes);
+            }
         }
     }
 }
