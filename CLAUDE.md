@@ -14,6 +14,7 @@
     - `samples/UniCli.Samples.Unity2022LTS`: Unity 2022.3 LTS project
     - `samples/UniCli.Samples.Unity6LTS`: Unity 6 (6000.0) LTS project
 - `doc`: Documentation directory
+    - `doc/command-naming-guidelines.md`: Command naming conventions for handlers
 
 ## Quick Commands
 
