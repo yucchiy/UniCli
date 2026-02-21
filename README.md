@@ -589,12 +589,12 @@ public sealed class PingHandler : CommandHandler<Unit, PingResponse>
 
 ### Text formatting
 
-Override `TryFormat` to provide human-readable output (used when `--json` is not specified):
+Override `TryWriteFormatted` to provide human-readable output (used when `--json` is not specified):
 
 ```csharp
-protected override bool TryFormat(GreetResponse response, bool success, out string formatted)
+protected override bool TryWriteFormatted(GreetResponse response, bool success, IFormatWriter writer)
 {
-    formatted = response.message;
+    writer.WriteLine(response.message);
     return true;
 }
 ```
