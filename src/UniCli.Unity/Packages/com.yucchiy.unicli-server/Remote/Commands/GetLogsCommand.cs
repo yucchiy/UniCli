@@ -1,18 +1,16 @@
 using System;
 using UnityEngine;
-using UnityEngine.Scripting;
 
 namespace UniCli.Remote.Commands
 {
-    [Preserve]
     [DebugCommand("Debug.GetLogs", "Get recent log entries")]
     public sealed class GetLogsCommand : DebugCommand<GetLogsCommand.Request, GetLogsCommand.Response>
     {
         protected override Response ExecuteCommand(Request request)
         {
-            var capture = RuntimeDebugReceiver.LogCapture;
+            var capture = RuntimeDebugReceiver.RuntimeLogCapture;
             if (capture == null)
-                throw new InvalidOperationException("LogCapture is not initialized");
+                throw new InvalidOperationException("RuntimeLogCapture is not initialized");
 
             LogType? typeFilter = null;
             if (!string.IsNullOrEmpty(request.type))
@@ -41,7 +39,7 @@ namespace UniCli.Remote.Commands
         public class Response
         {
             public int count;
-            public LogCapture.LogEntry[] entries;
+            public RuntimeLogCapture.LogEntry[] entries;
         }
     }
 }

@@ -14,9 +14,9 @@ namespace UniCli.Remote
         private static RuntimeDebugReceiver _instance;
 
         private DebugCommandRegistry _registry;
-        private LogCapture _logCapture;
+        private RuntimeLogCapture _logCapture;
 
-        public static LogCapture LogCapture => _instance != null ? _instance._logCapture : null;
+        public static RuntimeLogCapture RuntimeLogCapture => _instance != null ? _instance._logCapture : null;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoInitialize()
@@ -39,7 +39,7 @@ namespace UniCli.Remote
 
             _instance = this;
 
-            _logCapture = new LogCapture();
+            _logCapture = new RuntimeLogCapture();
             _logCapture.Start();
 
             _registry = new DebugCommandRegistry();

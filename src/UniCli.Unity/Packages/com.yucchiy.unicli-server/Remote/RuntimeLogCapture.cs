@@ -5,7 +5,7 @@ using UnityEngine.Scripting;
 namespace UniCli.Remote
 {
     [Preserve]
-    public sealed class LogCapture
+    public sealed class RuntimeLogCapture
     {
         private const int DefaultCapacity = 256;
 
@@ -13,7 +13,7 @@ namespace UniCli.Remote
         private int _head;
         private int _count;
 
-        public LogCapture(int capacity = DefaultCapacity)
+        public RuntimeLogCapture(int capacity = DefaultCapacity)
         {
             _buffer = new LogEntry[capacity];
         }
