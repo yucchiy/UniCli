@@ -71,6 +71,20 @@ unicli completions bash  # generate shell completions
 
 Add `--json` to `check`, `commands`, or `status` for machine-readable JSON output.
 
+### Project Discovery
+
+By default, `unicli` searches the current directory and its ancestors for a Unity project (a directory containing an `Assets` folder). If you run `unicli` from outside a Unity project, or want to target a specific project, set the `UNICLI_PROJECT` environment variable:
+
+```bash
+# Run from anywhere by specifying the project path
+UNICLI_PROJECT=/path/to/my/unity-project unicli exec Compile --json
+
+# Useful when the current directory is not inside the Unity project
+UNICLI_PROJECT=src/UniCli.Unity unicli commands --json
+```
+
+The pipe name used for communication is derived from the project path, so each Unity project gets its own connection.
+
 
 ## Dynamic Code Execution (Eval)
 
