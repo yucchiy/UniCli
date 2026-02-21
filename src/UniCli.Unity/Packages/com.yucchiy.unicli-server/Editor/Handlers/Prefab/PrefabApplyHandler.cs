@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class PrefabApplyHandler : CommandHandler<PrefabApplyRequest, PrefabApplyResponse>
     {
         public override string CommandName => CommandNames.Prefab.Apply;
-        public override string Description => "Apply overrides of a prefab instance to the source prefab asset";
+        public override string Description => "Apply overrides of a prefab instance to the source prefab asset (PrefabUtility)";
 
         protected override bool TryWriteFormatted(PrefabApplyResponse response, bool success, IFormatWriter writer)
         {

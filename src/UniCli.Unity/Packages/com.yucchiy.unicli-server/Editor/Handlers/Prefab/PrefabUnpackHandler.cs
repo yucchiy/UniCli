@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class PrefabUnpackHandler : CommandHandler<PrefabUnpackRequest, PrefabUnpackResponse>
     {
         public override string CommandName => CommandNames.Prefab.Unpack;
-        public override string Description => "Unpack a prefab instance, disconnecting it from the source prefab";
+        public override string Description => "Unpack a prefab instance, disconnecting it from the source prefab (PrefabUtility)";
 
         protected override bool TryWriteFormatted(PrefabUnpackResponse response, bool success, IFormatWriter writer)
         {

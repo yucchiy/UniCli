@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class SceneNewHandler : CommandHandler<SceneNewRequest, SceneInfoResponse>
     {
         public override string CommandName => CommandNames.Scene.New;
-        public override string Description => "Create a new scene";
+        public override string Description => "Create a new scene (EditorSceneManager)";
 
         protected override bool TryWriteFormatted(SceneInfoResponse response, bool success, IFormatWriter writer)
         {

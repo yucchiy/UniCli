@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class PrefabInstantiateHandler : CommandHandler<PrefabInstantiateRequest, PrefabInstantiateResponse>
     {
         public override string CommandName => CommandNames.Prefab.Instantiate;
-        public override string Description => "Instantiate a prefab asset into the scene";
+        public override string Description => "Instantiate a prefab asset into the scene (PrefabUtility)";
 
         protected override bool TryWriteFormatted(PrefabInstantiateResponse response, bool success, IFormatWriter writer)
         {
