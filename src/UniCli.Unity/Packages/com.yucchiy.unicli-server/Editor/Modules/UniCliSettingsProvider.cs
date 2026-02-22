@@ -23,49 +23,60 @@ namespace UniCli.Server.Editor
             foreach (var m in ModuleRegistry.All)
                 registeredDescriptions[m.Name] = m.Description;
 
-            EditorGUILayout.LabelField("Modules", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "Enable or disable command modules. Core commands (Compile, Eval, Console, PlayMode, Menu, etc.) are always available. User-defined modules are enabled by default.",
-                MessageType.Info);
+            EditorGUILayout.Space(4);
 
-            EditorGUILayout.Space();
-
-            var changed = false;
-            foreach (var name in allNames)
+            using (new EditorGUILayout.HorizontalScope())
             {
-                var enabled = settings.IsModuleEnabled(name);
-                registeredDescriptions.TryGetValue(name, out var description);
-                var label = string.IsNullOrEmpty(description)
-                    ? name
-                    : name;
-                var tooltip = string.IsNullOrEmpty(description) ? "" : description;
-
-                var newEnabled = EditorGUILayout.ToggleLeft(
-                    new GUIContent(label, tooltip), enabled);
-
-                if (newEnabled != enabled)
+                GUILayout.Space(10);
+                using (new EditorGUILayout.VerticalScope())
                 {
-                    if (newEnabled)
-                        settings.EnableModule(name);
-                    else
-                        settings.DisableModule(name);
-                    changed = true;
+                    EditorGUILayout.LabelField("Modules", EditorStyles.boldLabel);
+
+                    EditorGUILayout.Space(2);
+                    EditorGUILayout.HelpBox(
+                        "Enable or disable command modules. Core commands (Compile, Eval, Console, PlayMode, Menu, etc.) are always available. User-defined modules are enabled by default.",
+                        MessageType.Info);
+
+                    EditorGUILayout.Space(8);
+
+                    var changed = false;
+                    foreach (var name in allNames)
+                    {
+                        var enabled = settings.IsModuleEnabled(name);
+                        registeredDescriptions.TryGetValue(name, out var description);
+                        var tooltip = string.IsNullOrEmpty(description) ? "" : description;
+
+                        var newEnabled = EditorGUILayout.ToggleLeft(
+                            new GUIContent(name, tooltip), enabled);
+
+                        if (newEnabled != enabled)
+                        {
+                            if (newEnabled)
+                                settings.EnableModule(name);
+                            else
+                                settings.DisableModule(name);
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        EditorGUILayout.Space(8);
+                        EditorGUILayout.HelpBox(
+                            "Module changes will take effect after the server reloads. Click the button below to apply now.",
+                            MessageType.Warning);
+                    }
+
+                    EditorGUILayout.Space(8);
+
+                    if (GUILayout.Button("Reload Server", GUILayout.MaxWidth(150)))
+                    {
+                        UniCliServerBootstrap.ReloadDispatcher();
+                    }
+
+                    EditorGUILayout.Space(4);
                 }
-            }
-
-            if (changed)
-            {
-                EditorGUILayout.Space();
-                EditorGUILayout.HelpBox(
-                    "Module changes will take effect after the server reloads. Click the button below to apply now.",
-                    MessageType.Warning);
-            }
-
-            EditorGUILayout.Space();
-
-            if (GUILayout.Button("Reload Server"))
-            {
-                UniCliServerBootstrap.ReloadDispatcher();
+                GUILayout.Space(4);
             }
         }
     }

@@ -404,7 +404,7 @@ unicli exec Module.Enable '{"name":"Settings"}' --json
 unicli exec Module.Disable '{"name":"Profiler"}' --json
 ```
 
-Default enabled modules: `Scene`, `Assets`, `Build`. Module settings are saved in `ProjectSettings/UniCliSettings.asset` and can also be configured via Edit > Project Settings > UniCli.
+All modules are enabled by default. Module settings are saved in `ProjectSettings/UniCliSettings.asset` and can also be configured via Edit > Project Settings > UniCli.
 
 **NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
 

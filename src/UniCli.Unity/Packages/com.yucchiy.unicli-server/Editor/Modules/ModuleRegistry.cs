@@ -22,8 +22,6 @@ namespace UniCli.Server.Editor
             new ModuleDefinition("Window", "Window and Screenshot operations"),
         };
 
-        public static readonly string[] DefaultModules = { "Scene", "Assets", "Build" };
-
         /// <summary>
         /// Resolve the module name for a handler type.
         /// - [Module("X")] → "X"
