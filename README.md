@@ -393,6 +393,24 @@ unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 
 **Module management:**
 
+UniCli groups optional commands into **modules** that can be toggled on or off per project. Core commands (Compile, Eval, Console, PlayMode, Menu, GameObject, Scene, PackageManager, etc.) are always available and cannot be disabled.
+
+The following modules are available:
+
+| Module | Description |
+|---|---|
+| Scene | Scene and GameObject operations |
+| Assets | AssetDatabase, Prefab, Component, Selection, Material operations |
+| Build | BuildPlayer, BuildProfile, TestRunner operations |
+| Profiler | Profiler operations |
+| Animation | Animator and AnimatorController operations |
+| Settings | PlayerSettings, EditorSettings, EditorUserBuildSettings operations |
+| Remote | Remote debug and Connection operations |
+| Recorder | Video recording operations (requires `com.unity.recorder`) |
+| NuGet | NuGet package management (requires NuGetForUnity) |
+
+All modules are enabled by default. To disable a module, use the CLI or the Unity settings UI (**Edit > Project Settings > UniCli**):
+
 ```bash
 # List all modules and their enabled status
 unicli exec Module.List --json
@@ -404,7 +422,9 @@ unicli exec Module.Enable '{"name":"Settings"}' --json
 unicli exec Module.Disable '{"name":"Profiler"}' --json
 ```
 
-All modules are enabled by default. Module settings are saved in `ProjectSettings/UniCliSettings.asset` and can also be configured via Edit > Project Settings > UniCli.
+Module settings are saved in `ProjectSettings/UniCliSettings.asset`.
+
+`unicli commands --json` includes `builtIn` and `module` fields for each command, so you can programmatically identify whether a command is built-in or user-defined and which module it belongs to.
 
 **NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
 
