@@ -7,6 +7,8 @@ namespace UniCli.Protocol
     {
         public string name;
         public string description;
+        public bool builtIn;
+        public string module;
         public CommandFieldInfo[] requestFields;
         public CommandFieldInfo[] responseFields;
     }
