@@ -45,13 +45,12 @@ namespace UniCli.Remote
                     try
                     {
                         var instance = (DebugCommand)Activator.CreateInstance(type);
-                        if (_commands.ContainsKey(attr.Name))
+                        if (!_commands.TryAdd(attr.Name, instance))
                         {
                             UnityEngine.Debug.LogWarning($"[UniCli.Remote] Duplicate debug command '{attr.Name}', skipping {type.FullName}");
                             continue;
                         }
 
-                        _commands[attr.Name] = instance;
                         _attributes[attr.Name] = attr;
                     }
                     catch (Exception ex)

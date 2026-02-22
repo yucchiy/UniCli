@@ -11,10 +11,12 @@ namespace UniCli.Server.Editor.Handlers.Remote
     public sealed class RemoteListHandler : CommandHandler<RemoteListRequest, RemoteListResponse>
     {
         private readonly RemoteBridge _bridge;
+        private readonly DebugCommandRegistry _registry;
 
-        public RemoteListHandler(RemoteBridge bridge)
+        public RemoteListHandler(RemoteBridge bridge, DebugCommandRegistry registry)
         {
             _bridge = bridge;
+            _registry = registry;
         }
 
         public override string CommandName => "Remote.List";
@@ -57,14 +59,11 @@ namespace UniCli.Server.Editor.Handlers.Remote
             };
         }
 
-        private static RemoteListResponse ExecuteListLocally()
+        private RemoteListResponse ExecuteListLocally()
         {
-            var registry = new DebugCommandRegistry();
-            registry.DiscoverCommands();
-
             return new RemoteListResponse
             {
-                commands = registry.GetCommandInfos()
+                commands = _registry.GetCommandInfos()
             };
         }
 

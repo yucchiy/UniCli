@@ -1,3 +1,4 @@
+using UniCli.Remote;
 using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers.Remote
@@ -9,6 +10,10 @@ namespace UniCli.Server.Editor.Handlers.Remote
             var bridge = ScriptableObject.CreateInstance<RemoteBridge>();
             bridge.hideFlags = HideFlags.HideAndDontSave;
             services.AddSingleton(bridge);
+
+            var registry = new DebugCommandRegistry();
+            registry.DiscoverCommands();
+            services.AddSingleton(registry);
         }
     }
 }

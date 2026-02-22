@@ -49,7 +49,7 @@ namespace UniCli.Server.Editor.Handlers
 
             foreach (var path in request.paths)
             {
-                var go = GameObjectResolver.Resolve(0, path);
+                var go = GameObjectResolver.ResolveByPath(path);
                 if (go != null)
                 {
                     objects.Add(go);

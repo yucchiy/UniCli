@@ -26,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 
-            var go = GameObjectResolver.Resolve(request.instanceId, request.path);
+            var go = GameObjectResolver.ResolveByIdOrPath(request.instanceId, request.path);
             if (go == null)
             {
                 throw new CommandFailedException(

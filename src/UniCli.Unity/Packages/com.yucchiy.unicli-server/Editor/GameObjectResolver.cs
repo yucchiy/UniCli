@@ -21,15 +21,17 @@ namespace UniCli.Server.Editor
             return string.Join("/", parts);
         }
 
-        public static GameObject Resolve(int instanceId, string path)
+        public static GameObject ResolveByIdOrPath(int instanceId, string path)
         {
             if (instanceId != 0)
                 return EditorUtility.InstanceIDToObject(instanceId) as GameObject;
 
-            if (!string.IsNullOrEmpty(path))
-                return FindByPath(path);
+            return ResolveByPath(path);
+        }
 
-            return null;
+        public static GameObject ResolveByPath(string path)
+        {
+            return !string.IsNullOrEmpty(path) ? FindByPath(path) : null;
         }
 
         private static GameObject FindByPath(string path)

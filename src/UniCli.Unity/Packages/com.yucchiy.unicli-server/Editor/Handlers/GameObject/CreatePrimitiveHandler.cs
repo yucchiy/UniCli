@@ -43,7 +43,7 @@ namespace UniCli.Server.Editor.Handlers
 
             if (!string.IsNullOrEmpty(request.parent))
             {
-                var parentGo = GameObjectResolver.Resolve(0, request.parent);
+                var parentGo = GameObjectResolver.ResolveByPath(request.parent);
                 if (parentGo == null)
                 {
                     UnityEngine.Object.DestroyImmediate(go);
