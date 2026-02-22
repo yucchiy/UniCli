@@ -5,10 +5,6 @@ namespace UniCli.Server.Editor
 {
     public static class ModuleRegistry
     {
-        public const string UserCommandsModule = "UserCommands";
-
-        private static readonly Assembly ServerAssembly = typeof(ModuleRegistry).Assembly;
-
         public static readonly ModuleDefinition[] All = new[]
         {
             new ModuleDefinition("Scene", "Scene and GameObject operations"),
@@ -24,20 +20,12 @@ namespace UniCli.Server.Editor
 
         /// <summary>
         /// Resolve the module name for a handler type.
-        /// - [Module("X")] → "X"
-        /// - No attribute + server assembly → null (Core, always enabled)
-        /// - No attribute + external assembly → UserCommandsModule
+        /// Returns the [Module("X")] value if present, or null for core/user commands (always enabled).
         /// </summary>
         public static string ResolveModuleName(Type handlerType)
         {
             var attr = handlerType.GetCustomAttribute<ModuleAttribute>();
-            if (attr != null)
-                return attr.Name;
-
-            if (handlerType.Assembly == ServerAssembly)
-                return null;
-
-            return UserCommandsModule;
+            return attr?.Name;
         }
     }
 }
