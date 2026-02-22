@@ -26,7 +26,7 @@ namespace UniCli.Server.Editor.Handlers
                     new SetGameObjectSelectionResponse());
             }
 
-            var go = GameObjectResolver.Resolve(0, request.path);
+            var go = GameObjectResolver.ResolveByPath(request.path);
             if (go == null)
             {
                 throw new CommandFailedException(

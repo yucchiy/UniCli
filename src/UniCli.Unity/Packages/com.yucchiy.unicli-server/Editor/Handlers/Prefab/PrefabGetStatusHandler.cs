@@ -29,7 +29,7 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<PrefabGetStatusResponse> ExecuteAsync(PrefabGetStatusRequest request, CancellationToken cancellationToken)
         {
-            var go = GameObjectResolver.Resolve(request.instanceId, request.path);
+            var go = GameObjectResolver.ResolveByIdOrPath(request.instanceId, request.path);
             if (go == null)
             {
                 throw new CommandFailedException(

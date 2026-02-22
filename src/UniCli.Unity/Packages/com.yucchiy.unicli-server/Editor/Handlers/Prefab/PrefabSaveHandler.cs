@@ -33,7 +33,7 @@ namespace UniCli.Server.Editor.Handlers
                     new PrefabSaveResponse());
             }
 
-            var go = GameObjectResolver.Resolve(request.instanceId, request.path);
+            var go = GameObjectResolver.ResolveByIdOrPath(request.instanceId, request.path);
             if (go == null)
             {
                 throw new CommandFailedException(

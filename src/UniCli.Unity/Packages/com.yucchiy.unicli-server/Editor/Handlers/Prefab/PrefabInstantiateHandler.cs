@@ -45,7 +45,7 @@ namespace UniCli.Server.Editor.Handlers
 
             Undo.RegisterCreatedObjectUndo(instance, "Instantiate Prefab");
 
-            var parent = GameObjectResolver.Resolve(request.parentInstanceId, request.parentPath);
+            var parent = GameObjectResolver.ResolveByIdOrPath(request.parentInstanceId, request.parentPath);
             if (parent != null)
                 instance.transform.SetParent(parent.transform, true);
 
