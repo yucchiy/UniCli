@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Remote;
+using UnityEditor;
 using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 
@@ -43,6 +44,9 @@ namespace UniCli.Server.Editor.Handlers.Remote
             if (string.IsNullOrEmpty(request.command))
                 throw new ArgumentException("'command' is required");
 
+            if (ShouldExecuteLocally(request.playerId))
+                return ExecuteLocally(request);
+
             var playerId = ResolvePlayerId(request.playerId);
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -71,6 +75,43 @@ namespace UniCli.Server.Editor.Handlers.Remote
                 message = cmdResponse.message,
                 data = cmdResponse.data
             };
+        }
+
+        private static RemoteInvokeResponse ExecuteLocally(RemoteInvokeRequest request)
+        {
+            var registry = new DebugCommandRegistry();
+            registry.DiscoverCommands();
+
+            if (!registry.TryGetCommand(request.command, out var command))
+            {
+                throw new CommandFailedException(
+                    $"Unknown debug command: {request.command}",
+                    new RemoteInvokeResponse
+                    {
+                        command = request.command,
+                        success = false,
+                        message = $"Unknown debug command: {request.command}",
+                        data = ""
+                    });
+            }
+
+            var resultJson = command.Execute(request.data);
+
+            return new RemoteInvokeResponse
+            {
+                command = request.command,
+                success = true,
+                message = $"Command '{request.command}' succeeded (local PlayMode)",
+                data = resultJson
+            };
+        }
+
+        private static bool ShouldExecuteLocally(int requestedPlayerId)
+        {
+            if (requestedPlayerId > 0)
+                return false;
+
+            return EditorApplication.isPlaying;
         }
 
         private static int ResolvePlayerId(int requestedId)

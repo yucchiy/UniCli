@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Remote;
+using UnityEditor;
 using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 
@@ -41,6 +42,9 @@ namespace UniCli.Server.Editor.Handlers.Remote
 
         protected override async ValueTask<RemoteListResponse> ExecuteAsync(RemoteListRequest request, CancellationToken cancellationToken)
         {
+            if (ShouldExecuteLocally(request.playerId))
+                return ExecuteListLocally();
+
             var playerId = ResolvePlayerId(request.playerId);
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -53,6 +57,25 @@ namespace UniCli.Server.Editor.Handlers.Remote
             {
                 commands = listResponse.commands
             };
+        }
+
+        private static RemoteListResponse ExecuteListLocally()
+        {
+            var registry = new DebugCommandRegistry();
+            registry.DiscoverCommands();
+
+            return new RemoteListResponse
+            {
+                commands = registry.GetCommandInfos()
+            };
+        }
+
+        private static bool ShouldExecuteLocally(int requestedPlayerId)
+        {
+            if (requestedPlayerId > 0)
+                return false;
+
+            return EditorApplication.isPlaying;
         }
 
         private static int ResolvePlayerId(int requestedId)
