@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class DestroyGameObjectHandler : CommandHandler<DestroyGameObjectRequest, DestroyGameObjectResponse>
     {
         public override string CommandName => "GameObject.Destroy";

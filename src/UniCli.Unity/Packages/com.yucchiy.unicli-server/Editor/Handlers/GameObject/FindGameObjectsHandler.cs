@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class FindGameObjectsHandler : CommandHandler<FindGameObjectsRequest, FindGameObjectsResponse>
     {
         public override string CommandName => "GameObject.Find";

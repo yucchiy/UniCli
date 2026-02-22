@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Assets")]
+    [Module("GameObject")]
     public sealed class SetPropertyHandler : CommandHandler<SetPropertyRequest, SetPropertyResponse>
     {
         public override string CommandName => "Component.SetProperty";
