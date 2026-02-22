@@ -78,101 +78,117 @@ namespace UniCli.Server.Editor
             {
                 try
                 {
-                    if (!await PerformHandshakeAsync(server, cancellationToken)) 
+                    if (!await PerformHandshakeAsync(server, cancellationToken))
                         return;
 
                     while (!cancellationToken.IsCancellationRequested && server.IsConnected)
                     {
-                        // Read length prefix (4 bytes)
-                        var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
-                        try
-                        {
-                            if (!await ReadExactAsync(server, lengthBuffer, 4, cancellationToken))
-                                break; // Client disconnected
+                        var request = await ReadRequestAsync(server, cancellationToken);
+                        if (request == null)
+                            break;
 
-                            var length = BitConverter.ToInt32(lengthBuffer, 0);
-                            if (length <= 0 || length > ProtocolConstants.MaxMessageSize)
-                            {
-                                Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
-                                break;
-                            }
-
-                            var jsonBuffer = ArrayPool<byte>.Shared.Rent(length);
-                            try
-                            {
-                                if (!await ReadExactAsync(server, jsonBuffer, length, cancellationToken))
-                                {
-                                    Debug.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
-                                    break;
-                                }
-
-                                var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
-                                var request = JsonUtility.FromJson<CommandRequest>(json);
-
-                                var commandCts = new CancellationTokenSource();
-                                try
-                                {
-                                    var responseTcs = new TaskCompletionSource<CommandResponse>();
-
-                                    _onCommandReceived(request, commandCts.Token, response => responseTcs.TrySetResult(response));
-
-                                    await server.WriteAsync(AckBuffer, 0, 1, cancellationToken);
-                                    await server.FlushAsync(cancellationToken);
-
-                                    var monitorTask = MonitorDisconnectAsync(server, commandCts);
-                                    await Task.WhenAny(responseTcs.Task, monitorTask);
-
-                                    if (!responseTcs.Task.IsCompleted)
-                                    {
-                                        commandCts.Cancel();
-                                        break;
-                                    }
-
-                                    commandCts.Cancel();
-                                    var commandResponse = await responseTcs.Task;
-
-                                    var responseJson = JsonUtility.ToJson(commandResponse);
-                                    var responseByteCount = Encoding.UTF8.GetByteCount(responseJson);
-                                    var responseBuffer = ArrayPool<byte>.Shared.Rent(responseByteCount);
-                                    try
-                                    {
-                                        Encoding.UTF8.GetBytes(responseJson, 0, responseJson.Length, responseBuffer, 0);
-                                        var responseLengthBytes = BitConverter.GetBytes(responseByteCount);
-
-                                        await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
-                                        await server.WriteAsync(responseBuffer, 0, responseByteCount, cancellationToken);
-                                        await server.FlushAsync(cancellationToken);
-                                    }
-                                    finally
-                                    {
-                                        ArrayPool<byte>.Shared.Return(responseBuffer);
-                                    }
-                                }
-                                catch (IOException ex)
-                                {
-                                    Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
-                                    break;
-                                }
-                                finally
-                                {
-                                    commandCts.Dispose();
-                                }
-                            }
-                            finally
-                            {
-                                ArrayPool<byte>.Shared.Return(jsonBuffer);
-                            }
-                        }
-                        finally
-                        {
-                            ArrayPool<byte>.Shared.Return(lengthBuffer);
-                        }
+                        if (!await ProcessCommandAsync(server, request, cancellationToken))
+                            break;
                     }
                 }
                 catch (Exception ex)
                 {
                     Debug.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
                 }
+            }
+        }
+
+        private static async Task<CommandRequest> ReadRequestAsync(
+            NamedPipeServerStream server, CancellationToken cancellationToken)
+        {
+            int length;
+            var lengthBuffer = ArrayPool<byte>.Shared.Rent(4);
+            try
+            {
+                if (!await ReadExactAsync(server, lengthBuffer, 4, cancellationToken))
+                    return null;
+
+                length = BitConverter.ToInt32(lengthBuffer, 0);
+                if (length <= 0 || length > ProtocolConstants.MaxMessageSize)
+                {
+                    Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
+                    return null;
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(lengthBuffer);
+            }
+
+            var jsonBuffer = ArrayPool<byte>.Shared.Rent(length);
+            try
+            {
+                if (!await ReadExactAsync(server, jsonBuffer, length, cancellationToken))
+                {
+                    Debug.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
+                    return null;
+                }
+
+                var json = Encoding.UTF8.GetString(jsonBuffer, 0, length);
+                return JsonUtility.FromJson<CommandRequest>(json);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(jsonBuffer);
+            }
+        }
+
+        private async Task<bool> ProcessCommandAsync(
+            NamedPipeServerStream server, CommandRequest request, CancellationToken cancellationToken)
+        {
+            using var commandCts = new CancellationTokenSource();
+            try
+            {
+                var responseTcs = new TaskCompletionSource<CommandResponse>();
+                _onCommandReceived(request, commandCts.Token, response => responseTcs.TrySetResult(response));
+
+                await server.WriteAsync(AckBuffer, 0, 1, cancellationToken);
+                await server.FlushAsync(cancellationToken);
+
+                var monitorTask = MonitorDisconnectAsync(server, commandCts);
+                await Task.WhenAny(responseTcs.Task, monitorTask);
+                if (!responseTcs.Task.IsCompleted)
+                {
+                    commandCts.Cancel();
+                    return false;
+                }
+
+                commandCts.Cancel();
+                var commandResponse = await responseTcs.Task;
+
+                await WriteResponseAsync(server, commandResponse, cancellationToken);
+                return true;
+            }
+            catch (IOException ex)
+            {
+                Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
+                return false;
+            }
+        }
+
+        private static async Task WriteResponseAsync(
+            NamedPipeServerStream server, CommandResponse response, CancellationToken cancellationToken)
+        {
+            var responseJson = JsonUtility.ToJson(response);
+            var responseByteCount = Encoding.UTF8.GetByteCount(responseJson);
+            var responseBuffer = ArrayPool<byte>.Shared.Rent(responseByteCount);
+            try
+            {
+                Encoding.UTF8.GetBytes(responseJson, 0, responseJson.Length, responseBuffer, 0);
+                var responseLengthBytes = BitConverter.GetBytes(responseByteCount);
+
+                await server.WriteAsync(responseLengthBytes, 0, 4, cancellationToken);
+                await server.WriteAsync(responseBuffer, 0, responseByteCount, cancellationToken);
+                await server.FlushAsync(cancellationToken);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(responseBuffer);
             }
         }
 
@@ -240,8 +256,7 @@ namespace UniCli.Server.Editor
                     commandCts.Cancel();
             }
             catch (OperationCanceledException) { }
-            catch (IOException) { commandCts.Cancel(); }
-            catch (ObjectDisposedException) { commandCts.Cancel(); }
+            catch (Exception) { commandCts.Cancel(); }
         }
 
         public void Dispose()
