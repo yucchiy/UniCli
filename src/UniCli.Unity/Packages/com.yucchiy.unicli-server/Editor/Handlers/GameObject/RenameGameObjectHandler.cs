@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class RenameGameObjectHandler : CommandHandler<RenameGameObjectRequest, RenameGameObjectResponse>
     {
-        public override string CommandName => CommandNames.GameObject.Rename;
+        public override string CommandName => "GameObject.Rename";
         public override string Description => "Rename a GameObject";
 
         protected override bool TryWriteFormatted(RenameGameObjectResponse response, bool success, IFormatWriter writer)

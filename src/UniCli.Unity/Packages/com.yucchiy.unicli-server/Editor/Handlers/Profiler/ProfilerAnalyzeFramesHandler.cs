@@ -7,9 +7,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerAnalyzeFramesHandler : CommandHandler<ProfilerAnalyzeFramesRequest, ProfilerAnalyzeFramesResponse>
     {
-        public override string CommandName => CommandNames.Profiler.AnalyzeFrames;
+        public override string CommandName => "Profiler.AnalyzeFrames";
         public override string Description => "Analyze recorded frames and return aggregate statistics";
 
         protected override bool TryWriteFormatted(ProfilerAnalyzeFramesResponse response, bool success, IFormatWriter writer)

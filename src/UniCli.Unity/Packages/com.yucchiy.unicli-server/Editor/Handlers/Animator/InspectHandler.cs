@@ -7,10 +7,11 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorInspectHandler
         : CommandHandler<AnimatorInspectRequest, AnimatorInspectResponse>
     {
-        public override string CommandName => CommandNames.Animator.Inspect;
+        public override string CommandName => "Animator.Inspect";
         public override string Description => "Inspect an Animator component (parameters, current state, controller info)";
 
         protected override bool TryWriteFormatted(AnimatorInspectResponse response, bool success,

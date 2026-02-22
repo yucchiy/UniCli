@@ -186,19 +186,27 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Screenshot.Capture` | Capture a screenshot of the Game View and save as PNG (requires Play Mode) |
 | `Remote.List` | List debug commands registered on connected runtime player |
 | `Remote.Invoke` | Invoke a debug command on connected runtime player |
+| `Module.List` | List all available modules and their enabled status |
+| `Module.Enable` | Enable a module and reload the command dispatcher |
+| `Module.Disable` | Disable a module and reload the command dispatcher |
 
 ### Settings Commands (auto-generated)
 
-Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` are auto-generated at compile time to match your Unity version. Use `unicli commands` to see the full list.
+Inspect commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings` are auto-generated at compile time to match your Unity version.
 
-| Pattern | Example | Description |
-|---|---|---|
-| `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values |
-| `<Settings>.<property>` | `PlayerSettings.companyName` | Set a property |
-| `<Settings>.<Nested>.<property>` | `PlayerSettings.Android.minSdkVersion` | Set a nested type property |
-| `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
+| Command | Description |
+|---|---|
+| `PlayerSettings.Inspect` | Get all PlayerSettings values |
+| `EditorSettings.Inspect` | Get all EditorSettings values |
+| `EditorUserBuildSettings.Inspect` | Get all EditorUserBuildSettings values |
+| `Material.Inspect` | Read all properties of a material instance (requires `guid`) |
 
-Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`).
+To **modify** settings, use `unicli eval`:
+
+```bash
+unicli eval 'PlayerSettings.companyName = "MyCompany";' --json
+unicli eval 'PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);' --json
+```
 
 ## Common Workflows
 
@@ -315,6 +323,7 @@ unicli exec Material.Inspect --guid "abc123def456" --json
 unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}' --json
 unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8 --json
 unicli exec Material.GetColor --guid "abc123def456" --name "_Color" --json
+unicli exec Material.GetFloat --guid "abc123def456" --name "_Metallic" --json
 ```
 
 **AnimatorController operations:**
@@ -368,12 +377,14 @@ unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab" --json
 **Inspect and modify Unity settings:**
 
 ```bash
+# Inspect all settings values
 unicli exec PlayerSettings.Inspect --json
-unicli exec PlayerSettings.companyName --value "MyCompany" --json
-unicli exec PlayerSettings.Android.minSdkVersion --value AndroidApiLevel28 --json
-unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP --json
-unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android --json
 unicli exec EditorSettings.Inspect --json
+
+# Modify settings via eval
+unicli eval 'PlayerSettings.companyName = "MyCompany";' --json
+unicli eval 'PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);' --json
+unicli eval 'return PlayerSettings.GetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android).ToString();' --json
 ```
 
 **Check console output:**
@@ -480,6 +491,21 @@ unicli exec Profiler.AnalyzeFrames '{"startFrame":100,"endFrame":200,"topSampleC
 unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
 unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 ```
+
+**Module management:**
+
+```bash
+# List all modules and their enabled status
+unicli exec Module.List --json
+
+# Enable a module
+unicli exec Module.Enable '{"name":"Settings"}' --json
+
+# Disable a module
+unicli exec Module.Disable '{"name":"Profiler"}' --json
+```
+
+All modules are enabled by default. Module settings are saved in `ProjectSettings/UniCliSettings.asset`.
 
 **Screenshot operations (requires Play Mode):**
 

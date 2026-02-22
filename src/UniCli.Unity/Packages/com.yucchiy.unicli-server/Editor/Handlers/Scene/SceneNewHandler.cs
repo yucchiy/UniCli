@@ -5,9 +5,10 @@ using UnityEditor.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SceneNewHandler : CommandHandler<SceneNewRequest, SceneInfoResponse>
     {
-        public override string CommandName => CommandNames.Scene.New;
+        public override string CommandName => "Scene.New";
         public override string Description => "Create a new scene via EditorSceneManager";
 
         protected override bool TryWriteFormatted(SceneInfoResponse response, bool success, IFormatWriter writer)

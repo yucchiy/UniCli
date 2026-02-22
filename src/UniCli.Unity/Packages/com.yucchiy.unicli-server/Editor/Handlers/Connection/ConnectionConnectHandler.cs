@@ -5,9 +5,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Remote")]
     public sealed class ConnectionConnectHandler : CommandHandler<ConnectionConnectRequest, ConnectionStatusResponse>
     {
-        public override string CommandName => CommandNames.Connection.Connect;
+        public override string CommandName => "Connection.Connect";
         public override string Description => "Connect to a target player/device by ID, IP address, or device ID";
 
         protected override bool TryWriteFormatted(ConnectionStatusResponse response, bool success, IFormatWriter writer)

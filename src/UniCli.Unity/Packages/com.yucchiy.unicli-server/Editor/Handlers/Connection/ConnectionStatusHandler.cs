@@ -6,9 +6,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Remote")]
     public sealed class ConnectionStatusHandler : CommandHandler<Unit, ConnectionStatusResponse>
     {
-        public override string CommandName => CommandNames.Connection.Status;
+        public override string CommandName => "Connection.Status";
         public override string Description => "Get current profiler connection status";
 
         protected override bool TryWriteFormatted(ConnectionStatusResponse response, bool success, IFormatWriter writer)

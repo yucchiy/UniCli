@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerListHandler : CommandHandler<Unit, PackageManagerListResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.List;
+        public override string CommandName => "PackageManager.List";
         public override string Description => "List all installed packages in the project";
 
         protected override bool TryWriteFormatted(PackageManagerListResponse response, bool success, IFormatWriter writer)

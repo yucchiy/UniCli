@@ -6,9 +6,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SetParentHandler : CommandHandler<SetParentRequest, SetParentResponse>
     {
-        public override string CommandName => CommandNames.GameObject.SetParent;
+        public override string CommandName => "GameObject.SetParent";
         public override string Description => "Change the parent of a GameObject (or move to root)";
 
         protected override bool TryWriteFormatted(SetParentResponse response, bool success, IFormatWriter writer)

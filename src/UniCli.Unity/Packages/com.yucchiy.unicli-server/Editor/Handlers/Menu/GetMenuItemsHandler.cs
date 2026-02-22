@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class GetMenuItemsHandler : CommandHandler<GetMenuItemsRequest, GetMenuItemsResponse>
     {
-        public override string CommandName => CommandNames.Menu.List;
+        public override string CommandName => "Menu.List";
         public override string Description => "List available Unity Editor menu items with filtering";
 
         protected override ValueTask<GetMenuItemsResponse> ExecuteAsync(GetMenuItemsRequest request, CancellationToken cancellationToken)

@@ -5,10 +5,11 @@ using UnityEditor.Animations;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerCreateHandler
         : CommandHandler<AnimatorControllerCreateRequest, AnimatorControllerCreateResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.Create;
+        public override string CommandName => "AnimatorController.Create";
         public override string Description => "Create a new AnimatorController asset";
 
         protected override bool TryWriteFormatted(AnimatorControllerCreateResponse response, bool success,

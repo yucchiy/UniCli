@@ -6,9 +6,10 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SceneListHandler : CommandHandler<Unit, SceneListResponse>
     {
-        public override string CommandName => CommandNames.Scene.List;
+        public override string CommandName => "Scene.List";
         public override string Description => "List all loaded scenes via SceneManager";
 
         protected override bool TryWriteFormatted(SceneListResponse response, bool success, IFormatWriter writer)

@@ -6,9 +6,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SetTransformHandler : CommandHandler<SetTransformRequest, SetTransformResponse>
     {
-        public override string CommandName => CommandNames.GameObject.SetTransform;
+        public override string CommandName => "GameObject.SetTransform";
         public override string Description => "Set the local transform (position, rotation, scale) of a GameObject";
 
         protected override bool TryWriteFormatted(SetTransformResponse response, bool success, IFormatWriter writer)

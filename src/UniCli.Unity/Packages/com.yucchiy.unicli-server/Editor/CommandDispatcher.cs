@@ -29,10 +29,15 @@ namespace UniCli.Server.Editor
         private void RegisterClassHandlers(ServiceRegistry services)
         {
             var handlerTypes = TypeCache.GetTypesDerivedFrom<ICommandHandler>();
+            var settings = UniCliSettings.instance;
 
             foreach (var type in handlerTypes)
             {
                 if (type.IsAbstract || type.IsInterface)
+                    continue;
+
+                var moduleName = ModuleRegistry.ResolveModuleName(type);
+                if (moduleName != null && !settings.IsModuleEnabled(moduleName))
                     continue;
 
                 ICommandHandler handler;

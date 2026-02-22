@@ -6,9 +6,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class AssetFindHandler : CommandHandler<AssetFindRequest, AssetFindResponse>
     {
-        public override string CommandName => CommandNames.AssetDatabase.Find;
+        public override string CommandName => "AssetDatabase.Find";
         public override string Description => "Find assets by filter (e.g. t:Texture, l:MyLabel)";
 
         protected override ValueTask<AssetFindResponse> ExecuteAsync(AssetFindRequest request, CancellationToken cancellationToken)

@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Build")]
     public sealed class TestRunEditModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
-        public override string CommandName => CommandNames.TestRunner.RunEditMode;
+        public override string CommandName => "TestRunner.RunEditMode";
         public override string Description => "Run EditMode tests with optional name/assembly filter";
 
         protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)
@@ -21,9 +22,10 @@ namespace UniCli.Server.Editor.Handlers
         }
     }
 
+    [Module("Build")]
     public sealed class TestRunPlayModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
-        public override string CommandName => CommandNames.TestRunner.RunPlayMode;
+        public override string CommandName => "TestRunner.RunPlayMode";
         public override string Description => "Run PlayMode tests with optional name/assembly filter";
 
         protected override bool TryWriteFormatted(TestRunnerResponse response, bool success, IFormatWriter writer)

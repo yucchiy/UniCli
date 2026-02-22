@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class FocusWindowHandler : CommandHandler<FocusWindowRequest, FocusWindowResponse>
     {
-        public override string CommandName => CommandNames.Window.Focus;
+        public override string CommandName => "Window.Focus";
         public override string Description => "Focus an already-open EditorWindow by type name";
 
         protected override bool TryWriteFormatted(FocusWindowResponse response, bool success, IFormatWriter writer)

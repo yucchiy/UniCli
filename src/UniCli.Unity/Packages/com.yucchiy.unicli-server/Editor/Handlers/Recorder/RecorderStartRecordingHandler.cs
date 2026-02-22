@@ -11,9 +11,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Recorder")]
     public sealed class RecorderStartRecordingHandler : CommandHandler<RecorderStartRecordingRequest, RecorderStartRecordingResponse>
     {
-        public override string CommandName => CommandNames.Recorder.StartRecording;
+        public override string CommandName => "Recorder.StartRecording";
         public override string Description => "Start recording the Game View as a video (requires Play Mode)";
 
         protected override bool TryWriteFormatted(RecorderStartRecordingResponse response, bool success, IFormatWriter writer)

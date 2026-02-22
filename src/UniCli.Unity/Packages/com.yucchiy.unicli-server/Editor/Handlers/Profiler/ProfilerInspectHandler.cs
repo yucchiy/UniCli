@@ -7,9 +7,10 @@ using UnityEngine.Profiling;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerInspectHandler : CommandHandler<Unit, ProfilerInspectResponse>
     {
-        public override string CommandName => CommandNames.Profiler.Inspect;
+        public override string CommandName => "Profiler.Inspect";
         public override string Description => "Get profiler status and memory statistics";
 
         protected override bool TryWriteFormatted(ProfilerInspectResponse response, bool success, IFormatWriter writer)

@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class AssemblyDefinitionRemoveReferenceHandler : CommandHandler<AssemblyDefinitionRemoveReferenceRequest, AssemblyDefinitionRemoveReferenceResponse>
     {
-        public override string CommandName => CommandNames.AssemblyDefinition.RemoveReference;
+        public override string CommandName => "AssemblyDefinition.RemoveReference";
         public override string Description => "Remove an assembly reference from an existing assembly definition";
 
         protected override bool TryWriteFormatted(AssemblyDefinitionRemoveReferenceResponse response, bool success, IFormatWriter writer)

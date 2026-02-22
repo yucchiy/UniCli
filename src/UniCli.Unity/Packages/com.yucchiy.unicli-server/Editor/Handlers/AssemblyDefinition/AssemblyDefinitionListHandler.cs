@@ -12,7 +12,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class AssemblyDefinitionListHandler : CommandHandler<Unit, AssemblyDefinitionListResponse>
     {
-        public override string CommandName => CommandNames.AssemblyDefinition.List;
+        public override string CommandName => "AssemblyDefinition.List";
         public override string Description => "List all assembly definitions in the project";
 
         protected override bool TryWriteFormatted(AssemblyDefinitionListResponse response, bool success, IFormatWriter writer)

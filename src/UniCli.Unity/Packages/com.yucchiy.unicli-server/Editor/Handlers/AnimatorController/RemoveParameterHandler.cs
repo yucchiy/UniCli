@@ -5,10 +5,11 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerRemoveParameterHandler
         : CommandHandler<AnimatorControllerRemoveParameterRequest, AnimatorControllerRemoveParameterResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.RemoveParameter;
+        public override string CommandName => "AnimatorController.RemoveParameter";
         public override string Description => "Remove a parameter from an AnimatorController";
 
         protected override bool TryWriteFormatted(AnimatorControllerRemoveParameterResponse response, bool success,

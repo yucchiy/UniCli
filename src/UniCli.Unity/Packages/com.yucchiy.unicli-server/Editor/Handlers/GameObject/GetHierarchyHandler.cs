@@ -8,9 +8,10 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class GetHierarchyHandler : CommandHandler<GetHierarchyRequest, GetHierarchyResponse>
     {
-        public override string CommandName => CommandNames.GameObject.GetHierarchy;
+        public override string CommandName => "GameObject.GetHierarchy";
         public override string Description => "Get the scene hierarchy of GameObjects";
 
         protected override bool TryWriteFormatted(GetHierarchyResponse response, bool success, IFormatWriter writer)

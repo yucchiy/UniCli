@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class AssemblyDefinitionCreateHandler : CommandHandler<AssemblyDefinitionCreateRequest, AssemblyDefinitionCreateResponse>
     {
-        public override string CommandName => CommandNames.AssemblyDefinition.Create;
+        public override string CommandName => "AssemblyDefinition.Create";
         public override string Description => "Create a new assembly definition file";
 
         protected override bool TryWriteFormatted(AssemblyDefinitionCreateResponse response, bool success, IFormatWriter writer)

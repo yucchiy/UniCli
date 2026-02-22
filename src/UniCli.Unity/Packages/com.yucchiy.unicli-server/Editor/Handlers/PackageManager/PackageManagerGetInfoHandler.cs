@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerGetInfoHandler : CommandHandler<PackageManagerGetInfoRequest, PackageManagerGetInfoResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.GetInfo;
+        public override string CommandName => "PackageManager.GetInfo";
         public override string Description => "Get detailed information about a specific installed package";
 
         protected override bool TryWriteFormatted(PackageManagerGetInfoResponse response, bool success, IFormatWriter writer)

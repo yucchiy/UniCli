@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class PrefabApplyHandler : CommandHandler<PrefabApplyRequest, PrefabApplyResponse>
     {
-        public override string CommandName => CommandNames.Prefab.Apply;
+        public override string CommandName => "Prefab.Apply";
         public override string Description => "Apply overrides of a prefab instance to the source prefab asset via PrefabUtility";
 
         protected override bool TryWriteFormatted(PrefabApplyResponse response, bool success, IFormatWriter writer)

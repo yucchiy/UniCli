@@ -6,9 +6,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class RemoveComponentHandler : CommandHandler<RemoveComponentRequest, RemoveComponentResponse>
     {
-        public override string CommandName => CommandNames.GameObject.RemoveComponent;
+        public override string CommandName => "GameObject.RemoveComponent";
         public override string Description => "Remove a component from a GameObject by instance ID";
 
         protected override bool TryWriteFormatted(RemoveComponentResponse response, bool success, IFormatWriter writer)

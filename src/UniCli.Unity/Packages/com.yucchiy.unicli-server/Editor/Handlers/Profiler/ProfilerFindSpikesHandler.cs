@@ -7,9 +7,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerFindSpikesHandler : CommandHandler<ProfilerFindSpikesRequest, ProfilerFindSpikesResponse>
     {
-        public override string CommandName => CommandNames.Profiler.FindSpikes;
+        public override string CommandName => "Profiler.FindSpikes";
         public override string Description => "Find frames exceeding frame time or GC allocation thresholds";
 
         protected override bool TryWriteFormatted(ProfilerFindSpikesResponse response, bool success, IFormatWriter writer)

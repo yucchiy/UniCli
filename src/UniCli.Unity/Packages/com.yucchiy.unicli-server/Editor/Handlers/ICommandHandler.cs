@@ -34,10 +34,14 @@ namespace UniCli.Server.Editor.Handlers
 
         public CommandInfo GetCommandInfo()
         {
+            var handlerType = GetType();
+            var assemblyName = handlerType.Assembly.GetName().Name;
             return new CommandInfo
             {
                 name = CommandName,
                 description = Description,
+                builtIn = assemblyName.StartsWith("UniCli.Server.Editor"),
+                module = ModuleRegistry.ResolveModuleName(handlerType),
                 requestFields = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(TRequest)),
                 responseFields = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(TResponse))
             };

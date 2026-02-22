@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerUpdateHandler : CommandHandler<PackageManagerUpdateRequest, PackageManagerUpdateResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.Update;
+        public override string CommandName => "PackageManager.Update";
         public override string Description => "Update a package to a specific version or the latest version";
 
         protected override bool TryWriteFormatted(PackageManagerUpdateResponse response, bool success, IFormatWriter writer)

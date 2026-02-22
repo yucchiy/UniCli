@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class SetPropertyHandler : CommandHandler<SetPropertyRequest, SetPropertyResponse>
     {
-        public override string CommandName => CommandNames.Component.SetProperty;
+        public override string CommandName => "Component.SetProperty";
         public override string Description => "Set a component property value via SerializedProperty";
 
         protected override bool TryWriteFormatted(SetPropertyResponse response, bool success, IFormatWriter writer)

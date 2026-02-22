@@ -6,11 +6,12 @@ using UnityEditor.Animations;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerAddTransitionConditionHandler
         : CommandHandler<AnimatorControllerAddTransitionConditionRequest,
             AnimatorControllerAddTransitionConditionResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.AddTransitionCondition;
+        public override string CommandName => "AnimatorController.AddTransitionCondition";
 
         public override string Description =>
             "Add a condition to a transition between two states in an AnimatorController";

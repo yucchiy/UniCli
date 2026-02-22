@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers.Remote
 {
+    [Module("Remote")]
     public sealed class RemoteInvokeHandler : CommandHandler<RemoteInvokeRequest, RemoteInvokeResponse>
     {
         private readonly RemoteBridge _bridge;
@@ -17,7 +18,7 @@ namespace UniCli.Server.Editor.Handlers.Remote
             _bridge = bridge;
         }
 
-        public override string CommandName => CommandNames.Remote.Invoke;
+        public override string CommandName => "Remote.Invoke";
         public override string Description => "Invoke a debug command on connected runtime player";
 
         protected override bool TryWriteFormatted(RemoteInvokeResponse response, bool success, IFormatWriter writer)

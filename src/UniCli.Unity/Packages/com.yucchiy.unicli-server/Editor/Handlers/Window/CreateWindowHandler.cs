@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class CreateWindowHandler : CommandHandler<CreateWindowRequest, CreateWindowResponse>
     {
-        public override string CommandName => CommandNames.Window.Create;
+        public override string CommandName => "Window.Create";
         public override string Description => "Create a new EditorWindow instance by type name";
 
         protected override bool TryWriteFormatted(CreateWindowResponse response, bool success, IFormatWriter writer)

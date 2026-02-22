@@ -6,9 +6,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerLoadProfileHandler : CommandHandler<ProfilerLoadProfileRequest, ProfilerLoadProfileResponse>
     {
-        public override string CommandName => CommandNames.Profiler.LoadProfile;
+        public override string CommandName => "Profiler.LoadProfile";
         public override string Description => "Load profiler data from a .raw file";
 
         protected override bool TryWriteFormatted(ProfilerLoadProfileResponse response, bool success, IFormatWriter writer)

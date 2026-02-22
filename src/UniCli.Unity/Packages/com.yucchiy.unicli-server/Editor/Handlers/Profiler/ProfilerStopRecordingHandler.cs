@@ -6,9 +6,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerStopRecordingHandler : CommandHandler<Unit, ProfilerStopRecordingResponse>
     {
-        public override string CommandName => CommandNames.Profiler.StopRecording;
+        public override string CommandName => "Profiler.StopRecording";
         public override string Description => "Stop profiler recording";
 
         protected override bool TryWriteFormatted(ProfilerStopRecordingResponse response, bool success, IFormatWriter writer)

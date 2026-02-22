@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class AssemblyDefinitionAddReferenceHandler : CommandHandler<AssemblyDefinitionAddReferenceRequest, AssemblyDefinitionAddReferenceResponse>
     {
-        public override string CommandName => CommandNames.AssemblyDefinition.AddReference;
+        public override string CommandName => "AssemblyDefinition.AddReference";
         public override string Description => "Add an assembly reference to an existing assembly definition";
 
         protected override bool TryWriteFormatted(AssemblyDefinitionAddReferenceResponse response, bool success, IFormatWriter writer)

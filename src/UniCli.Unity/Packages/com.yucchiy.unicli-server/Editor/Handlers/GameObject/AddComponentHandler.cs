@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class AddComponentHandler : CommandHandler<AddComponentRequest, AddComponentResponse>
     {
-        public override string CommandName => CommandNames.GameObject.AddComponent;
+        public override string CommandName => "GameObject.AddComponent";
         public override string Description => "Add a component to a GameObject by type name";
 
         protected override bool TryWriteFormatted(AddComponentResponse response, bool success, IFormatWriter writer)

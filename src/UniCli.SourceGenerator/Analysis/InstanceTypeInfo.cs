@@ -9,23 +9,17 @@ namespace UniCli.SourceGenerator.Analysis
         public string CommandPrefix { get; }
         public SettingsCommandGenerator.ResolveMode ResolveMode { get; }
         public ImmutableArray<InstancePropertyInfo> Properties { get; }
-        public ImmutableArray<InstanceMethodInfo> SetMethods { get; }
-        public ImmutableArray<InstanceMethodInfo> GetMethods { get; }
 
         public InstanceTypeInfo(
             INamedTypeSymbol type,
             string commandPrefix,
             SettingsCommandGenerator.ResolveMode resolveMode,
-            ImmutableArray<InstancePropertyInfo> properties,
-            ImmutableArray<InstanceMethodInfo> setMethods,
-            ImmutableArray<InstanceMethodInfo> getMethods)
+            ImmutableArray<InstancePropertyInfo> properties)
         {
             Type = type;
             CommandPrefix = commandPrefix;
             ResolveMode = resolveMode;
             Properties = properties;
-            SetMethods = setMethods;
-            GetMethods = getMethods;
         }
     }
 
@@ -54,20 +48,6 @@ namespace UniCli.SourceGenerator.Analysis
             Symbol = symbol;
             CommandPrefix = commandPrefix;
             IsEnum = isEnum;
-        }
-    }
-
-    internal sealed class InstanceMethodInfo
-    {
-        public IMethodSymbol Symbol { get; }
-        public string CommandPrefix { get; }
-
-        public InstanceMethodInfo(
-            IMethodSymbol symbol,
-            string commandPrefix)
-        {
-            Symbol = symbol;
-            CommandPrefix = commandPrefix;
         }
     }
 }

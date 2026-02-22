@@ -6,9 +6,10 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Recorder")]
     public sealed class RecorderStatusHandler : CommandHandler<Unit, RecorderStatusResponse>
     {
-        public override string CommandName => CommandNames.Recorder.Status;
+        public override string CommandName => "Recorder.Status";
         public override string Description => "Get the current recording status";
 
         protected override bool TryWriteFormatted(RecorderStatusResponse response, bool success, IFormatWriter writer)

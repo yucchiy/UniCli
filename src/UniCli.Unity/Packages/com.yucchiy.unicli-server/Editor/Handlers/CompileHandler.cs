@@ -10,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class CompileHandler : CommandHandler<Unit, CompileResponse>
     {
-        public override string CommandName => CommandNames.Compile;
+        public override string CommandName => "Compile";
         public override string Description => "Trigger script compilation and return results with error details";
 
         protected override bool TryWriteFormatted(CompileResponse response, bool success, IFormatWriter writer)

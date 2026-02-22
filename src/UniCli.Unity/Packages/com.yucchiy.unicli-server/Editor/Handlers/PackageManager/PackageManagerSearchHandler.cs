@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerSearchHandler : CommandHandler<PackageManagerSearchRequest, PackageManagerSearchResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.Search;
+        public override string CommandName => "PackageManager.Search";
         public override string Description => "Search for packages in the Unity registry";
 
         protected override bool TryWriteFormatted(PackageManagerSearchResponse response, bool success, IFormatWriter writer)

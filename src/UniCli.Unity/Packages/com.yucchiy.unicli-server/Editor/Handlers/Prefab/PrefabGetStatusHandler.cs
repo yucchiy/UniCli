@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class PrefabGetStatusHandler : CommandHandler<PrefabGetStatusRequest, PrefabGetStatusResponse>
     {
-        public override string CommandName => CommandNames.Prefab.GetStatus;
+        public override string CommandName => "Prefab.GetStatus";
         public override string Description => "Get prefab instance status for a GameObject via PrefabUtility";
 
         protected override bool TryWriteFormatted(PrefabGetStatusResponse response, bool success, IFormatWriter writer)

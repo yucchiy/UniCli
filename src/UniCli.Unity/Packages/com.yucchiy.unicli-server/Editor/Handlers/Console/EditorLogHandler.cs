@@ -13,7 +13,7 @@ namespace UniCli.Server.Editor.Handlers
             _logManager = logManager;
         }
 
-        public override string CommandName => CommandNames.Console.GetLog;
+        public override string CommandName => "Console.GetLog";
         public override string Description => "Retrieve Unity Editor console logs with optional filtering";
 
         protected override ValueTask<EditorLogResponse> ExecuteAsync(EditorLogRequest request, CancellationToken cancellationToken)

@@ -6,10 +6,11 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerAddParameterHandler
         : CommandHandler<AnimatorControllerAddParameterRequest, AnimatorControllerAddParameterResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.AddParameter;
+        public override string CommandName => "AnimatorController.AddParameter";
         public override string Description => "Add a parameter to an AnimatorController";
 
         protected override bool TryWriteFormatted(AnimatorControllerAddParameterResponse response, bool success,

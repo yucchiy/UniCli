@@ -8,6 +8,7 @@ using NugetForUnity.PluginAPI;
 
 namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 {
+    [Module("NuGet")]
     public sealed class NuGetUninstallHandler : CommandHandler<NuGetUninstallRequest, NuGetUninstallResponse>
     {
         public override string CommandName => "NuGet.Uninstall";

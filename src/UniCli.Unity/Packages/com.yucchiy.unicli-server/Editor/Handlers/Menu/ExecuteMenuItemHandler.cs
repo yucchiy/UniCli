@@ -7,7 +7,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ExecuteMenuItemHandler : CommandHandler<ExecuteMenuItemRequest, ExecuteMenuItemResponse>
     {
-        public override string CommandName => CommandNames.Menu.Execute;
+        public override string CommandName => "Menu.Execute";
         public override string Description => "Execute a Unity Editor menu item by path";
 
         protected override ValueTask<ExecuteMenuItemResponse> ExecuteAsync(ExecuteMenuItemRequest request, CancellationToken cancellationToken)

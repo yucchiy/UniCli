@@ -8,9 +8,10 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Build")]
     public sealed class BuildProfileInspectHandler : CommandHandler<BuildProfileInspectRequest, BuildProfileInspectResponse>
     {
-        public override string CommandName => CommandNames.BuildProfile.Inspect;
+        public override string CommandName => "BuildProfile.Inspect";
         public override string Description => "Inspect a build profile's details";
 
         protected override bool TryWriteFormatted(BuildProfileInspectResponse response, bool success, IFormatWriter writer)

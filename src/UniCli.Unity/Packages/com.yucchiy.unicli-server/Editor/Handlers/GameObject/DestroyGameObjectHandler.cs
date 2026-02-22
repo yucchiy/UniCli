@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class DestroyGameObjectHandler : CommandHandler<DestroyGameObjectRequest, DestroyGameObjectResponse>
     {
-        public override string CommandName => CommandNames.GameObject.Destroy;
+        public override string CommandName => "GameObject.Destroy";
         public override string Description => "Destroy a GameObject from the scene";
 
         protected override bool TryWriteFormatted(DestroyGameObjectResponse response, bool success, IFormatWriter writer)

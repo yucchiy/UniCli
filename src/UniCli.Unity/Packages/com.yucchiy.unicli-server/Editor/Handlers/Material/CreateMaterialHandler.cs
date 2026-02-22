@@ -7,9 +7,10 @@ using UnityEngine.Rendering;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class CreateMaterialHandler : CommandHandler<CreateMaterialRequest, CreateMaterialResponse>
     {
-        public override string CommandName => CommandNames.Material.Create;
+        public override string CommandName => "Material.Create";
         public override string Description => "Create a new material asset";
 
         protected override bool TryWriteFormatted(CreateMaterialResponse response, bool success, IFormatWriter writer)

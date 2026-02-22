@@ -11,7 +11,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class AssemblyDefinitionGetHandler : CommandHandler<AssemblyDefinitionGetRequest, AssemblyDefinitionGetResponse>
     {
-        public override string CommandName => CommandNames.AssemblyDefinition.Get;
+        public override string CommandName => "AssemblyDefinition.Get";
         public override string Description => "Get detailed information about a specific assembly definition";
 
         protected override bool TryWriteFormatted(AssemblyDefinitionGetResponse response, bool success, IFormatWriter writer)

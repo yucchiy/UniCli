@@ -14,7 +14,7 @@ namespace UniCli.Server.Editor
     public sealed class UniCliServer : IDisposable
     {
         private readonly string _pipeName;
-        private readonly CommandDispatcher _dispatcher;
+        private CommandDispatcher _dispatcher;
         private readonly ConcurrentQueue<(CommandRequest request, CancellationToken cancellationToken, Action<CommandResponse> callback)> _commandQueue;
         private readonly CancellationTokenSource _cts;
         private readonly Action<string> _logger;
@@ -45,6 +45,11 @@ namespace UniCli.Server.Editor
         {
             _cts.Cancel();
             _serverLoop.Wait(TimeSpan.FromMilliseconds(500));
+        }
+
+        public void ReplaceDispatcher(CommandDispatcher dispatcher)
+        {
+            _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         }
 
         public void ProcessCommands()

@@ -7,9 +7,10 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Build")]
     public sealed class BuildProfileSetActiveHandler : CommandHandler<BuildProfileSetActiveRequest, BuildProfileSetActiveResponse>
     {
-        public override string CommandName => CommandNames.BuildProfile.SetActive;
+        public override string CommandName => "BuildProfile.SetActive";
         public override string Description => "Set the active build profile";
 
         protected override bool TryWriteFormatted(BuildProfileSetActiveResponse response, bool success, IFormatWriter writer)

@@ -7,9 +7,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerGetFrameDataHandler : CommandHandler<ProfilerGetFrameDataRequest, ProfilerGetFrameDataResponse>
     {
-        public override string CommandName => CommandNames.Profiler.GetFrameData;
+        public override string CommandName => "Profiler.GetFrameData";
         public override string Description => "Get CPU profiler sample data for a specific frame";
 
         protected override bool TryWriteFormatted(ProfilerGetFrameDataResponse response, bool success, IFormatWriter writer)
