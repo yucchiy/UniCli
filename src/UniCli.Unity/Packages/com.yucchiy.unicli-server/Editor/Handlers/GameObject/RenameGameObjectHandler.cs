@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class RenameGameObjectHandler : CommandHandler<RenameGameObjectRequest, RenameGameObjectResponse>
     {
         public override string CommandName => "GameObject.Rename";

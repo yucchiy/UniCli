@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class CreateGameObjectHandler : CommandHandler<CreateGameObjectRequest, CreateGameObjectResponse>
     {
         public override string CommandName => "GameObject.Create";

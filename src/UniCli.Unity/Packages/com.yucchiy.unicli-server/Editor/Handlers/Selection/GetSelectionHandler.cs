@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Assets")]
     public sealed class GetSelectionHandler : CommandHandler<Unit, GetSelectionResponse>
     {
         public override string CommandName => "Selection.Get";

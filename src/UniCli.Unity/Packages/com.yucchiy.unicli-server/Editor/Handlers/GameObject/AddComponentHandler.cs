@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class AddComponentHandler : CommandHandler<AddComponentRequest, AddComponentResponse>
     {
         public override string CommandName => "GameObject.AddComponent";

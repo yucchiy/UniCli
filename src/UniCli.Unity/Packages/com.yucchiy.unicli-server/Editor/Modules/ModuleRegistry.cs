@@ -7,8 +7,9 @@ namespace UniCli.Server.Editor
     {
         public static readonly ModuleDefinition[] All = new[]
         {
-            new ModuleDefinition("Scene", "Scene and GameObject operations"),
-            new ModuleDefinition("Assets", "AssetDatabase, Prefab, Component, Selection, Material operations"),
+            new ModuleDefinition("Scene", "Scene operations"),
+            new ModuleDefinition("GameObject", "GameObject and Component operations"),
+            new ModuleDefinition("Assets", "AssetDatabase, Prefab, Material operations"),
             new ModuleDefinition("Build", "BuildPlayer, BuildProfile, TestRunner operations"),
             new ModuleDefinition("Profiler", "Profiler operations"),
             new ModuleDefinition("Animation", "Animator and AnimatorController operations"),

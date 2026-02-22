@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class SetActiveHandler : CommandHandler<SetActiveRequest, SetActiveResponse>
     {
         public override string CommandName => "GameObject.SetActive";

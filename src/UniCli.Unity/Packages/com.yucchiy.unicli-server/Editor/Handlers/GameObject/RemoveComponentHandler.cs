@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class RemoveComponentHandler : CommandHandler<RemoveComponentRequest, RemoveComponentResponse>
     {
         public override string CommandName => "GameObject.RemoveComponent";

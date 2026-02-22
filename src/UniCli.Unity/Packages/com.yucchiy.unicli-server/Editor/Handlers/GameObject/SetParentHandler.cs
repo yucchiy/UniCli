@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Scene")]
+    [Module("GameObject")]
     public sealed class SetParentHandler : CommandHandler<SetParentRequest, SetParentResponse>
     {
         public override string CommandName => "GameObject.SetParent";
