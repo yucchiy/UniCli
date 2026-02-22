@@ -254,7 +254,9 @@ unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat"
 unicli exec Material.Create --assetPath "Assets/Materials/MyMat.mat" --shader "Standard"
 unicli exec Material.Inspect --guid "abc123def456"
 unicli exec Material.SetColor --guid "abc123def456" --name "_Color" --value '{"r":1,"g":0,"b":0,"a":1}'
+unicli exec Material.GetColor --guid "abc123def456" --name "_Color"
 unicli exec Material.SetFloat --guid "abc123def456" --name "_Metallic" --value 0.8
+unicli exec Material.GetFloat --guid "abc123def456" --name "_Metallic"
 
 # AnimatorController operations
 unicli exec AnimatorController.Create --assetPath "Assets/Animations/Player.controller"
@@ -302,13 +304,9 @@ unicli exec Scene.New --empty --additive
 unicli exec PlayerSettings.Inspect
 unicli exec EditorSettings.Inspect
 
-# Settings — set a property
-unicli exec PlayerSettings.companyName --value "MyCompany"
-unicli exec PlayerSettings.Android.minSdkVersion --value AndroidApiLevel28
-
-# Settings — call Set/Get methods (with platform target)
-unicli exec PlayerSettings.SetScriptingBackend --buildTarget Android --value IL2CPP
-unicli exec PlayerSettings.GetScriptingBackend --buildTarget Android
+# Settings — modify values via eval
+unicli eval 'PlayerSettings.companyName = "MyCompany";' --json
+unicli eval 'PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);' --json
 
 # Execute menu items
 unicli exec Menu.Execute --menuPath "Window/General/Console"
@@ -393,6 +391,21 @@ unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
 unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 ```
 
+**Module management:**
+
+```bash
+# List all modules and their enabled status
+unicli exec Module.List --json
+
+# Enable a module
+unicli exec Module.Enable '{"name":"Settings"}' --json
+
+# Disable a module
+unicli exec Module.Disable '{"name":"Profiler"}' --json
+```
+
+Default enabled modules: `Scene`, `Assets`, `Build`. Module settings are saved in `ProjectSettings/UniCliSettings.asset` and can also be configured via Edit > Project Settings > UniCli.
+
 **NuGet package management (requires [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)):**
 
 ```bash
@@ -447,6 +460,10 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
 | Component          | `Component.SetProperty`              | Set a component property (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
 | Material           | `Material.Create`                    | Create a new material asset        |
+| Material           | `Material.SetColor`                  | Set a color property on a material |
+| Material           | `Material.GetColor`                  | Get a color property from a material |
+| Material           | `Material.SetFloat`                  | Set a float property on a material |
+| Material           | `Material.GetFloat`                  | Get a float property from a material |
 | AnimatorController | `AnimatorController.Create`          | Create a new .controller asset     |
 | AnimatorController | `AnimatorController.Inspect`         | Inspect layers, parameters, states |
 | AnimatorController | `AnimatorController.AddParameter`    | Add a parameter                    |
@@ -503,37 +520,37 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
 | Profiler           | `Profiler.AnalyzeFrames`             | Analyze recorded frames and return aggregate statistics |
 | Profiler           | `Profiler.FindSpikes`                | Find frames exceeding frame time or GC allocation thresholds |
+| Module             | `Module.List`                        | List all available modules and their enabled status |
+| Module             | `Module.Enable`                      | Enable a module and reload the command dispatcher |
+| Module             | `Module.Disable`                     | Disable a module and reload the command dispatcher |
 
 Use `unicli exec <command> --help` to see parameters for any command.
 
 ### Settings Commands (auto-generated)
 
-UniCli auto-generates commands via a Roslyn Source Generator at Unity compile time. Target types are declared with the `[GenerateCommands]` assembly attribute, so the available commands always match your exact Unity version.
+UniCli auto-generates Inspect commands via a Roslyn Source Generator at Unity compile time. Target types are declared with the `[GenerateCommands]` assembly attribute, so the available properties always match your exact Unity version.
 
-#### Static types (Settings)
-
-Commands for `PlayerSettings`, `EditorSettings`, and `EditorUserBuildSettings`:
-
-| Pattern | Example | Description |
+| Type | Command | Description |
 |---|---|---|
-| `<Settings>.Inspect` | `PlayerSettings.Inspect` | Get all property values at once |
-| `<Settings>.<property>` | `PlayerSettings.companyName` | Set a single property |
-| `<Settings>.<Nested>.<property>` | `PlayerSettings.Android.minSdkVersion` | Set a nested type property |
-| `<Settings>.<Method>` | `PlayerSettings.SetScriptingBackend` | Call a Set/Get method |
+| `PlayerSettings` | `PlayerSettings.Inspect` | Get all PlayerSettings values |
+| `EditorSettings` | `EditorSettings.Inspect` | Get all EditorSettings values |
+| `EditorUserBuildSettings` | `EditorUserBuildSettings.Inspect` | Get all EditorUserBuildSettings values |
+| `Material` | `Material.Inspect` | Read all properties of a material instance (requires `guid`) |
 
-Enum values are passed as strings (e.g., `"IL2CPP"`, `"AndroidApiLevel28"`). Invalid values return an error with the list of valid options.
+To **modify** settings, use `unicli eval` for direct access to Unity APIs:
 
-#### Instance types (asset-based)
+```bash
+# Set a property
+unicli eval 'PlayerSettings.companyName = "MyCompany";' --json
 
-Commands for instance types like `Material` require a `guid` parameter to identify the target asset:
+# Call a method with platform target
+unicli eval 'PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);' --json
 
-| Pattern | Example | Description |
-|---|---|---|
-| `<Type>.Inspect` | `Material.Inspect` | Read all properties of an instance |
-| `<Type>.Set<Property>` | `Material.SetRenderQueue` | Set a property on the instance |
-| `<Type>.<Method>` | `Material.SetColor`, `Material.GetFloat` | Call a Set/Get method on the instance |
+# Read a value
+unicli eval 'return PlayerSettings.companyName;' --json
+```
 
-Instance type commands automatically call `EditorUtility.SetDirty()` after mutations to ensure changes are saved.
+For Material operations, use the dedicated commands (`Material.SetColor`, `Material.SetFloat`, etc.) or `unicli eval`.
 
 Run `unicli commands` to see the full list of available commands, including all generated commands.
 

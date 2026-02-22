@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -28,10 +27,10 @@ namespace UniCli.SourceGenerator
             InstanceId = 2,
         }
 
-        private static List<(string TypeName, string CommandPrefix, ResolveMode Mode)> CollectTargetTypes(
+        private static List<(string TypeName, string CommandPrefix, ResolveMode Mode, string Module)> CollectTargetTypes(
             Compilation compilation)
         {
-            var targets = new List<(string TypeName, string CommandPrefix, ResolveMode Mode)>();
+            var targets = new List<(string TypeName, string CommandPrefix, ResolveMode Mode, string Module)>();
 
             foreach (var attr in compilation.Assembly.GetAttributes())
             {
@@ -49,15 +48,20 @@ namespace UniCli.SourceGenerator
                     continue;
 
                 var mode = ResolveMode.Static;
+                var module = "";
                 foreach (var named in attr.NamedArguments)
                 {
                     if (named.Key == "ResolveMode" && named.Value.Value is int modeValue)
                     {
                         mode = (ResolveMode)modeValue;
                     }
+                    else if (named.Key == "Module" && named.Value.Value is string moduleValue)
+                    {
+                        module = moduleValue;
+                    }
                 }
 
-                targets.Add((typeName, commandPrefix, mode));
+                targets.Add((typeName, commandPrefix, mode, module));
             }
 
             return targets;
@@ -74,11 +78,10 @@ namespace UniCli.SourceGenerator
             if (targetTypes.Count == 0)
                 return;
 
-            var needsNamedBuildTargetHelper = false;
             var generatedFileNames = new HashSet<string>();
             var generatedCommandNames = new HashSet<string>();
 
-            foreach (var (typeName, commandPrefix, mode) in targetTypes)
+            foreach (var (typeName, commandPrefix, mode, module) in targetTypes)
             {
                 try
                 {
@@ -88,176 +91,25 @@ namespace UniCli.SourceGenerator
 
                     if (mode != ResolveMode.Static)
                     {
-                        EmitInstanceType(context, typeSymbol, commandPrefix, mode,
+                        EmitInstanceType(context, typeSymbol, commandPrefix, mode, module,
                             generatedFileNames, generatedCommandNames);
                         continue;
                     }
 
                     var info = SettingsTypeAnalyzer.Analyze(typeSymbol, commandPrefix);
 
-                    // Emit bulk Inspect handler
+                    // Emit Inspect handler
                     var inspectCommandName = $"{info.CommandPrefix}.Inspect";
                     if (generatedCommandNames.Add(inspectCommandName))
                     {
-                        var inspectSource = GetCommandEmitter.Emit(info);
+                        var inspectSource = GetCommandEmitter.Emit(info, module);
                         AddSourceSafe(context, generatedFileNames,
                             $"{commandPrefix}InspectHandler.g.cs", inspectSource);
-                    }
-
-                    // Emit setter handlers for flat properties with setters
-                    foreach (var prop in info.Properties)
-                    {
-                        if (!prop.HasSetter) continue;
-
-                        var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
-                        if (!generatedCommandNames.Add(cmdName)) continue;
-
-                        try
-                        {
-                            var setSource = SetPropertyCommandEmitter.Emit(
-                                prop,
-                                typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                            AddSourceSafe(context, generatedFileNames,
-                                $"{commandPrefix}{prop.Symbol.Name}Handler.g.cs", setSource);
-                        }
-                        catch (System.Exception)
-                        {
-                            // Skip this property on error
-                        }
-                    }
-
-                    // Emit handlers for nested types
-                    foreach (var nested in info.NestedTypes)
-                    {
-                        var nestedFullName = nested.Type.ToDisplayString(
-                            SymbolDisplayFormat.FullyQualifiedFormat);
-
-                        foreach (var prop in nested.Properties)
-                        {
-                            if (!prop.HasSetter) continue;
-
-                            var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
-                            if (!generatedCommandNames.Add(cmdName)) continue;
-
-                            try
-                            {
-                                var setSource = SetPropertyCommandEmitter.Emit(prop, nestedFullName);
-                                AddSourceSafe(context, generatedFileNames,
-                                    $"{nested.CommandPrefix.Replace(".", "")}{prop.Symbol.Name}Handler.g.cs",
-                                    setSource);
-                            }
-                            catch (System.Exception)
-                            {
-                            }
-                        }
-
-                        foreach (var method in nested.SetMethods)
-                        {
-                            var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                            if (!generatedCommandNames.Add(cmdName)) continue;
-
-                            try
-                            {
-                                var methodSource = MethodCommandEmitter.EmitSetMethod(method, nestedFullName);
-                                AddSourceSafe(context, generatedFileNames,
-                                    $"{nested.CommandPrefix.Replace(".", "")}{method.Symbol.Name}Handler.g.cs",
-                                    methodSource);
-
-                                if (HasNamedBuildTargetParam(method))
-                                    needsNamedBuildTargetHelper = true;
-                            }
-                            catch (System.Exception)
-                            {
-                            }
-                        }
-
-                        foreach (var method in nested.GetMethods)
-                        {
-                            var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                            if (!generatedCommandNames.Add(cmdName)) continue;
-
-                            try
-                            {
-                                var methodSource = MethodCommandEmitter.EmitGetMethod(method, nestedFullName);
-                                AddSourceSafe(context, generatedFileNames,
-                                    $"{nested.CommandPrefix.Replace(".", "")}{method.Symbol.Name}Handler.g.cs",
-                                    methodSource);
-
-                                if (HasNamedBuildTargetParam(method))
-                                    needsNamedBuildTargetHelper = true;
-                            }
-                            catch (System.Exception)
-                            {
-                            }
-                        }
-                    }
-
-                    // Emit Set method handlers
-                    foreach (var method in info.SetMethods)
-                    {
-                        var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                        if (!generatedCommandNames.Add(cmdName)) continue;
-
-                        try
-                        {
-                            var methodSource = MethodCommandEmitter.EmitSetMethod(
-                                method,
-                                typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                            AddSourceSafe(context, generatedFileNames,
-                                $"{commandPrefix}{method.Symbol.Name}Handler.g.cs", methodSource);
-
-                            if (HasNamedBuildTargetParam(method))
-                                needsNamedBuildTargetHelper = true;
-                        }
-                        catch (System.Exception)
-                        {
-                        }
-                    }
-
-                    // Emit Get method handlers
-                    foreach (var method in info.GetMethods)
-                    {
-                        var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                        if (!generatedCommandNames.Add(cmdName)) continue;
-
-                        try
-                        {
-                            var methodSource = MethodCommandEmitter.EmitGetMethod(
-                                method,
-                                typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                            AddSourceSafe(context, generatedFileNames,
-                                $"{commandPrefix}{method.Symbol.Name}Handler.g.cs", methodSource);
-
-                            if (HasNamedBuildTargetParam(method))
-                                needsNamedBuildTargetHelper = true;
-                        }
-                        catch (System.Exception)
-                        {
-                        }
                     }
                 }
                 catch (System.Exception)
                 {
                     // Skip this settings type entirely on error
-                }
-            }
-
-            // Emit NamedBuildTargetHelper if needed
-            if (needsNamedBuildTargetHelper)
-            {
-                try
-                {
-                    var namedBuildTargetType = compilation.GetTypeByMetadataName(
-                        "UnityEditor.Build.NamedBuildTarget");
-                    if (namedBuildTargetType != null)
-                    {
-                        var helperSource = NamedBuildTargetHelperEmitter.Emit(namedBuildTargetType);
-                        AddSourceSafe(context, generatedFileNames,
-                            "NamedBuildTargetHelper.g.cs", helperSource);
-                    }
-                }
-                catch (System.Exception)
-                {
                 }
             }
         }
@@ -267,75 +119,19 @@ namespace UniCli.SourceGenerator
             INamedTypeSymbol typeSymbol,
             string commandPrefix,
             ResolveMode mode,
+            string module,
             HashSet<string> generatedFileNames,
             HashSet<string> generatedCommandNames)
         {
             var info = InstanceTypeAnalyzer.Analyze(typeSymbol, commandPrefix, mode);
-            var typeFullName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Emit Inspect handler
             var inspectCommandName = $"{info.CommandPrefix}.Inspect";
             if (generatedCommandNames.Add(inspectCommandName))
             {
-                var inspectSource = InstanceInspectCommandEmitter.Emit(info);
+                var inspectSource = InstanceInspectCommandEmitter.Emit(info, module);
                 AddSourceSafe(context, generatedFileNames,
                     $"{commandPrefix}InspectHandler.g.cs", inspectSource);
-            }
-
-            // Emit Set handlers for properties with setters
-            foreach (var prop in info.Properties)
-            {
-                if (!prop.HasSetter) continue;
-
-                var cmdName = $"{prop.CommandPrefix}.{prop.Symbol.Name}";
-                if (!generatedCommandNames.Add(cmdName)) continue;
-
-                try
-                {
-                    var setSource = InstanceSetPropertyCommandEmitter.Emit(
-                        prop, typeFullName, mode);
-                    AddSourceSafe(context, generatedFileNames,
-                        $"{commandPrefix}{prop.Symbol.Name}Handler.g.cs", setSource);
-                }
-                catch (System.Exception)
-                {
-                }
-            }
-
-            // Emit Set method handlers
-            foreach (var method in info.SetMethods)
-            {
-                var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                if (!generatedCommandNames.Add(cmdName)) continue;
-
-                try
-                {
-                    var methodSource = InstanceMethodCommandEmitter.EmitSetMethod(
-                        method, typeFullName, mode);
-                    AddSourceSafe(context, generatedFileNames,
-                        $"{commandPrefix}{method.Symbol.Name}Handler.g.cs", methodSource);
-                }
-                catch (System.Exception)
-                {
-                }
-            }
-
-            // Emit Get method handlers
-            foreach (var method in info.GetMethods)
-            {
-                var cmdName = $"{method.CommandPrefix}.{method.Symbol.Name}";
-                if (!generatedCommandNames.Add(cmdName)) continue;
-
-                try
-                {
-                    var methodSource = InstanceMethodCommandEmitter.EmitGetMethod(
-                        method, typeFullName, mode);
-                    AddSourceSafe(context, generatedFileNames,
-                        $"{commandPrefix}{method.Symbol.Name}Handler.g.cs", methodSource);
-                }
-                catch (System.Exception)
-                {
-                }
             }
         }
 
@@ -356,17 +152,6 @@ namespace UniCli.SourceGenerator
             }
 
             context.AddSource(hintName, SourceText.From(source, Encoding.UTF8));
-        }
-
-        private static bool HasNamedBuildTargetParam(SettingsMethodInfo method)
-        {
-            foreach (var param in method.Symbol.Parameters)
-            {
-                if (TypeSerializabilityChecker.GetFullMetadataName(param.Type) ==
-                    "UnityEditor.Build.NamedBuildTarget")
-                    return true;
-            }
-            return false;
         }
     }
 }

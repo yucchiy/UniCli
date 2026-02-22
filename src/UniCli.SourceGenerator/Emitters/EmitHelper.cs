@@ -45,49 +45,6 @@ namespace UniCli.SourceGenerator.Emitters
             return $"{accessPrefix}.{property.Name}";
         }
 
-        public static string GetValueAssignExpression(
-            ITypeSymbol type, string requestValueExpr, string propertyName)
-        {
-            if (TypeSerializabilityChecker.IsEnumType(type))
-            {
-                var enumFullName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                return $"ParseEnum<{enumFullName}>({requestValueExpr}, \"{propertyName}\")";
-            }
-
-            return requestValueExpr;
-        }
-
-        public static string GetParameterExpression(IParameterSymbol parameter, string requestFieldPrefix)
-        {
-            var paramType = parameter.Type;
-            var fieldName = parameter.Name;
-            var fullTypeName = TypeSerializabilityChecker.GetFullMetadataName(paramType);
-
-            if (fullTypeName == "UnityEditor.Build.NamedBuildTarget")
-                return $"NamedBuildTargetHelper.Parse({requestFieldPrefix}.{fieldName})";
-
-            if (TypeSerializabilityChecker.IsEnumType(paramType))
-            {
-                var enumFullName = paramType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                return $"ParseEnum<{enumFullName}>({requestFieldPrefix}.{fieldName}, \"{fieldName}\")";
-            }
-
-            return $"{requestFieldPrefix}.{fieldName}";
-        }
-
-        public static string GetRequestFieldType(IParameterSymbol parameter)
-        {
-            var fullTypeName = TypeSerializabilityChecker.GetFullMetadataName(parameter.Type);
-
-            if (fullTypeName == "UnityEditor.Build.NamedBuildTarget")
-                return "string";
-
-            if (TypeSerializabilityChecker.IsEnumType(parameter.Type))
-                return "string";
-
-            return GetTypeDisplayName(parameter.Type);
-        }
-
         public static string ToCamelCase(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -138,11 +95,6 @@ namespace UniCli.SourceGenerator.Emitters
             }
         }
 
-        public static void AppendSetDirty(StringBuilder sb, string indent)
-        {
-            sb.AppendLine($"{indent}UnityEditor.EditorUtility.SetDirty(instance);");
-        }
-
         public static void AppendInstanceResolveRequestFields(
             StringBuilder sb,
             string indent,
@@ -159,18 +111,10 @@ namespace UniCli.SourceGenerator.Emitters
             }
         }
 
-        public static void AppendParseEnumHelper(StringBuilder sb, string indent)
+        public static void AppendModuleAttribute(StringBuilder sb, string indent, string module)
         {
-            sb.AppendLine($"{indent}private static T ParseEnum<T>(string value, string fieldName) where T : struct");
-            sb.AppendLine($"{indent}{{");
-            sb.AppendLine($"{indent}    if (System.Enum.TryParse<T>(value, true, out var result))");
-            sb.AppendLine($"{indent}        return result;");
-            sb.AppendLine();
-            sb.AppendLine($"{indent}    var validValues = System.Enum.GetNames(typeof(T));");
-            sb.AppendLine($"{indent}    throw new CommandFailedException(");
-            sb.AppendLine($"{indent}        $\"Invalid value '{{value}}' for {{fieldName}}. Valid values: {{string.Join(\", \", validValues)}}\",");
-            sb.AppendLine($"{indent}        null);");
-            sb.AppendLine($"{indent}}}");
+            if (!string.IsNullOrEmpty(module))
+                sb.AppendLine($"{indent}[UniCli.Server.Editor.ModuleAttribute(\"{module}\")]");
         }
     }
 }
