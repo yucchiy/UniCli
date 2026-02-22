@@ -7,6 +7,7 @@ using NugetForUnity.Models;
 
 namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 {
+    [Module("NuGet")]
     public sealed class NuGetInstallHandler : CommandHandler<NuGetInstallRequest, NuGetInstallResponse>
     {
         public override string CommandName => "NuGet.Install";

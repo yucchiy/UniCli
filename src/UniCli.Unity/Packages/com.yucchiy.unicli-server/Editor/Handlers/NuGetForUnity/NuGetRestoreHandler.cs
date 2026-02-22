@@ -7,6 +7,7 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 {
+    [Module("NuGet")]
     public sealed class NuGetRestoreHandler : CommandHandler<Unit, NuGetRestoreResponse>
     {
         public override string CommandName => "NuGet.Restore";

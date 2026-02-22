@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Recorder")]
     public sealed class RecorderStopRecordingHandler : CommandHandler<Unit, RecorderStopRecordingResponse>
     {
         public override string CommandName => "Recorder.StopRecording";

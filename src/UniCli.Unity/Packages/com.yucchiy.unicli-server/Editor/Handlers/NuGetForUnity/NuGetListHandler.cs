@@ -7,6 +7,7 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 {
+    [Module("NuGet")]
     public sealed class NuGetListHandler : CommandHandler<Unit, NuGetListResponse>
     {
         public override string CommandName => "NuGet.List";

@@ -6,6 +6,7 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Recorder")]
     public sealed class RecorderStatusHandler : CommandHandler<Unit, RecorderStatusResponse>
     {
         public override string CommandName => "Recorder.Status";

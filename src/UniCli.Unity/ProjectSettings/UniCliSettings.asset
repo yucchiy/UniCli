@@ -12,11 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e786804419d3643acbb687bb34722709, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enabledModules:
-  - Assets
-  - Build
-  - Scene
-  - Packages
-  - Profiler
-  - Settings
   disabledModules: []
