@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class AssetImportHandler : CommandHandler<AssetImportRequest, AssetImportResponse>
     {
-        public override string CommandName => CommandNames.AssetDatabase.Import;
+        public override string CommandName => "AssetDatabase.Import";
         public override string Description => "Reimport an asset or refresh the AssetDatabase";
 
         protected override ValueTask<AssetImportResponse> ExecuteAsync(AssetImportRequest request, CancellationToken cancellationToken)

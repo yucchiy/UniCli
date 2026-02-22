@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class SetGameObjectsSelectionHandler : CommandHandler<SetGameObjectsSelectionRequest, SetGameObjectsSelectionResponse>
     {
-        public override string CommandName => CommandNames.Selection.SetGameObjects;
+        public override string CommandName => "Selection.SetGameObjects";
         public override string Description => "Select multiple GameObjects by paths";
 
         protected override bool TryWriteFormatted(SetGameObjectsSelectionResponse response, bool success, IFormatWriter writer)

@@ -6,9 +6,10 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Window")]
     public sealed class ListWindowHandler : CommandHandler<Unit, ListWindowResponse>
     {
-        public override string CommandName => CommandNames.Window.List;
+        public override string CommandName => "Window.List";
         public override string Description => "List all available EditorWindow types";
 
         protected override bool TryWriteFormatted(ListWindowResponse response, bool success, IFormatWriter writer)

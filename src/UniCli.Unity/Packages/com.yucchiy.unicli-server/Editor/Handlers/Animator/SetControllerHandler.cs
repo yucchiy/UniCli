@@ -6,10 +6,11 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorSetControllerHandler
         : CommandHandler<AnimatorSetControllerRequest, AnimatorSetControllerResponse>
     {
-        public override string CommandName => CommandNames.Animator.SetController;
+        public override string CommandName => "Animator.SetController";
         public override string Description => "Assign an AnimatorController to an Animator component";
 
         protected override bool TryWriteFormatted(AnimatorSetControllerResponse response, bool success,

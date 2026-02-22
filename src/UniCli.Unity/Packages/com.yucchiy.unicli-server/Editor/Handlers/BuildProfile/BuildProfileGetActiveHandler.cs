@@ -9,9 +9,10 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Build")]
     public sealed class BuildProfileGetActiveHandler : CommandHandler<Unit, BuildProfileGetActiveResponse>
     {
-        public override string CommandName => CommandNames.BuildProfile.GetActive;
+        public override string CommandName => "BuildProfile.GetActive";
         public override string Description => "Get the active build profile";
 
         protected override bool TryWriteFormatted(BuildProfileGetActiveResponse response, bool success, IFormatWriter writer)

@@ -59,6 +59,16 @@ namespace UniCli.Server.Editor
             );
         }
 
+        public static void ReloadDispatcher()
+        {
+            if (_server == null)
+                return;
+
+            _dispatcher = new CommandDispatcher(Services);
+            _server.ReplaceDispatcher(_dispatcher);
+            UnityEngine.Debug.Log("[UniCli] Dispatcher reloaded");
+        }
+
         public static void StopServer()
         {
             if (_server == null)

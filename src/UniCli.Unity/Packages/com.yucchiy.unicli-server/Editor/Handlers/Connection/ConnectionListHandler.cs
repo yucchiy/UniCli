@@ -8,11 +8,12 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Remote")]
     public sealed class ConnectionListHandler : CommandHandler<Unit, ConnectionListResponse>
     {
         const int PlayerDirectUrlConnectGuid = 0xFEEE;
 
-        public override string CommandName => CommandNames.Connection.List;
+        public override string CommandName => "Connection.List";
         public override string Description => "List available connection targets (players/devices)";
 
         protected override bool TryWriteFormatted(ConnectionListResponse response, bool success, IFormatWriter writer)

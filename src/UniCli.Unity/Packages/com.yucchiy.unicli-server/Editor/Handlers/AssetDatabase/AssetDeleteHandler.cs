@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class AssetDeleteHandler : CommandHandler<AssetDeleteRequest, AssetDeleteResponse>
     {
-        public override string CommandName => CommandNames.AssetDatabase.Delete;
+        public override string CommandName => "AssetDatabase.Delete";
         public override string Description => "Delete an asset";
 
         protected override ValueTask<AssetDeleteResponse> ExecuteAsync(AssetDeleteRequest request, CancellationToken cancellationToken)

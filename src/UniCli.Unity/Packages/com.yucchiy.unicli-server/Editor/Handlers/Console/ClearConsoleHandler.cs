@@ -14,7 +14,7 @@ namespace UniCli.Server.Editor.Handlers
             _logManager = logManager;
         }
 
-        public override string CommandName => CommandNames.Console.Clear;
+        public override string CommandName => "Console.Clear";
         public override string Description => "Clear Unity Editor console logs";
 
         protected override ValueTask<ClearConsoleResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)

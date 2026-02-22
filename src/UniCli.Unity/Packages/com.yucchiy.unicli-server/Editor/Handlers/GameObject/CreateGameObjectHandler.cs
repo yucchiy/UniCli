@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class CreateGameObjectHandler : CommandHandler<CreateGameObjectRequest, CreateGameObjectResponse>
     {
-        public override string CommandName => CommandNames.GameObject.Create;
+        public override string CommandName => "GameObject.Create";
         public override string Description => "Create a new GameObject in the scene";
 
         protected override bool TryWriteFormatted(CreateGameObjectResponse response, bool success, IFormatWriter writer)

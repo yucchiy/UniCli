@@ -13,7 +13,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class EvalHandler : CommandHandler<EvalRequest, EvalResponse>
     {
-        public override string CommandName => CommandNames.Eval;
+        public override string CommandName => "Eval";
         public override string Description => "Compile and execute C# code dynamically in the Unity Editor context";
 
         private static int _evalCounter;

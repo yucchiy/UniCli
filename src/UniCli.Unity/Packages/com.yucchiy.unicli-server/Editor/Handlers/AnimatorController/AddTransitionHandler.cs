@@ -6,10 +6,11 @@ using UnityEditor.Animations;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerAddTransitionHandler
         : CommandHandler<AnimatorControllerAddTransitionRequest, AnimatorControllerAddTransitionResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.AddTransition;
+        public override string CommandName => "AnimatorController.AddTransition";
         public override string Description => "Add a transition between two states in an AnimatorController";
 
         protected override bool TryWriteFormatted(AnimatorControllerAddTransitionResponse response, bool success,

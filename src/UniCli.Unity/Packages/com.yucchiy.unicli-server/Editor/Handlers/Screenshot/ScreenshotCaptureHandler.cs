@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Window")]
     public sealed class ScreenshotCaptureHandler : CommandHandler<ScreenshotCaptureRequest, ScreenshotCaptureResponse>
     {
-        public override string CommandName => CommandNames.Screenshot.Capture;
+        public override string CommandName => "Screenshot.Capture";
         public override string Description => "Capture a screenshot of the Game View and save as PNG (requires Play Mode)";
 
         protected override bool TryWriteFormatted(ScreenshotCaptureResponse response, bool success, IFormatWriter writer)

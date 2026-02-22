@@ -5,10 +5,11 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerAddStateHandler
         : CommandHandler<AnimatorControllerAddStateRequest, AnimatorControllerAddStateResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.AddState;
+        public override string CommandName => "AnimatorController.AddState";
         public override string Description => "Add a state to an AnimatorController layer";
 
         protected override bool TryWriteFormatted(AnimatorControllerAddStateResponse response, bool success,

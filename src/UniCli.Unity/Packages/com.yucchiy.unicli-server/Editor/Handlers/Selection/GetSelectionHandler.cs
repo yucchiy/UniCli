@@ -8,9 +8,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class GetSelectionHandler : CommandHandler<Unit, GetSelectionResponse>
     {
-        public override string CommandName => CommandNames.Selection.Get;
+        public override string CommandName => "Selection.Get";
         public override string Description => "Get the current selection in the editor";
 
         protected override bool TryWriteFormatted(GetSelectionResponse response, bool success, IFormatWriter writer)

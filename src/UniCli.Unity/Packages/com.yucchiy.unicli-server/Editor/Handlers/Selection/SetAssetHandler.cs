@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class SetAssetSelectionHandler : CommandHandler<SetAssetSelectionRequest, SetAssetSelectionResponse>
     {
-        public override string CommandName => CommandNames.Selection.SetAsset;
+        public override string CommandName => "Selection.SetAsset";
         public override string Description => "Select an asset by path";
 
         protected override bool TryWriteFormatted(SetAssetSelectionResponse response, bool success, IFormatWriter writer)

@@ -6,9 +6,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerSaveProfileHandler : CommandHandler<ProfilerSaveProfileRequest, ProfilerSaveProfileResponse>
     {
-        public override string CommandName => CommandNames.Profiler.SaveProfile;
+        public override string CommandName => "Profiler.SaveProfile";
         public override string Description => "Save profiler data to a .raw file";
 
         protected override bool TryWriteFormatted(ProfilerSaveProfileResponse response, bool success, IFormatWriter writer)

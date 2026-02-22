@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Window")]
     public sealed class OpenWindowHandler : CommandHandler<OpenWindowRequest, OpenWindowResponse>
     {
-        public override string CommandName => CommandNames.Window.Open;
+        public override string CommandName => "Window.Open";
         public override string Description => "Open an EditorWindow by type name";
 
         protected override bool TryWriteFormatted(OpenWindowResponse response, bool success, IFormatWriter writer)

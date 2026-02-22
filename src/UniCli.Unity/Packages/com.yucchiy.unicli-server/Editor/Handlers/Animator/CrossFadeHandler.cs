@@ -5,10 +5,11 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorCrossFadeHandler
         : CommandHandler<AnimatorCrossFadeRequest, AnimatorCrossFadeResponse>
     {
-        public override string CommandName => CommandNames.Animator.CrossFade;
+        public override string CommandName => "Animator.CrossFade";
         public override string Description => "Cross-fade to a state on an Animator (requires PlayMode)";
 
         protected override bool TryWriteFormatted(AnimatorCrossFadeResponse response, bool success,

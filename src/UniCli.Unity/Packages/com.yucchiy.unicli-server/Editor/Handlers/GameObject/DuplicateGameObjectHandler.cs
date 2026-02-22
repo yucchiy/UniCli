@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class DuplicateGameObjectHandler : CommandHandler<DuplicateGameObjectRequest, CreateGameObjectResponse>
     {
-        public override string CommandName => CommandNames.GameObject.Duplicate;
+        public override string CommandName => "GameObject.Duplicate";
         public override string Description => "Duplicate an existing GameObject in the scene";
 
         protected override bool TryWriteFormatted(CreateGameObjectResponse response, bool success, IFormatWriter writer)

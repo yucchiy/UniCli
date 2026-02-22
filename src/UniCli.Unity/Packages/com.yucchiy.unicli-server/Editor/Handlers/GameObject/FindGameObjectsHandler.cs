@@ -8,9 +8,10 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class FindGameObjectsHandler : CommandHandler<FindGameObjectsRequest, FindGameObjectsResponse>
     {
-        public override string CommandName => CommandNames.GameObject.Find;
+        public override string CommandName => "GameObject.Find";
         public override string Description => "Find GameObjects by name, tag, layer, or component";
 
         protected override ValueTask<FindGameObjectsResponse> ExecuteAsync(FindGameObjectsRequest request, CancellationToken cancellationToken)

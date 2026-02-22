@@ -6,9 +6,10 @@ using Unity.Profiling.Memory;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerTakeSnapshotHandler : CommandHandler<ProfilerTakeSnapshotRequest, ProfilerTakeSnapshotResponse>
     {
-        public override string CommandName => CommandNames.Profiler.TakeSnapshot;
+        public override string CommandName => "Profiler.TakeSnapshot";
         public override string Description => "Take a memory snapshot (.snap file)";
 
         protected override bool TryWriteFormatted(ProfilerTakeSnapshotResponse response, bool success, IFormatWriter writer)

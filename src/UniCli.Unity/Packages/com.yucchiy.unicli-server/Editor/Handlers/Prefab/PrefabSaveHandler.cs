@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class PrefabSaveHandler : CommandHandler<PrefabSaveRequest, PrefabSaveResponse>
     {
-        public override string CommandName => CommandNames.Prefab.Save;
+        public override string CommandName => "Prefab.Save";
         public override string Description => "Save a GameObject as a prefab asset via PrefabUtility";
 
         protected override bool TryWriteFormatted(PrefabSaveResponse response, bool success, IFormatWriter writer)

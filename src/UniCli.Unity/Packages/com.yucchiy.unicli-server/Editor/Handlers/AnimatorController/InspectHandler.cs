@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorControllerInspectHandler
         : CommandHandler<AnimatorControllerInspectRequest, AnimatorControllerInspectResponse>
     {
-        public override string CommandName => CommandNames.AnimatorController.Inspect;
+        public override string CommandName => "AnimatorController.Inspect";
         public override string Description => "Inspect an AnimatorController asset (layers, parameters, states)";
 
         protected override bool TryWriteFormatted(AnimatorControllerInspectResponse response, bool success,

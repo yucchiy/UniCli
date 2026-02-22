@@ -17,7 +17,7 @@ namespace UniCli.Server.Editor.Handlers
             _context = context;
         }
 
-        public override string CommandName => CommandNames.Project.Inspect;
+        public override string CommandName => "Project.Inspect";
         public override string Description => "Get Unity project information";
 
         protected override bool TryWriteFormatted(ProjectInfoResponse response, bool success, IFormatWriter writer)

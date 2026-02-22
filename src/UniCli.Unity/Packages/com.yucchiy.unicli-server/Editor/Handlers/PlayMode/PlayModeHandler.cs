@@ -7,7 +7,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PlayModeEnterHandler : CommandHandler<Unit, Unit>
     {
-        public override string CommandName => CommandNames.PlayMode.Enter;
+        public override string CommandName => "PlayMode.Enter";
         public override string Description => "Enter play mode in Unity Editor";
 
         protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
@@ -19,7 +19,7 @@ namespace UniCli.Server.Editor.Handlers
 
     public sealed class PlayModeExitHandler : CommandHandler<Unit, Unit>
     {
-        public override string CommandName => CommandNames.PlayMode.Exit;
+        public override string CommandName => "PlayMode.Exit";
         public override string Description => "Exit play mode in Unity Editor";
 
         protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ namespace UniCli.Server.Editor.Handlers
 
     public sealed class PlayModePauseHandler : CommandHandler<Unit, Unit>
     {
-        public override string CommandName => CommandNames.PlayMode.Pause;
+        public override string CommandName => "PlayMode.Pause";
         public override string Description => "Toggle pause state in play mode";
 
         protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ namespace UniCli.Server.Editor.Handlers
 
     public sealed class PlayModeStatusHandler : CommandHandler<Unit, PlayModeStatusResponse>
     {
-        public override string CommandName => CommandNames.PlayMode.Status;
+        public override string CommandName => "PlayMode.Status";
         public override string Description => "Get the current play mode state";
 
         protected override bool TryWriteFormatted(PlayModeStatusResponse response, bool success, IFormatWriter writer)

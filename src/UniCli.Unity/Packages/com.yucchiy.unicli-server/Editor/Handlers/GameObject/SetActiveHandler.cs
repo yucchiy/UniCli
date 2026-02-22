@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SetActiveHandler : CommandHandler<SetActiveRequest, SetActiveResponse>
     {
-        public override string CommandName => CommandNames.GameObject.SetActive;
+        public override string CommandName => "GameObject.SetActive";
         public override string Description => "Set active state of a GameObject";
 
         protected override ValueTask<SetActiveResponse> ExecuteAsync(SetActiveRequest request, CancellationToken cancellationToken)

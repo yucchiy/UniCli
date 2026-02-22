@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers.Remote
 {
+    [Module("Remote")]
     public sealed class RemoteListHandler : CommandHandler<RemoteListRequest, RemoteListResponse>
     {
         private readonly RemoteBridge _bridge;
@@ -17,7 +18,7 @@ namespace UniCli.Server.Editor.Handlers.Remote
             _bridge = bridge;
         }
 
-        public override string CommandName => CommandNames.Remote.List;
+        public override string CommandName => "Remote.List";
         public override string Description => "List debug commands registered on connected runtime player";
 
         protected override bool TryWriteFormatted(RemoteListResponse response, bool success, IFormatWriter writer)

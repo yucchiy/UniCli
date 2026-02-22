@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class PrefabUnpackHandler : CommandHandler<PrefabUnpackRequest, PrefabUnpackResponse>
     {
-        public override string CommandName => CommandNames.Prefab.Unpack;
+        public override string CommandName => "Prefab.Unpack";
         public override string Description => "Unpack a prefab instance via PrefabUtility, disconnecting it from the source prefab";
 
         protected override bool TryWriteFormatted(PrefabUnpackResponse response, bool success, IFormatWriter writer)

@@ -5,10 +5,11 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorPlayHandler
         : CommandHandler<AnimatorPlayRequest, AnimatorPlayResponse>
     {
-        public override string CommandName => CommandNames.Animator.Play;
+        public override string CommandName => "Animator.Play";
         public override string Description => "Play a state immediately on an Animator (requires PlayMode)";
 
         protected override bool TryWriteFormatted(AnimatorPlayResponse response, bool success,

@@ -5,9 +5,10 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Packages")]
     public sealed class PackageManagerAddHandler : CommandHandler<PackageManagerAddRequest, PackageManagerAddResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.Add;
+        public override string CommandName => "PackageManager.Add";
         public override string Description => "Add a package by identifier (e.g., com.unity.foo@1.2.3 or git URL)";
 
         protected override bool TryWriteFormatted(PackageManagerAddResponse response, bool success, IFormatWriter writer)

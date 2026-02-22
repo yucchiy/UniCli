@@ -5,9 +5,10 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class SceneSetActiveHandler : CommandHandler<SceneSetActiveRequest, SceneInfoResponse>
     {
-        public override string CommandName => CommandNames.Scene.SetActive;
+        public override string CommandName => "Scene.SetActive";
         public override string Description => "Set the active scene via SceneManager";
 
         protected override bool TryWriteFormatted(SceneInfoResponse response, bool success, IFormatWriter writer)

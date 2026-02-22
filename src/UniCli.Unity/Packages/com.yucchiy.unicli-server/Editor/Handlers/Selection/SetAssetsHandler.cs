@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class SetAssetsSelectionHandler : CommandHandler<SetAssetsSelectionRequest, SetAssetsSelectionResponse>
     {
-        public override string CommandName => CommandNames.Selection.SetAssets;
+        public override string CommandName => "Selection.SetAssets";
         public override string Description => "Select multiple assets by paths";
 
         protected override bool TryWriteFormatted(SetAssetsSelectionResponse response, bool success, IFormatWriter writer)

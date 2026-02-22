@@ -5,9 +5,10 @@ using UnityEditorInternal;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Profiler")]
     public sealed class ProfilerStartRecordingHandler : CommandHandler<ProfilerStartRecordingRequest, ProfilerStartRecordingResponse>
     {
-        public override string CommandName => CommandNames.Profiler.StartRecording;
+        public override string CommandName => "Profiler.StartRecording";
         public override string Description => "Start profiler recording";
 
         protected override bool TryWriteFormatted(ProfilerStartRecordingResponse response, bool success, IFormatWriter writer)

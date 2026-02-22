@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class CreatePrimitiveHandler : CommandHandler<CreatePrimitiveRequest, CreateGameObjectResponse>
     {
-        public override string CommandName => CommandNames.GameObject.CreatePrimitive;
+        public override string CommandName => "GameObject.CreatePrimitive";
         public override string Description => "Create a primitive GameObject (Cube, Sphere, Capsule, Cylinder, Plane, Quad)";
 
         protected override bool TryWriteFormatted(CreateGameObjectResponse response, bool success, IFormatWriter writer)

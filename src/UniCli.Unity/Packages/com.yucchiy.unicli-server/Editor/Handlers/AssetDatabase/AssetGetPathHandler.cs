@@ -5,9 +5,10 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class AssetGetPathHandler : CommandHandler<AssetGetPathRequest, AssetGetPathResponse>
     {
-        public override string CommandName => CommandNames.AssetDatabase.GetPath;
+        public override string CommandName => "AssetDatabase.GetPath";
         public override string Description => "Convert between asset GUID and path";
 
         protected override ValueTask<AssetGetPathResponse> ExecuteAsync(AssetGetPathRequest request, CancellationToken cancellationToken)

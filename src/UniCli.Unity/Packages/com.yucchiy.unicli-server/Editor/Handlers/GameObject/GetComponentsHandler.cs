@@ -7,9 +7,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Scene")]
     public sealed class GetComponentsHandler : CommandHandler<GetComponentsRequest, GetComponentsResponse>
     {
-        public override string CommandName => CommandNames.GameObject.GetComponents;
+        public override string CommandName => "GameObject.GetComponents";
         public override string Description => "Get detailed component information for a GameObject";
 
         protected override ValueTask<GetComponentsResponse> ExecuteAsync(GetComponentsRequest request, CancellationToken cancellationToken)

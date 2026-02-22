@@ -10,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class RecorderStopRecordingHandler : CommandHandler<Unit, RecorderStopRecordingResponse>
     {
-        public override string CommandName => CommandNames.Recorder.StopRecording;
+        public override string CommandName => "Recorder.StopRecording";
         public override string Description => "Stop the current video recording";
 
         protected override bool TryWriteFormatted(RecorderStopRecordingResponse response, bool success, IFormatWriter writer)

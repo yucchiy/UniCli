@@ -6,9 +6,10 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Assets")]
     public sealed class PrefabInstantiateHandler : CommandHandler<PrefabInstantiateRequest, PrefabInstantiateResponse>
     {
-        public override string CommandName => CommandNames.Prefab.Instantiate;
+        public override string CommandName => "Prefab.Instantiate";
         public override string Description => "Instantiate a prefab asset into the scene via PrefabUtility";
 
         protected override bool TryWriteFormatted(PrefabInstantiateResponse response, bool success, IFormatWriter writer)

@@ -7,10 +7,11 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Animation")]
     public sealed class AnimatorSetParameterHandler
         : CommandHandler<AnimatorSetParameterRequest, AnimatorSetParameterResponse>
     {
-        public override string CommandName => CommandNames.Animator.SetParameter;
+        public override string CommandName => "Animator.SetParameter";
         public override string Description => "Set an Animator parameter value (requires PlayMode)";
 
         protected override bool TryWriteFormatted(AnimatorSetParameterResponse response, bool success,

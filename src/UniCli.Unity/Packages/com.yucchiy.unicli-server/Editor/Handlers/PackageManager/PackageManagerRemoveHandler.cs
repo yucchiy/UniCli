@@ -6,9 +6,10 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [Module("Packages")]
     public sealed class PackageManagerRemoveHandler : CommandHandler<PackageManagerRemoveRequest, PackageManagerRemoveResponse>
     {
-        public override string CommandName => CommandNames.PackageManager.Remove;
+        public override string CommandName => "PackageManager.Remove";
         public override string Description => "Remove a package by name (e.g., com.unity.cinemachine)";
 
         protected override bool TryWriteFormatted(PackageManagerRemoveResponse response, bool success, IFormatWriter writer)
