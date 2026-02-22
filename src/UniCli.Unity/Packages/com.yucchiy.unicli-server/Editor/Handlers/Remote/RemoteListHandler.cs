@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Remote;
-using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers.Remote
@@ -41,7 +40,10 @@ namespace UniCli.Server.Editor.Handlers.Remote
 
         protected override async ValueTask<RemoteListResponse> ExecuteAsync(RemoteListRequest request, CancellationToken cancellationToken)
         {
-            var playerId = ResolvePlayerId(request.playerId);
+            if (RemoteHelper.ShouldExecuteLocally(request.playerId))
+                return ExecuteListLocally();
+
+            var playerId = RemoteHelper.ResolvePlayerId(request.playerId);
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(10));
@@ -55,17 +57,17 @@ namespace UniCli.Server.Editor.Handlers.Remote
             };
         }
 
-        private static int ResolvePlayerId(int requestedId)
+        private static RemoteListResponse ExecuteListLocally()
         {
-            if (requestedId > 0)
-                return requestedId;
+            var registry = new DebugCommandRegistry();
+            registry.DiscoverCommands();
 
-            var players = EditorConnection.instance.ConnectedPlayers;
-            if (players.Count == 0)
-                throw new InvalidOperationException("No runtime player connected. Connect a Development Build first.");
-
-            return players[0].playerId;
+            return new RemoteListResponse
+            {
+                commands = registry.GetCommandInfos()
+            };
         }
+
     }
 
     [Serializable]

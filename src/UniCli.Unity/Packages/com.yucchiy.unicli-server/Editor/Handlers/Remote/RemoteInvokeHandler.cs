@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 using UniCli.Remote;
-using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers.Remote
@@ -43,7 +42,10 @@ namespace UniCli.Server.Editor.Handlers.Remote
             if (string.IsNullOrEmpty(request.command))
                 throw new ArgumentException("'command' is required");
 
-            var playerId = ResolvePlayerId(request.playerId);
+            if (RemoteHelper.ShouldExecuteLocally(request.playerId))
+                return ExecuteLocally(request);
+
+            var playerId = RemoteHelper.ResolvePlayerId(request.playerId);
 
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(30));
@@ -73,17 +75,35 @@ namespace UniCli.Server.Editor.Handlers.Remote
             };
         }
 
-        private static int ResolvePlayerId(int requestedId)
+        private static RemoteInvokeResponse ExecuteLocally(RemoteInvokeRequest request)
         {
-            if (requestedId > 0)
-                return requestedId;
+            var registry = new DebugCommandRegistry();
+            registry.DiscoverCommands();
 
-            var players = EditorConnection.instance.ConnectedPlayers;
-            if (players.Count == 0)
-                throw new InvalidOperationException("No runtime player connected. Connect a Development Build first.");
+            if (!registry.TryGetCommand(request.command, out var command))
+            {
+                throw new CommandFailedException(
+                    $"Unknown debug command: {request.command}",
+                    new RemoteInvokeResponse
+                    {
+                        command = request.command,
+                        success = false,
+                        message = $"Unknown debug command: {request.command}",
+                        data = ""
+                    });
+            }
 
-            return players[0].playerId;
+            var resultJson = command.Execute(request.data);
+
+            return new RemoteInvokeResponse
+            {
+                command = request.command,
+                success = true,
+                message = $"Command '{request.command}' succeeded (local PlayMode)",
+                data = resultJson
+            };
         }
+
     }
 
     [Serializable]
