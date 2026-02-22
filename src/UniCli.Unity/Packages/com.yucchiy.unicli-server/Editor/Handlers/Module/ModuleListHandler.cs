@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using UniCli.Protocol;
 using UnityEngine;
 
-namespace UniCli.Server.Editor.Handlers.Module
+namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ModuleListHandler : CommandHandler<Unit, ModuleListResponse>, IResponseFormatter
     {

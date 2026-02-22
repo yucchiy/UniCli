@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
 
-namespace UniCli.Server.Editor.Handlers.Module
+namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ModuleDisableHandler : CommandHandler<ModuleNameRequest, Unit>
     {
