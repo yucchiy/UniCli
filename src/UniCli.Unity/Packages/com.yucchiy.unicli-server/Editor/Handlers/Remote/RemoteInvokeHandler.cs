@@ -11,10 +11,12 @@ namespace UniCli.Server.Editor.Handlers.Remote
     public sealed class RemoteInvokeHandler : CommandHandler<RemoteInvokeRequest, RemoteInvokeResponse>
     {
         private readonly RemoteBridge _bridge;
+        private readonly DebugCommandRegistry _registry;
 
-        public RemoteInvokeHandler(RemoteBridge bridge)
+        public RemoteInvokeHandler(RemoteBridge bridge, DebugCommandRegistry registry)
         {
             _bridge = bridge;
+            _registry = registry;
         }
 
         public override string CommandName => "Remote.Invoke";
@@ -75,12 +77,9 @@ namespace UniCli.Server.Editor.Handlers.Remote
             };
         }
 
-        private static RemoteInvokeResponse ExecuteLocally(RemoteInvokeRequest request)
+        private RemoteInvokeResponse ExecuteLocally(RemoteInvokeRequest request)
         {
-            var registry = new DebugCommandRegistry();
-            registry.DiscoverCommands();
-
-            if (!registry.TryGetCommand(request.command, out var command))
+            if (!_registry.TryGetCommand(request.command, out var command))
             {
                 throw new CommandFailedException(
                     $"Unknown debug command: {request.command}",

@@ -61,7 +61,7 @@ namespace UniCli.Server.Editor.Handlers.Remote
             var tcs = new TaskCompletionSource<string>();
             _pendingRequests[requestId] = tcs;
 
-            using var registration = cancellationToken.Register(() =>
+            await using var registration = cancellationToken.Register(() =>
             {
                 _pendingRequests.Remove(requestId);
                 _chunkBuffers.Remove(requestId);
@@ -89,7 +89,7 @@ namespace UniCli.Server.Editor.Handlers.Remote
             var tcs = new TaskCompletionSource<string>();
             _pendingRequests[requestId] = tcs;
 
-            using var registration = cancellationToken.Register(() =>
+            await using var registration = cancellationToken.Register(() =>
             {
                 _pendingRequests.Remove(requestId);
                 _chunkBuffers.Remove(requestId);
