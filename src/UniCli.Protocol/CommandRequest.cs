@@ -9,5 +9,6 @@ namespace UniCli.Protocol
         public string data;
         public string format; // "json" or "text"; empty/null treated as "json"
         public string cwd; // client's working directory for resolving relative paths
+        public string clientVersion; // client application version for compatibility check
     }
 }

@@ -31,7 +31,8 @@ internal static class CommandExecutor
             command = command,
             data = data,
             format = format,
-            cwd = Directory.GetCurrentDirectory()
+            cwd = Directory.GetCurrentDirectory(),
+            clientVersion = VersionInfo.Version
         };
 
         string lastError = "";
@@ -241,7 +242,12 @@ internal static class CommandExecutor
         var result = await SendAsync(command, data, timeoutMs, format, focusEditor: focusEditor);
 
         return result.Match(
-            onSuccess: CliResult.FromResponse,
+            onSuccess: response =>
+            {
+                if (!string.IsNullOrEmpty(response.versionWarning))
+                    Console.Error.WriteLine($"Warning: {response.versionWarning}");
+                return CliResult.FromResponse(response);
+            },
             onError: CliResult.Error);
     }
 }

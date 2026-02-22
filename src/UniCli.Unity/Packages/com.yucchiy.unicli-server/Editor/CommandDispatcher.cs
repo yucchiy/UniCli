@@ -18,6 +18,18 @@ namespace UniCli.Server.Editor
         private readonly StringBuilder _formatBuffer = new();
         private readonly Lazy<CommandInfo[]> _commandInfoCache;
 
+        private static readonly string ServerVersion = ResolveServerVersion();
+
+        // Update on release: clients older than this version will be rejected
+        private const string MinimumClientVersion = "0.11.1";
+
+        private static string ResolveServerVersion()
+        {
+            var packageInfo = UnityEditor.PackageManager.PackageInfo
+                .FindForAssembly(typeof(CommandDispatcher).Assembly);
+            return packageInfo?.version ?? "unknown";
+        }
+
         public CommandDispatcher(ServiceRegistry services)
         {
             services.AddSingleton(this);
@@ -71,21 +83,63 @@ namespace UniCli.Server.Editor
             if (!_handlers.TryGetValue(request.command, out var handler))
                 return MakeResponse(false, $"Unknown command: {request.command}");
 
+            var versionCheck = CheckVersionCompatibility(request.clientVersion);
+            if (versionCheck.IsError)
+                return MakeResponse(false, versionCheck.Message);
+
             var wantsText = request.format == "text";
 
             try
             {
                 var result = await handler.ExecuteAsync(request, cancellationToken);
-                return BuildResponse(true, $"Command '{request.command}' succeeded", result, handler, wantsText);
+                var response = BuildResponse(true, $"Command '{request.command}' succeeded", result, handler, wantsText);
+                response.versionWarning = versionCheck.Warning;
+                return response;
             }
             catch (CommandFailedException ex)
             {
-                return BuildResponse(false, $"Command failed: {ex.Message}", ex.ResponseData, handler, wantsText);
+                var response = BuildResponse(false, $"Command failed: {ex.Message}", ex.ResponseData, handler, wantsText);
+                response.versionWarning = versionCheck.Warning;
+                return response;
             }
             catch (Exception ex)
             {
-                return MakeResponse(false, $"Command failed: {ex.Message}");
+                var response = MakeResponse(false, $"Command failed: {ex.Message}");
+                response.versionWarning = versionCheck.Warning;
+                return response;
             }
+        }
+
+        private readonly struct VersionCheckResult
+        {
+            public readonly bool IsError;
+            public readonly string Message;
+            public readonly string Warning;
+
+            public VersionCheckResult(bool isError, string message, string warning)
+            {
+                IsError = isError;
+                Message = message;
+                Warning = warning;
+            }
+        }
+
+        private static VersionCheckResult CheckVersionCompatibility(string clientVersion)
+        {
+            if (string.IsNullOrEmpty(clientVersion))
+                return new VersionCheckResult(false, "",
+                    $"Unknown client version. Server is v{ServerVersion} (minimum client: v{MinimumClientVersion}). Please update unicli CLI.");
+
+            if (!Version.TryParse(clientVersion, out var client) ||
+                !Version.TryParse(MinimumClientVersion, out var minimum))
+                return default;
+
+            if (client < minimum)
+                return new VersionCheckResult(true,
+                    $"Client v{clientVersion} is below minimum supported v{MinimumClientVersion} (server v{ServerVersion}). Please update unicli CLI.",
+                    "");
+
+            return default;
         }
 
         internal CommandResponse BuildResponse(bool success, string message, object data, ICommandHandler handler, bool wantsText)
@@ -115,7 +169,8 @@ namespace UniCli.Server.Editor
                 success = success,
                 message = message,
                 data = data,
-                format = format
+                format = format,
+                serverVersion = ServerVersion
             };
         }
     }
