@@ -5,7 +5,6 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Window")]
     public sealed class OpenWindowHandler : CommandHandler<OpenWindowRequest, OpenWindowResponse>
     {
         public override string CommandName => "Window.Open";

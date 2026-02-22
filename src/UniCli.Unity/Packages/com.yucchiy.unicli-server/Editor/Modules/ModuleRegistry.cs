@@ -15,7 +15,7 @@ namespace UniCli.Server.Editor
 
             new ModuleDefinition("Settings", "PlayerSettings, EditorSettings, EditorUserBuildSettings operations"),
             new ModuleDefinition("Remote", "Remote debug and Connection operations"),
-            new ModuleDefinition("Window", "Window and Screenshot operations"),
+
             new ModuleDefinition("Recorder", "Video recording operations (requires com.unity.recorder)"),
             new ModuleDefinition("NuGet", "NuGet package management (requires NuGetForUnity)"),
         };

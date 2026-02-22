@@ -6,7 +6,6 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Window")]
     public sealed class ListWindowHandler : CommandHandler<Unit, ListWindowResponse>
     {
         public override string CommandName => "Window.List";
