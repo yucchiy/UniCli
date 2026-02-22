@@ -6,7 +6,6 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class PackageManagerRemoveHandler : CommandHandler<PackageManagerRemoveRequest, PackageManagerRemoveResponse>
     {
         public override string CommandName => "PackageManager.Remove";

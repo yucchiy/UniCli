@@ -5,7 +5,6 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class PackageManagerAddHandler : CommandHandler<PackageManagerAddRequest, PackageManagerAddResponse>
     {
         public override string CommandName => "PackageManager.Add";

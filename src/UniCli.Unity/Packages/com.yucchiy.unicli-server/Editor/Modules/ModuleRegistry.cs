@@ -12,7 +12,7 @@ namespace UniCli.Server.Editor
             new ModuleDefinition("Build", "BuildPlayer, BuildProfile, TestRunner operations"),
             new ModuleDefinition("Profiler", "Profiler operations"),
             new ModuleDefinition("Animation", "Animator and AnimatorController operations"),
-            new ModuleDefinition("Packages", "PackageManager and AssemblyDefinition operations"),
+
             new ModuleDefinition("Settings", "PlayerSettings, EditorSettings, EditorUserBuildSettings operations"),
             new ModuleDefinition("Remote", "Remote debug and Connection operations"),
             new ModuleDefinition("Window", "Window and Screenshot operations"),

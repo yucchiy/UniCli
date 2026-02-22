@@ -6,7 +6,6 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class PackageManagerGetInfoHandler : CommandHandler<PackageManagerGetInfoRequest, PackageManagerGetInfoResponse>
     {
         public override string CommandName => "PackageManager.GetInfo";

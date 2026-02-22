@@ -7,7 +7,6 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class PackageManagerUpdateHandler : CommandHandler<PackageManagerUpdateRequest, PackageManagerUpdateResponse>
     {
         public override string CommandName => "PackageManager.Update";

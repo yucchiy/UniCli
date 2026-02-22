@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class AssemblyDefinitionCreateHandler : CommandHandler<AssemblyDefinitionCreateRequest, AssemblyDefinitionCreateResponse>
     {
         public override string CommandName => "AssemblyDefinition.Create";

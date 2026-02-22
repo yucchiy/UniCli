@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class AssemblyDefinitionRemoveReferenceHandler : CommandHandler<AssemblyDefinitionRemoveReferenceRequest, AssemblyDefinitionRemoveReferenceResponse>
     {
         public override string CommandName => "AssemblyDefinition.RemoveReference";

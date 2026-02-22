@@ -10,7 +10,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class AssemblyDefinitionListHandler : CommandHandler<Unit, AssemblyDefinitionListResponse>
     {
         public override string CommandName => "AssemblyDefinition.List";

@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class AssemblyDefinitionAddReferenceHandler : CommandHandler<AssemblyDefinitionAddReferenceRequest, AssemblyDefinitionAddReferenceResponse>
     {
         public override string CommandName => "AssemblyDefinition.AddReference";

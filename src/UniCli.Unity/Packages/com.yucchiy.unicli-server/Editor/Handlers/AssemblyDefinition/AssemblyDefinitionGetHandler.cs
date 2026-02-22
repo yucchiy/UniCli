@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Packages")]
     public sealed class AssemblyDefinitionGetHandler : CommandHandler<AssemblyDefinitionGetRequest, AssemblyDefinitionGetResponse>
     {
         public override string CommandName => "AssemblyDefinition.Get";
