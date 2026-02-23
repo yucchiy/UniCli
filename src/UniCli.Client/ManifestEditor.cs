@@ -139,10 +139,13 @@ internal static class ManifestEditor
         while (lineStart > 0 && text[lineStart - 1] != '\n')
             lineStart--;
 
-        // Extract leading whitespace
+        // Extract leading whitespace (skip '\r' from CRLF but don't include it in indent)
         var indent = "";
-        for (var i = lineStart; i < text.Length && (text[i] == ' ' || text[i] == '\t'); i++)
-            indent += text[i];
+        for (var i = lineStart; i < text.Length && (text[i] == ' ' || text[i] == '\t' || text[i] == '\r'); i++)
+        {
+            if (text[i] != '\r')
+                indent += text[i];
+        }
 
         return indent.Length > 0 ? indent : "    ";
     }
