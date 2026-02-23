@@ -10,10 +10,17 @@ internal static class CompletionCache
     public static string GetCacheDir(string projectRoot)
     {
         var hash = ProjectIdentifier.GetProjectHash(projectRoot);
-        var cacheDir = Path.Combine(
+
+        if (OperatingSystem.IsWindows())
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "unicli", hash);
+        }
+
+        return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".cache", "unicli", hash);
-        return cacheDir;
     }
 
     public static void Save(string projectRoot, CommandInfo[] commands)
