@@ -212,7 +212,7 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"
 
 # Module management
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.List --json
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.Enable '{"name":"Settings"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.Enable '{"name":"Search"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.Disable '{"name":"Profiler"}' --json
 
 # Compile Unity project (also serves as a build verification for the server)
