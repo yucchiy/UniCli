@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("UniCli.Server.Editor.Tests")]
 [assembly: InternalsVisibleTo("UniCli.Server.Editor.NuGetForUnity")]
 [assembly: InternalsVisibleTo("UniCli.Server.Editor.BuildMagic")]
+[assembly: InternalsVisibleTo("UniCli.Server.Editor.Search")]
 
 [assembly: GenerateCommands("UnityEditor.PlayerSettings", "PlayerSettings")]
 [assembly: GenerateCommands("UnityEditor.EditorSettings", "EditorSettings")]

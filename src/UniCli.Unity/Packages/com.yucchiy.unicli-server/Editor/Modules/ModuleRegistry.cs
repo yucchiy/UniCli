@@ -16,6 +16,7 @@ namespace UniCli.Server.Editor
             new ModuleDefinition("Remote", "Remote debug and Connection operations"),
 
             new ModuleDefinition("Recorder", "Video recording operations (requires com.unity.recorder)"),
+            new ModuleDefinition("Search", "Unity Search API operations"),
             new ModuleDefinition("NuGet", "NuGet package management (requires NuGetForUnity)"),
             new ModuleDefinition("BuildMagic", "BuildMagic build scheme operations (requires jp.co.cyberagent.buildmagic)"),
         };
