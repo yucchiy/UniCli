@@ -524,8 +524,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Scene              | `Scene.Close`                        | Close a loaded scene               |
 | Scene              | `Scene.Save`                         | Save a scene or all open scenes    |
 | Scene              | `Scene.New`                          | Create a new scene                 |
-| Utility            | `TypeCache.List`                     | List types derived from a base type |
-| Utility            | `TypeInspect`                        | Inspect nested types of a given type |
+| Utility            | `Type.List`                          | List types derived from a base type |
+| Utility            | `Type.Inspect`                       | Inspect nested types of a given type |
 | Eval               | `Eval`                               | Compile and execute C# code dynamically |
 | NuGet (optional)   | `NuGet.List`                         | List all installed NuGet packages  |
 | NuGet (optional)   | `NuGet.Install`                      | Install a NuGet package            |

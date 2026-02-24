@@ -66,7 +66,8 @@ public partial class Commands
         foreach (var cmd in commands)
         {
             var paddedName = cmd.name.PadRight(maxNameLen);
-            sb.AppendLine($"  {paddedName}  {cmd.description}");
+            var modulePart = $" [{(string.IsNullOrEmpty(cmd.module) ? "Core" : cmd.module)}]";
+            sb.AppendLine($"  {paddedName}  {cmd.description}{modulePart}");
 
             if (cmd.requestFields.Length > 0)
             {

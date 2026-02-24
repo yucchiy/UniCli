@@ -6,6 +6,7 @@ using BuildMagicEditor;
 
 namespace UniCli.Server.Editor.Handlers.BuildMagic
 {
+    [Module("BuildMagic")]
     public sealed class BuildMagicInspectHandler : CommandHandler<BuildMagicInspectRequest, BuildMagicInspectResponse>
     {
         public override string CommandName => "BuildMagic.Inspect";

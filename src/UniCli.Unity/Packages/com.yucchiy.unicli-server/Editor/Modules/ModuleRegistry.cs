@@ -19,6 +19,7 @@ namespace UniCli.Server.Editor
 
             new ModuleDefinition("Recorder", "Video recording operations (requires com.unity.recorder)"),
             new ModuleDefinition("NuGet", "NuGet package management (requires NuGetForUnity)"),
+            new ModuleDefinition("BuildMagic", "BuildMagic build scheme operations (requires jp.co.cyberagent.buildmagic)"),
         };
 
         /// <summary>

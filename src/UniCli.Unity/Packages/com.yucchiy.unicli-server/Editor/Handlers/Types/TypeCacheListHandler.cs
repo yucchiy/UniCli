@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class TypeCacheListHandler : CommandHandler<TypeCacheListRequest, TypeCacheListResponse>
     {
-        public override string CommandName => "TypeCache.List";
+        public override string CommandName => "Type.List";
         public override string Description => "List types derived from a base type or matching a pattern";
 
         protected override ValueTask<TypeCacheListResponse> ExecuteAsync(TypeCacheListRequest request, CancellationToken cancellationToken)
