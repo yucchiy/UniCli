@@ -9,7 +9,6 @@ using UnityEditor.Compilation;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Build")]
     public sealed class CompilePlayerHandler : CommandHandler<CompilePlayerRequest, CompilePlayerResponse>
     {
         public override string CommandName => "BuildPlayer.Compile";

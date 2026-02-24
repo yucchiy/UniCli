@@ -34,7 +34,7 @@ namespace UniCli.Server.Editor
             }
         }
 
-        public static string[] DiscoverAllModuleNames()
+        public string[] DiscoverAllModuleNames()
         {
             var names = new HashSet<string>();
             foreach (var m in ModuleRegistry.All)

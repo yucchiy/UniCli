@@ -7,6 +7,15 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ModuleDisableHandler : CommandHandler<ModuleNameRequest, Unit>
     {
+        private readonly UniCliSettings _settings;
+        private readonly IDispatcherReloader _reloader;
+
+        public ModuleDisableHandler(UniCliSettings settings, IDispatcherReloader reloader)
+        {
+            _settings = settings;
+            _reloader = reloader;
+        }
+
         public override string CommandName => "Module.Disable";
         public override string Description => "Disable a module and reload the command dispatcher";
 
@@ -15,8 +24,8 @@ namespace UniCli.Server.Editor.Handlers
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 
-            UniCliSettings.instance.DisableModule(request.name);
-            UniCliServerBootstrap.ReloadDispatcher();
+            _settings.DisableModule(request.name);
+            _reloader.Reload();
 
             return new ValueTask<Unit>(Unit.Value);
         }

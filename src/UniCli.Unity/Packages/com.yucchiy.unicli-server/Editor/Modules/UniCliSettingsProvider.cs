@@ -6,6 +6,8 @@ namespace UniCli.Server.Editor
 {
     public class UniCliSettingsProvider : SettingsProvider
     {
+        private readonly Dictionary<string, bool> _commandFoldoutStates = new();
+
         public UniCliSettingsProvider()
             : base("Project/UniCli", SettingsScope.Project)
         {
@@ -17,7 +19,8 @@ namespace UniCli.Server.Editor
         public override void OnGUI(string searchContext)
         {
             var settings = UniCliSettings.instance;
-            var allNames = UniCliSettings.DiscoverAllModuleNames();
+            var allNames = settings.DiscoverAllModuleNames();
+            var commandsByModule = ModuleCommandScanner.GetCommandsByModule();
 
             var registeredDescriptions = new Dictionary<string, string>();
             foreach (var m in ModuleRegistry.All)
@@ -57,6 +60,8 @@ namespace UniCli.Server.Editor
                                 settings.DisableModule(name);
                             changed = true;
                         }
+
+                        DrawModuleCommands(name, commandsByModule);
                     }
 
                     if (changed)
@@ -77,6 +82,30 @@ namespace UniCli.Server.Editor
                     EditorGUILayout.Space(4);
                 }
                 GUILayout.Space(4);
+            }
+        }
+
+        private void DrawModuleCommands(string moduleName, Dictionary<string, List<string>> commandsByModule)
+        {
+            if (!commandsByModule.TryGetValue(moduleName, out var commands) || commands.Count == 0)
+                return;
+
+            using (new EditorGUI.IndentLevelScope(2))
+            {
+                _commandFoldoutStates.TryGetValue(moduleName, out var isExpanded);
+                isExpanded = EditorGUILayout.Foldout(isExpanded, $"Commands ({commands.Count})", true);
+                _commandFoldoutStates[moduleName] = isExpanded;
+
+                if (!isExpanded)
+                    return;
+
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    foreach (var commandName in commands)
+                    {
+                        EditorGUILayout.LabelField(commandName, EditorStyles.miniLabel);
+                    }
+                }
             }
         }
     }

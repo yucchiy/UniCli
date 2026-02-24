@@ -10,11 +10,9 @@ namespace UniCli.Server.Editor
             new ModuleDefinition("Scene", "Scene operations"),
             new ModuleDefinition("GameObject", "GameObject and Component operations"),
             new ModuleDefinition("Assets", "AssetDatabase, Prefab, Material operations"),
-            new ModuleDefinition("Build", "BuildPlayer, BuildProfile, TestRunner operations"),
             new ModuleDefinition("Profiler", "Profiler operations"),
             new ModuleDefinition("Animation", "Animator and AnimatorController operations"),
 
-            new ModuleDefinition("Settings", "PlayerSettings, EditorSettings, EditorUserBuildSettings operations"),
             new ModuleDefinition("Remote", "Remote debug and Connection operations"),
 
             new ModuleDefinition("Recorder", "Video recording operations (requires com.unity.recorder)"),
