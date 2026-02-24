@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor.Search;
 
-namespace UniCli.Server.Editor.Handlers
+namespace UniCli.Server.Editor.Handlers.Search
 {
+    [Module("Search")]
     public sealed class UnitySearchHandler : CommandHandler<UnitySearchRequest, UnitySearchResponse>
     {
         public override string CommandName => "Search";
