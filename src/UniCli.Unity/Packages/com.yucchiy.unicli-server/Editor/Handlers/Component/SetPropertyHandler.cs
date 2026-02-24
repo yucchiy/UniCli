@@ -106,6 +106,18 @@ namespace UniCli.Server.Editor.Handlers
                 case SerializedPropertyType.Color:
                     property.colorValue = ParseColor(value);
                     break;
+                case SerializedPropertyType.Rect:
+                    property.rectValue = ParseRect(value);
+                    break;
+                case SerializedPropertyType.Bounds:
+                    property.boundsValue = ParseBounds(value);
+                    break;
+                case SerializedPropertyType.Quaternion:
+                    property.quaternionValue = ParseQuaternion(value);
+                    break;
+                case SerializedPropertyType.LayerMask:
+                    property.intValue = int.Parse(value, CultureInfo.InvariantCulture);
+                    break;
                 case SerializedPropertyType.ObjectReference:
                     property.objectReferenceValue = ResolveObjectReference(value);
                     break;
@@ -143,6 +155,46 @@ namespace UniCli.Server.Editor.Handlers
             if (parts.Length != 4)
                 throw new CommandFailedException("Vector4 requires 4 comma-separated values (e.g. \"1.0,2.0,3.0,4.0\")", new SetPropertyResponse());
             return new Vector4(
+                float.Parse(parts[0].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[3].Trim(), CultureInfo.InvariantCulture));
+        }
+
+        private static Rect ParseRect(string value)
+        {
+            var parts = value.Split(',');
+            if (parts.Length != 4)
+                throw new CommandFailedException("Rect requires 4 comma-separated values (e.g. \"x,y,width,height\")", new SetPropertyResponse());
+            return new Rect(
+                float.Parse(parts[0].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture),
+                float.Parse(parts[3].Trim(), CultureInfo.InvariantCulture));
+        }
+
+        private static Bounds ParseBounds(string value)
+        {
+            var parts = value.Split(',');
+            if (parts.Length != 6)
+                throw new CommandFailedException("Bounds requires 6 comma-separated values (e.g. \"cx,cy,cz,sx,sy,sz\")", new SetPropertyResponse());
+            return new Bounds(
+                new Vector3(
+                    float.Parse(parts[0].Trim(), CultureInfo.InvariantCulture),
+                    float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture),
+                    float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture)),
+                new Vector3(
+                    float.Parse(parts[3].Trim(), CultureInfo.InvariantCulture),
+                    float.Parse(parts[4].Trim(), CultureInfo.InvariantCulture),
+                    float.Parse(parts[5].Trim(), CultureInfo.InvariantCulture)));
+        }
+
+        private static Quaternion ParseQuaternion(string value)
+        {
+            var parts = value.Split(',');
+            if (parts.Length != 4)
+                throw new CommandFailedException("Quaternion requires 4 comma-separated values (e.g. \"x,y,z,w\")", new SetPropertyResponse());
+            return new Quaternion(
                 float.Parse(parts[0].Trim(), CultureInfo.InvariantCulture),
                 float.Parse(parts[1].Trim(), CultureInfo.InvariantCulture),
                 float.Parse(parts[2].Trim(), CultureInfo.InvariantCulture),
@@ -235,6 +287,14 @@ namespace UniCli.Server.Editor.Handlers
                     return property.vector4Value.ToString();
                 case SerializedPropertyType.Color:
                     return property.colorValue.ToString();
+                case SerializedPropertyType.Rect:
+                    return property.rectValue.ToString();
+                case SerializedPropertyType.Bounds:
+                    return property.boundsValue.ToString();
+                case SerializedPropertyType.Quaternion:
+                    return property.quaternionValue.ToString();
+                case SerializedPropertyType.LayerMask:
+                    return property.intValue.ToString();
                 default:
                     return $"({property.propertyType})";
             }
