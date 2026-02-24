@@ -21,7 +21,7 @@ namespace UniCli.Server.Editor
         private static readonly string ServerVersion = ResolveServerVersion();
 
         // Update on release: clients older than this version will be rejected
-        private const string MinimumClientVersion = "0.11.1";
+        private const string MinimumClientVersion = "0.12.0";
 
         private static string ResolveServerVersion()
         {
