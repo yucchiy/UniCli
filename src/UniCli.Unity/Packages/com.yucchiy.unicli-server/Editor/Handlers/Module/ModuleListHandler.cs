@@ -3,19 +3,24 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
-using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ModuleListHandler : CommandHandler<Unit, ModuleListResponse>, IResponseFormatter
     {
+        private readonly UniCliSettings _settings;
+
+        public ModuleListHandler(UniCliSettings settings)
+        {
+            _settings = settings;
+        }
+
         public override string CommandName => "Module.List";
         public override string Description => "List all available modules and their enabled status";
 
         protected override ValueTask<ModuleListResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
-            var settings = UniCliSettings.instance;
-            var allNames = UniCliSettings.DiscoverAllModuleNames();
+            var allNames = _settings.DiscoverAllModuleNames();
 
             var registeredDescriptions = new Dictionary<string, string>();
             foreach (var m in ModuleRegistry.All)
@@ -31,7 +36,7 @@ namespace UniCli.Server.Editor.Handlers
                 {
                     name = name,
                     description = description ?? "",
-                    enabled = settings.IsModuleEnabled(name)
+                    enabled = _settings.IsModuleEnabled(name)
                 };
             }
 

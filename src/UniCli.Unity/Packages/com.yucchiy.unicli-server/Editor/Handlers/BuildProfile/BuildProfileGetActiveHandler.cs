@@ -9,7 +9,6 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Build")]
     public sealed class BuildProfileGetActiveHandler : CommandHandler<Unit, BuildProfileGetActiveResponse>
     {
         public override string CommandName => "BuildProfile.GetActive";

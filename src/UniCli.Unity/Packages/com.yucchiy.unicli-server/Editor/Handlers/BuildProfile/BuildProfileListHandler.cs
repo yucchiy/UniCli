@@ -8,7 +8,6 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Build")]
     public sealed class BuildProfileListHandler : CommandHandler<Unit, BuildProfileListResponse>
     {
         public override string CommandName => "BuildProfile.List";

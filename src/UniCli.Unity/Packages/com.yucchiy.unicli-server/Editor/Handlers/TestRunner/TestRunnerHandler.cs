@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Build")]
     public sealed class TestRunEditModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
         public override string CommandName => "TestRunner.RunEditMode";
@@ -22,7 +21,6 @@ namespace UniCli.Server.Editor.Handlers
         }
     }
 
-    [Module("Build")]
     public sealed class TestRunPlayModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
         public override string CommandName => "TestRunner.RunPlayMode";

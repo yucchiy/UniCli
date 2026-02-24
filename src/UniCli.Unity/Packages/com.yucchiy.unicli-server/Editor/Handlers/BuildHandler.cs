@@ -9,7 +9,6 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
-    [Module("Build")]
     public sealed class BuildHandler : CommandHandler<BuildRequest, BuildResponse>
     {
         public override string CommandName => "BuildPlayer.Build";

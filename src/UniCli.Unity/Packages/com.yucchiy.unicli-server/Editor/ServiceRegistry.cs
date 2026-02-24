@@ -30,6 +30,11 @@ namespace UniCli.Server.Editor
             return this;
         }
 
+        public T Resolve<T>() where T : class
+        {
+            return GetService(typeof(T)) as T;
+        }
+
         private object GetService(Type serviceType)
         {
             if (_instances.TryGetValue(serviceType, out var instance))

@@ -91,43 +91,78 @@ namespace UniCli.Server.Editor
             var commands = dispatcher.GetAllCommandInfo();
             Array.Sort(commands, (a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
 
-            var standaloneCommands = new List<CommandInfo>();
-            var categorizedCommands = new SortedDictionary<string, List<CommandInfo>>(StringComparer.Ordinal);
-
+            var moduleGroups = new SortedDictionary<string, List<CommandInfo>>(StringComparer.Ordinal);
             foreach (var command in commands)
             {
-                var dotIndex = command.name.IndexOf('.');
-                if (dotIndex < 0)
+                var moduleName = string.IsNullOrEmpty(command.module) ? "Core" : command.module;
+                if (!moduleGroups.TryGetValue(moduleName, out var list))
                 {
-                    standaloneCommands.Add(command);
+                    list = new List<CommandInfo>();
+                    moduleGroups[moduleName] = list;
                 }
-                else
-                {
-                    var category = command.name.Substring(0, dotIndex);
-                    if (!categorizedCommands.TryGetValue(category, out var list))
-                    {
-                        list = new List<CommandInfo>();
-                        categorizedCommands[category] = list;
-                    }
-                    list.Add(command);
-                }
+                list.Add(command);
             }
 
             _needsSeparator = false;
 
             using (new EditorGUILayout.VerticalScope("box"))
             {
-                foreach (var command in standaloneCommands)
+                // Draw "Core" first if it exists, then the rest alphabetically
+                if (moduleGroups.TryGetValue("Core", out var coreCommands))
                 {
                     DrawSeparatorIfNeeded();
-                    DrawCommandFoldout(command);
+                    DrawModuleGroup("Core", coreCommands);
                 }
 
-                foreach (var kvp in categorizedCommands)
+                foreach (var kvp in moduleGroups)
                 {
+                    if (kvp.Key == "Core")
+                        continue;
                     DrawSeparatorIfNeeded();
-                    DrawCategoryFoldout(kvp.Key, kvp.Value);
+                    DrawModuleGroup(kvp.Key, kvp.Value);
                 }
+            }
+        }
+
+        private void DrawModuleGroup(string moduleName, List<CommandInfo> commands)
+        {
+            var key = $"__module__:{moduleName}";
+            _foldoutStates.TryGetValue(key, out var isExpanded);
+            isExpanded = EditorGUILayout.Foldout(isExpanded, $"{moduleName} ({commands.Count} commands)", true);
+            _foldoutStates[key] = isExpanded;
+
+            if (!isExpanded)
+                return;
+
+            using (new EditorGUI.IndentLevelScope())
+            {
+                var standaloneCommands = new List<CommandInfo>();
+                var categorizedCommands = new SortedDictionary<string, List<CommandInfo>>(StringComparer.Ordinal);
+
+                foreach (var command in commands)
+                {
+                    var dotIndex = command.name.IndexOf('.');
+                    if (dotIndex < 0)
+                    {
+                        standaloneCommands.Add(command);
+                    }
+                    else
+                    {
+                        var category = command.name.Substring(0, dotIndex);
+                        if (!categorizedCommands.TryGetValue(category, out var list))
+                        {
+                            list = new List<CommandInfo>();
+                            categorizedCommands[category] = list;
+                        }
+                        list.Add(command);
+                    }
+                }
+
+                foreach (var command in standaloneCommands)
+                    DrawCommandFoldout(command);
+
+                foreach (var kvp in categorizedCommands)
+                    DrawCategoryFoldout(kvp.Key, kvp.Value);
             }
         }
 

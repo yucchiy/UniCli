@@ -8,6 +8,14 @@ namespace UniCli.Server.Editor
 
             var pipeName = ProjectIdentifier.GetPipeName();
             services.AddSingleton(new ServerContext(pipeName));
+
+            services.AddSingleton(UniCliSettings.instance);
+            services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
+        }
+
+        private sealed class BootstrapDispatcherReloader : IDispatcherReloader
+        {
+            public void Reload() => UniCliServerBootstrap.ReloadDispatcher();
         }
     }
 }
