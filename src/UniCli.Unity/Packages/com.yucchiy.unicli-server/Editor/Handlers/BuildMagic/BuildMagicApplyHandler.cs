@@ -8,6 +8,7 @@ using BuildMagicEditor;
 
 namespace UniCli.Server.Editor.Handlers.BuildMagic
 {
+    [Module("BuildMagic")]
     public sealed class BuildMagicApplyHandler : CommandHandler<BuildMagicApplyRequest, BuildMagicApplyResponse>
     {
         public override string CommandName => "BuildMagic.Apply";

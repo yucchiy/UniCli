@@ -164,8 +164,8 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Scene.Close` | Close a loaded scene |
 | `Scene.Save` | Save a scene or all open scenes |
 | `Scene.New` | Create a new scene |
-| `TypeCache.List` | List types derived from a base type |
-| `TypeInspect` | Inspect nested types of a given type |
+| `Type.List` | List types derived from a base type |
+| `Type.Inspect` | Inspect nested types of a given type |
 | `Eval` | Compile and execute C# code dynamically in the Unity Editor context |
 | `NuGet.List` | List all installed NuGet packages (requires NuGetForUnity) |
 | `NuGet.Install` | Install a NuGet package (requires NuGetForUnity) |

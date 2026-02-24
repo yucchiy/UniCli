@@ -147,9 +147,9 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec EditorUserBuildSettings.Inspe
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval 'PlayerSettings.companyName = "MyCompany";' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval 'PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);' --json
 
-# TypeCache and type inspection
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TypeCache.List '{"baseType":"UniCli.Server.Editor.Handlers.ICommandHandler"}' --json
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TypeInspect '{"typeName":"UnityEditor.PlayerSettings"}' --json
+# Type inspection
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Type.List '{"baseType":"UniCli.Server.Editor.Handlers.ICommandHandler"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Type.Inspect '{"typeName":"UnityEditor.PlayerSettings"}' --json
 
 # Dynamic C# code execution (Eval)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli eval 'return Application.unityVersion;' --json

@@ -8,7 +8,7 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class TypeInspectHandler : CommandHandler<TypeInspectRequest, TypeInspectResponse>
     {
-        public override string CommandName => "TypeInspect";
+        public override string CommandName => "Type.Inspect";
         public override string Description => "Inspect nested types of a given type";
 
         protected override ValueTask<TypeInspectResponse> ExecuteAsync(TypeInspectRequest request, CancellationToken cancellationToken)

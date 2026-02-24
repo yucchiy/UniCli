@@ -7,6 +7,7 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Handlers.BuildMagic
 {
+    [Module("BuildMagic")]
     public sealed class BuildMagicListHandler : CommandHandler<Unit, BuildMagicListResponse>
     {
         public override string CommandName => "BuildMagic.List";
