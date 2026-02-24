@@ -91,6 +91,8 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `BuildProfile.GetActive` | Get the active build profile (Unity 6+ only) |
 | `BuildProfile.SetActive` | Set the active build profile (Unity 6+ only) |
 | `BuildProfile.Inspect` | Inspect a build profile's details (Unity 6+ only) |
+| `BuildTarget.GetActive` | Get the active build target and target group |
+| `BuildTarget.Switch` | Switch the active build target |
 | `Compile` | Compile scripts and return results |
 | `Connection.List` | List available connection targets (players/devices) |
 | `Connection.Connect` | Connect to a target by ID, IP, or device ID |
@@ -100,6 +102,7 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `PlayMode.Enter` | Enter play mode |
 | `PlayMode.Exit` | Exit play mode |
 | `PlayMode.Pause` | Toggle pause |
+| `PlayMode.Status` | Get the current play mode state |
 | `Menu.List` | List menu items |
 | `Menu.Execute` | Execute a menu item by path |
 | `TestRunner.RunEditMode` | Run EditMode tests |
@@ -164,9 +167,19 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Scene.Close` | Close a loaded scene |
 | `Scene.Save` | Save a scene or all open scenes |
 | `Scene.New` | Create a new scene |
+| `Selection.Get` | Get the current editor selection |
+| `Selection.SetAsset` | Select an asset by path |
+| `Selection.SetAssets` | Select multiple assets by paths |
+| `Selection.SetGameObject` | Select a GameObject by path |
+| `Selection.SetGameObjects` | Select multiple GameObjects by paths |
+| `Window.List` | List all available EditorWindow types |
+| `Window.Open` | Open an EditorWindow by type name |
+| `Window.Focus` | Focus an already-open EditorWindow |
+| `Window.Create` | Create a new EditorWindow instance |
 | `Type.List` | List types derived from a base type |
 | `Type.Inspect` | Inspect nested types of a given type |
 | `Eval` | Compile and execute C# code dynamically in the Unity Editor context |
+| `Search` | Search Unity project using Unity Search API |
 | `NuGet.List` | List all installed NuGet packages (requires NuGetForUnity) |
 | `NuGet.Install` | Install a NuGet package (requires NuGetForUnity) |
 | `NuGet.Uninstall` | Uninstall a NuGet package (requires NuGetForUnity) |
@@ -184,6 +197,9 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Recorder.StopRecording` | Stop the current video recording |
 | `Recorder.Status` | Get the current recording status |
 | `Screenshot.Capture` | Capture a screenshot of the Game View and save as PNG (requires Play Mode) |
+| `BuildMagic.List` | List all BuildMagic build schemes (requires BuildMagic) |
+| `BuildMagic.Inspect` | Inspect a build scheme's configurations (requires BuildMagic) |
+| `BuildMagic.Apply` | Apply a build scheme (requires BuildMagic) |
 | `Remote.List` | List debug commands registered on connected runtime player |
 | `Remote.Invoke` | Invoke a debug command on connected runtime player |
 | `Module.List` | List all available modules and their enabled status |
@@ -248,6 +264,14 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Andr
 unicli exec BuildPlayer.Compile --json
 unicli exec BuildPlayer.Compile --target Android --json
 unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE --json
+```
+
+**Get/switch the active build target:**
+
+```bash
+unicli exec BuildTarget.GetActive --json
+unicli exec BuildTarget.Switch --target Android --json
+unicli exec BuildTarget.Switch --target iOS --json
 ```
 
 **Manage build profiles (Unity 6+ only):**
@@ -366,6 +390,29 @@ unicli exec Scene.SetActive --name "Level1" --json
 unicli exec Scene.Save --all --json
 unicli exec Scene.Close --name "Additive" --json
 unicli exec Scene.New --empty --additive --json
+```
+
+**Selection operations:**
+
+```bash
+unicli exec Selection.Get --json
+unicli exec Selection.SetGameObject --path "Main Camera" --json
+unicli exec Selection.SetAsset --path "Assets/Materials/MyMat.mat" --json
+```
+
+**Window operations:**
+
+```bash
+unicli exec Window.List --json
+unicli exec Window.Open --typeName "UnityEditor.ConsoleWindow" --json
+unicli exec Window.Focus --typeName "UnityEditor.SceneView" --json
+```
+
+**Search Unity project:**
+
+```bash
+unicli exec Search --query "t:Material" --json
+unicli exec Search --query "t:Prefab" --maxResults 10 --json
 ```
 
 **Delete an asset:**
@@ -499,7 +546,7 @@ unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 unicli exec Module.List --json
 
 # Enable a module
-unicli exec Module.Enable '{"name":"Settings"}' --json
+unicli exec Module.Enable '{"name":"Search"}' --json
 
 # Disable a module
 unicli exec Module.Disable '{"name":"Profiler"}' --json

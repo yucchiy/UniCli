@@ -203,6 +203,17 @@ unicli exec BuildPlayer.Compile
 unicli exec BuildPlayer.Compile --target Android
 unicli exec BuildPlayer.Compile --target iOS --extraScriptingDefines MY_DEFINE --extraScriptingDefines ANOTHER_DEFINE
 
+# Get/switch the active build target
+unicli exec BuildTarget.GetActive
+unicli exec BuildTarget.Switch --target Android
+unicli exec BuildTarget.Switch --target iOS
+
+# Build profiles (Unity 6+ only)
+unicli exec BuildProfile.List
+unicli exec BuildProfile.GetActive
+unicli exec BuildProfile.SetActive '{"path":"Assets/Settings/MyProfile.asset"}'
+unicli exec BuildProfile.Inspect '{"path":"Assets/Settings/MyProfile.asset"}'
+
 # List available connection targets (players/devices)
 unicli exec Connection.List
 
@@ -277,6 +288,20 @@ unicli exec Prefab.Instantiate --assetPath "Assets/Prefabs/Enemy.prefab"
 unicli exec Prefab.Save --path "Player" --assetPath "Assets/Prefabs/Player.prefab"
 unicli exec Prefab.Apply --path "MyPrefabInstance"
 unicli exec Prefab.Unpack --path "MyPrefabInstance" --completely
+
+# Selection operations
+unicli exec Selection.Get
+unicli exec Selection.SetGameObject --path "Main Camera"
+unicli exec Selection.SetAsset --path "Assets/Materials/MyMat.mat"
+
+# Window operations
+unicli exec Window.List
+unicli exec Window.Open --typeName "UnityEditor.ConsoleWindow"
+unicli exec Window.Focus --typeName "UnityEditor.SceneView"
+
+# Search Unity project using Unity Search API
+unicli exec Search --query "t:Material"
+unicli exec Search --query "t:Prefab" --maxResults 10
 
 # Delete an asset
 unicli exec AssetDatabase.Delete --path "Assets/Prefabs/Old.prefab"
@@ -391,23 +416,39 @@ unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6}' --json
 unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024,"limit":5}' --json
 ```
 
+**Screenshot and video recording:**
+
+```bash
+# Capture a screenshot (requires Play Mode)
+unicli exec Screenshot.Capture --json
+unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json
+unicli exec Screenshot.Capture '{"path":"Screenshots/hires.png","superSize":2}' --json
+
+# Record video (requires Play Mode and com.unity.recorder)
+unicli exec Recorder.StartRecording --json
+unicli exec Recorder.StartRecording '{"path":"Recordings/demo.mp4","format":"MP4","frameRate":60}' --json
+unicli exec Recorder.Status --json
+unicli exec Recorder.StopRecording --json
+```
+
 **Module management:**
 
-UniCli groups optional commands into **modules** that can be toggled on or off per project. Core commands (Compile, Eval, Console, PlayMode, Menu, GameObject, Scene, PackageManager, etc.) are always available and cannot be disabled.
+UniCli groups optional commands into **modules** that can be toggled on or off per project. Core commands (Compile, Eval, Console, PlayMode, Menu, Build, TestRunner, Settings, etc.) are always available and cannot be disabled.
 
 The following modules are available:
 
 | Module | Description |
 |---|---|
-| Scene | Scene and GameObject operations |
-| Assets | AssetDatabase, Prefab, Component, Selection, Material operations |
-| Build | BuildPlayer, BuildProfile, TestRunner operations |
+| Scene | Scene operations |
+| GameObject | GameObject and Component operations |
+| Assets | AssetDatabase, Prefab, Material operations |
 | Profiler | Profiler operations |
 | Animation | Animator and AnimatorController operations |
-| Settings | PlayerSettings, EditorSettings, EditorUserBuildSettings operations |
 | Remote | Remote debug and Connection operations |
 | Recorder | Video recording operations (requires `com.unity.recorder`) |
+| Search | Unity Search API operations |
 | NuGet | NuGet package management (requires NuGetForUnity) |
+| BuildMagic | BuildMagic build scheme operations (requires `jp.co.cyberagent.buildmagic`) |
 
 All modules are enabled by default. To disable a module, use the CLI or the Unity settings UI (**Edit > Project Settings > UniCli**):
 
@@ -416,7 +457,7 @@ All modules are enabled by default. To disable a module, use the CLI or the Unit
 unicli exec Module.List --json
 
 # Enable a module
-unicli exec Module.Enable '{"name":"Settings"}' --json
+unicli exec Module.Enable '{"name":"Search"}' --json
 
 # Disable a module
 unicli exec Module.Disable '{"name":"Profiler"}' --json
@@ -452,6 +493,12 @@ The following commands are built in. You can also run `unicli commands` to see t
 |--------------------|--------------------------------------|------------------------------------|
 | BuildPlayer        | `BuildPlayer.Build`                  | Build the player                   |
 | BuildPlayer        | `BuildPlayer.Compile`                | Compile player scripts for a build target |
+| BuildProfile       | `BuildProfile.List`                  | List all build profiles (Unity 6+) |
+| BuildProfile       | `BuildProfile.GetActive`             | Get the active build profile (Unity 6+) |
+| BuildProfile       | `BuildProfile.SetActive`             | Set the active build profile (Unity 6+) |
+| BuildProfile       | `BuildProfile.Inspect`               | Inspect a build profile's details (Unity 6+) |
+| BuildTarget        | `BuildTarget.GetActive`              | Get the active build target and target group |
+| BuildTarget        | `BuildTarget.Switch`                 | Switch the active build target       |
 | Core               | `Compile`                            | Compile scripts and return results |
 | Connection         | `Connection.List`                    | List available connection targets  |
 | Connection         | `Connection.Connect`                 | Connect to a target by ID, IP, or device ID |
@@ -461,6 +508,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |
 | PlayMode           | `PlayMode.Exit`                      | Exit play mode                     |
 | PlayMode           | `PlayMode.Pause`                     | Toggle pause                       |
+| PlayMode           | `PlayMode.Status`                    | Get the current play mode state    |
 | Menu               | `Menu.List`                          | List menu items                    |
 | Menu               | `Menu.Execute`                       | Execute a menu item                |
 | TestRunner         | `TestRunner.RunEditMode`             | Run EditMode tests                 |
@@ -480,6 +528,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | GameObject         | `GameObject.SetParent`               | Change parent or move to root      |
 | Component          | `Component.SetProperty`              | Set a component property (supports ObjectReference via `guid:`, `instanceId:`, asset path) |
 | Material           | `Material.Create`                    | Create a new material asset        |
+| Material           | `Material.Inspect`                   | Read all properties of a material (auto-generated) |
 | Material           | `Material.SetColor`                  | Set a color property on a material |
 | Material           | `Material.GetColor`                  | Get a color property from a material |
 | Material           | `Material.SetFloat`                  | Set a float property on a material |
@@ -524,9 +573,19 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Scene              | `Scene.Close`                        | Close a loaded scene               |
 | Scene              | `Scene.Save`                         | Save a scene or all open scenes    |
 | Scene              | `Scene.New`                          | Create a new scene                 |
+| Selection          | `Selection.Get`                      | Get the current editor selection   |
+| Selection          | `Selection.SetAsset`                 | Select an asset by path            |
+| Selection          | `Selection.SetAssets`                | Select multiple assets by paths    |
+| Selection          | `Selection.SetGameObject`            | Select a GameObject by path        |
+| Selection          | `Selection.SetGameObjects`           | Select multiple GameObjects by paths |
+| Window             | `Window.List`                        | List all available EditorWindow types |
+| Window             | `Window.Open`                        | Open an EditorWindow by type name  |
+| Window             | `Window.Focus`                       | Focus an already-open EditorWindow |
+| Window             | `Window.Create`                      | Create a new EditorWindow instance |
 | Utility            | `Type.List`                          | List types derived from a base type |
 | Utility            | `Type.Inspect`                       | Inspect nested types of a given type |
 | Eval               | `Eval`                               | Compile and execute C# code dynamically |
+| Search (optional)  | `Search`                             | Search Unity project using Unity Search API |
 | NuGet (optional)   | `NuGet.List`                         | List all installed NuGet packages  |
 | NuGet (optional)   | `NuGet.Install`                      | Install a NuGet package            |
 | NuGet (optional)   | `NuGet.Uninstall`                    | Uninstall a NuGet package          |
@@ -540,6 +599,15 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Profiler           | `Profiler.TakeSnapshot`              | Take a memory snapshot (.snap file) |
 | Profiler           | `Profiler.AnalyzeFrames`             | Analyze recorded frames and return aggregate statistics |
 | Profiler           | `Profiler.FindSpikes`                | Find frames exceeding frame time or GC allocation thresholds |
+| Remote             | `Remote.List`                        | List debug commands on connected player |
+| Remote             | `Remote.Invoke`                      | Invoke a debug command on connected player |
+| Recorder (optional)| `Recorder.StartRecording`            | Start recording Game View as video (requires Play Mode) |
+| Recorder (optional)| `Recorder.StopRecording`             | Stop the current video recording   |
+| Recorder (optional)| `Recorder.Status`                    | Get the current recording status   |
+| Screenshot         | `Screenshot.Capture`                 | Capture Game View screenshot as PNG (requires Play Mode) |
+| BuildMagic (optional)| `BuildMagic.List`                  | List all BuildMagic build schemes  |
+| BuildMagic (optional)| `BuildMagic.Inspect`               | Inspect a build scheme's configurations |
+| BuildMagic (optional)| `BuildMagic.Apply`                 | Apply a build scheme               |
 | Module             | `Module.List`                        | List all available modules and their enabled status |
 | Module             | `Module.Enable`                      | Enable a module and reload the command dispatcher |
 | Module             | `Module.Disable`                     | Disable a module and reload the command dispatcher |
