@@ -1,6 +1,6 @@
 {
   "name": "com.yucchiy.unicli-server",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "displayName": "UniCli Server",
   "description": "Unity Editor拡張機能 - CLIからUnityを操作するためのサーバー",
   "unity": "2022.3",
