@@ -18,7 +18,7 @@ namespace UniCli.Server.Editor
 
         public override void OnGUI(string searchContext)
         {
-            var settings = UniCliSettings.instance;
+            var settings = new UniCliSettings();
             var allNames = settings.DiscoverAllModuleNames();
             var commandsByModule = ModuleCommandScanner.GetCommandsByModule();
 

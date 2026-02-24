@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor
             var pipeName = ProjectIdentifier.GetPipeName();
             services.AddSingleton(new ServerContext(pipeName));
 
-            services.AddSingleton(UniCliSettings.instance);
+            services.AddSingleton(new UniCliSettings());
             services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
         }
 
