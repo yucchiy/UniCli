@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -21,6 +22,10 @@ namespace UniCli.Server.Editor
         private readonly Action<string> _errorLogger;
         private readonly Task _serverLoop;
         private Task? _currentCommand;
+
+        public string? CurrentCommandName { get; private set; }
+        public DateTime? CurrentCommandStartTime { get; private set; }
+        public string[] QueuedCommandNames => _commandQueue.ToArray().Select(item => item.request.command).ToArray();
 
         public UniCliServer(
             string pipeName,
@@ -62,6 +67,8 @@ namespace UniCli.Server.Editor
             if (_commandQueue.TryDequeue(out var item))
             {
                 var (request, cancellationToken, callback) = item;
+                CurrentCommandName = request.command;
+                CurrentCommandStartTime = DateTime.UtcNow;
                 _currentCommand = ProcessCommandAsync(request, cancellationToken, callback);
             }
         }
@@ -130,6 +137,11 @@ namespace UniCli.Server.Editor
                     message = $"Internal error: {ex.Message}",
                     data = ""
                 });
+            }
+            finally
+            {
+                CurrentCommandName = null;
+                CurrentCommandStartTime = null;
             }
         }
 

@@ -17,6 +17,9 @@ namespace UniCli.Server.Editor
         public static ServiceRegistry Services { get; } = new();
         public static CommandDispatcher? Dispatcher => _dispatcher;
         public static bool IsRunning => _server != null;
+        public static string? CurrentCommandName => _server?.CurrentCommandName;
+        public static DateTime? CurrentCommandStartTime => _server?.CurrentCommandStartTime;
+        public static string[] QueuedCommandNames => _server?.QueuedCommandNames ?? Array.Empty<string>();
 
         static UniCliServerBootstrap()
         {

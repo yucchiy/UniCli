@@ -43,17 +43,47 @@ namespace UniCli.Server.Editor
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 var isRunning = UniCliServerBootstrap.IsRunning;
-                var statusLabel = isRunning ? "\u25cf Running" : "\u25cf Stopped";
-                var statusColor = isRunning ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.9f, 0.3f, 0.3f);
+                var commandName = UniCliServerBootstrap.CurrentCommandName;
+                var startTime = UniCliServerBootstrap.CurrentCommandStartTime;
 
-                var style = new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold };
+                var statusStyle = new GUIStyle(EditorStyles.label) { fontStyle = FontStyle.Bold };
                 var prevColor = GUI.contentColor;
-                GUI.contentColor = statusColor;
-                EditorGUILayout.LabelField(statusLabel, style);
+
+                if (!isRunning)
+                {
+                    GUI.contentColor = new Color(0.9f, 0.3f, 0.3f);
+                    EditorGUILayout.LabelField("\u25cf Stopped", statusStyle);
+                }
+                else if (commandName != null && startTime.HasValue)
+                {
+                    var elapsed = (DateTime.UtcNow - startTime.Value).TotalSeconds;
+                    var dotCount = (int)(EditorApplication.timeSinceStartup * 2) % 3 + 1;
+                    var dots = new string('.', dotCount);
+
+                    GUI.contentColor = new Color(1.0f, 0.7f, 0.2f);
+                    EditorGUILayout.LabelField($"\u25cf Running \u2014 {commandName} ({elapsed:F1}s){dots}", statusStyle);
+                }
+                else
+                {
+                    GUI.contentColor = new Color(0.2f, 0.8f, 0.2f);
+                    EditorGUILayout.LabelField("\u25cf Running", statusStyle);
+                }
+
                 GUI.contentColor = prevColor;
 
                 EditorGUILayout.LabelField("Project", Application.dataPath);
                 EditorGUILayout.LabelField("Pipe", ProjectIdentifier.GetPipeName());
+
+                if (isRunning)
+                {
+                    var queued = UniCliServerBootstrap.QueuedCommandNames;
+                    if (queued.Length > 0)
+                    {
+                        EditorGUILayout.Space(2);
+                        var queueLabel = $"Queued ({queued.Length}): {string.Join(", ", queued)}";
+                        EditorGUILayout.LabelField(queueLabel, EditorStyles.miniLabel);
+                    }
+                }
 
                 EditorGUILayout.Space(2);
 
