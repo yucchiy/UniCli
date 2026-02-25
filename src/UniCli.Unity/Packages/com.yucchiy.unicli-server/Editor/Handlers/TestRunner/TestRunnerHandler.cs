@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UniCli.Protocol;
@@ -7,6 +8,75 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    public sealed class TestListHandler : CommandHandler<TestListRequest, TestListResponse>
+    {
+        public override string CommandName => "TestRunner.List";
+        public override string Description => "List available tests for EditMode or PlayMode";
+
+        protected override async ValueTask<TestListResponse> ExecuteAsync(TestListRequest request, CancellationToken cancellationToken)
+        {
+            var testMode = string.Equals(request.mode, "PlayMode", StringComparison.OrdinalIgnoreCase)
+                ? TestMode.PlayMode
+                : TestMode.EditMode;
+
+            var api = ScriptableObject.CreateInstance<TestRunnerApi>();
+            var tcs = new TaskCompletionSource<ITestAdaptor>();
+            api.RetrieveTestList(testMode, adaptor => tcs.TrySetResult(adaptor));
+            var root = await tcs.Task.WithCancellation(cancellationToken);
+
+            var tests = new List<TestListEntry>();
+            CollectTests(root, tests);
+
+            return new TestListResponse
+            {
+                mode = testMode == TestMode.EditMode ? "EditMode" : "PlayMode",
+                total = tests.Count,
+                tests = tests.ToArray()
+            };
+        }
+
+        private static void CollectTests(ITestAdaptor node, List<TestListEntry> tests)
+        {
+            if (!node.IsSuite)
+            {
+                var categories = node.Categories != null ? new List<string>(node.Categories).ToArray() : Array.Empty<string>();
+                tests.Add(new TestListEntry
+                {
+                    fullName = node.FullName,
+                    name = node.Name,
+                    categories = categories
+                });
+                return;
+            }
+
+            if (!node.HasChildren) return;
+            foreach (var child in node.Children)
+                CollectTests(child, tests);
+        }
+    }
+
+    [Serializable]
+    public class TestListRequest
+    {
+        public string mode = "EditMode";
+    }
+
+    [Serializable]
+    public class TestListResponse
+    {
+        public string mode;
+        public int total;
+        public TestListEntry[] tests;
+    }
+
+    [Serializable]
+    public class TestListEntry
+    {
+        public string fullName;
+        public string name;
+        public string[] categories;
+    }
+
     public sealed class TestRunEditModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
         public override string CommandName => "TestRunner.RunEditMode";
@@ -72,14 +142,24 @@ namespace UniCli.Server.Editor.Handlers
                 testMode = testMode
             };
 
-            if (!string.IsNullOrEmpty(request.testNameFilter))
+            if (request.testNames.Length > 0)
             {
-                filter.testNames = new[] { request.testNameFilter };
+                filter.testNames = request.testNames;
             }
 
-            if (!string.IsNullOrEmpty(request.assemblyFilter))
+            if (request.groupNames.Length > 0)
             {
-                filter.assemblyNames = new[] { request.assemblyFilter };
+                filter.groupNames = request.groupNames;
+            }
+
+            if (request.categories.Length > 0)
+            {
+                filter.categoryNames = request.categories;
+            }
+
+            if (request.assemblies.Length > 0)
+            {
+                filter.assemblyNames = request.assemblies;
             }
 
             var callbacks = new TestRunnerCallbacks(tcs);
@@ -102,8 +182,10 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class TestRunRequest
     {
-        public string testNameFilter = "";
-        public string assemblyFilter = "";
+        public string[] testNames = Array.Empty<string>();
+        public string[] groupNames = Array.Empty<string>();
+        public string[] categories = Array.Empty<string>();
+        public string[] assemblies = Array.Empty<string>();
     }
 
     internal class TestRunnerCallbacks : ICallbacks
