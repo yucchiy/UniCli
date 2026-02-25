@@ -9,7 +9,8 @@ internal static class CompletionCache
 {
     public static string GetCacheDir(string projectRoot)
     {
-        var hash = ProjectIdentifier.GetProjectHash(projectRoot);
+        var normalized = ProjectIdentifier.NormalizeToDataPath(projectRoot);
+        var hash = ProjectIdentifier.GetProjectHash(normalized);
 
         if (OperatingSystem.IsWindows())
         {

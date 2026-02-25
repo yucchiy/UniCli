@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -42,7 +43,17 @@ namespace UniCli.Client
                 fullPath = Path.Combine(trimmed, "Assets");
             }
 
-            return fullPath;
+            return NormalizePathForHash(fullPath);
+        }
+
+        internal static string NormalizePathForHash(string path)
+        {
+            path = path.Replace('\\', '/');
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                path = path.ToLowerInvariant();
+
+            return path;
         }
 
         /// <summary>
