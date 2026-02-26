@@ -98,11 +98,17 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 # Run tests with all results (including passed)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --resultFilter all --json
 
+# Run tests with stack traces (first 3 lines per failure)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --stackTraceLines 3 --json
+
 # Run tests with summary counts only (no individual results)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --resultFilter none --json
 
 # Console logs filtered by type (comma-separated)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog --logType "Warning,Error" --json
+
+# Console logs with stack traces (first 3 lines)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog --logType Error --stackTraceLines 3 --json
 
 # Build player
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --json
