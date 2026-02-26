@@ -75,13 +75,21 @@ namespace UniCli.Server.Editor
                 && !logType.Equals("All", StringComparison.OrdinalIgnoreCase);
             var filterBySearch = !string.IsNullOrEmpty(searchText);
 
+            string[] allowedTypes = null;
+            if (filterByType)
+            {
+                allowedTypes = logType.Split(',');
+                for (var i = 0; i < allowedTypes.Length; i++)
+                    allowedTypes[i] = allowedTypes[i].Trim();
+            }
+
             var result = new List<LogEntry>();
 
             lock (_lock)
             {
                 foreach (var entry in _logBuffer)
                 {
-                    if (filterByType && !entry.type.Equals(logType, StringComparison.OrdinalIgnoreCase))
+                    if (filterByType && !MatchesAnyType(entry.type, allowedTypes))
                         continue;
 
                     if (filterBySearch && !entry.message.Contains(searchText, StringComparison.OrdinalIgnoreCase))
@@ -97,6 +105,16 @@ namespace UniCli.Server.Editor
             }
 
             return result.ToArray();
+        }
+
+        private static bool MatchesAnyType(string entryType, string[] allowedTypes)
+        {
+            foreach (var type in allowedTypes)
+            {
+                if (entryType.Equals(type, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         public void ClearLogs()

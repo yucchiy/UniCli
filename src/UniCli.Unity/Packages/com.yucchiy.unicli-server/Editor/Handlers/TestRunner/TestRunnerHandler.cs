@@ -162,7 +162,7 @@ namespace UniCli.Server.Editor.Handlers
                 filter.assemblyNames = request.assemblies;
             }
 
-            var callbacks = new TestRunnerCallbacks(tcs);
+            var callbacks = new TestRunnerCallbacks(tcs, request.resultFilter);
             api.RegisterCallbacks(callbacks);
             try
             {
@@ -186,19 +186,22 @@ namespace UniCli.Server.Editor.Handlers
         public string[] groupNames = Array.Empty<string>();
         public string[] categories = Array.Empty<string>();
         public string[] assemblies = Array.Empty<string>();
+        public string resultFilter = "failures"; // "failures" (default): failed+skipped only, "all": everything, "none": summary only
     }
 
     internal class TestRunnerCallbacks : ICallbacks
     {
         private readonly TaskCompletionSource<TestRunnerResponse> _tcs;
         private readonly System.Collections.Generic.List<TestResult> _testResults = new();
+        private readonly string _resultFilter;
         private int _passedCount;
         private int _failedCount;
         private int _skippedCount;
 
-        public TestRunnerCallbacks(TaskCompletionSource<TestRunnerResponse> tcs)
+        public TestRunnerCallbacks(TaskCompletionSource<TestRunnerResponse> tcs, string resultFilter = "failures")
         {
             _tcs = tcs;
+            _resultFilter = string.IsNullOrEmpty(resultFilter) ? "failures" : resultFilter;
         }
 
         public void RunStarted(ITestAdaptor testsToRun)
@@ -237,15 +240,6 @@ namespace UniCli.Server.Editor.Handlers
                 _ => "Unknown"
             };
 
-            _testResults.Add(new TestResult
-            {
-                name = result.Test.FullName,
-                status = status,
-                duration = result.Duration,
-                message = result.Message ?? "",
-                stackTrace = result.StackTrace ?? ""
-            });
-
             if (result.TestStatus == TestStatus.Passed)
             {
                 _passedCount++;
@@ -257,6 +251,25 @@ namespace UniCli.Server.Editor.Handlers
             else if (result.TestStatus == TestStatus.Skipped)
             {
                 _skippedCount++;
+            }
+
+            var shouldInclude = _resultFilter switch
+            {
+                "all" => true,
+                "none" => false,
+                _ => result.TestStatus != TestStatus.Passed // "failures": failed + skipped
+            };
+
+            if (shouldInclude)
+            {
+                _testResults.Add(new TestResult
+                {
+                    name = result.Test.FullName,
+                    status = status,
+                    duration = result.Duration,
+                    message = result.Message ?? "",
+                    stackTrace = result.StackTrace ?? ""
+                });
             }
         }
     }
