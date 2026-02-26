@@ -79,6 +79,13 @@ namespace UniCli.Server.Editor.Handlers
 
     public sealed class TestRunEditModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public TestRunEditModeHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "TestRunner.RunEditMode";
         public override string Description => "Run EditMode tests with optional name/assembly filter";
 
@@ -87,12 +94,20 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
             return await TestRunnerHelper.RunTestsAsync(TestMode.EditMode, request, cancellationToken);
         }
     }
 
     public sealed class TestRunPlayModeHandler : CommandHandler<TestRunRequest, TestRunnerResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public TestRunPlayModeHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "TestRunner.RunPlayMode";
         public override string Description => "Run PlayMode tests with optional name/assembly filter";
 
@@ -101,6 +116,7 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
             return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request, cancellationToken);
         }
     }

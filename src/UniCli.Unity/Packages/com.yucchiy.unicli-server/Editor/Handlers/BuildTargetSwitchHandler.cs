@@ -8,6 +8,13 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class BuildTargetSwitchHandler : CommandHandler<BuildTargetSwitchRequest, BuildTargetSwitchResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public BuildTargetSwitchHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "BuildTarget.Switch";
         public override string Description => "Switch the active build target via EditorUserBuildSettings.SwitchActiveBuildTarget";
 
@@ -23,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<BuildTargetSwitchResponse> ExecuteAsync(BuildTargetSwitchRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
+
             if (string.IsNullOrEmpty(request.target))
                 throw new ArgumentException("target is required (e.g. Android, iOS, StandaloneWindows64, StandaloneOSX, WebGL)");
 

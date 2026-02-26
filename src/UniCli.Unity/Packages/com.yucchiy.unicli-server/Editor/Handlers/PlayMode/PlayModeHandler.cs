@@ -7,11 +7,19 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PlayModeEnterHandler : CommandHandler<Unit, Unit>
     {
+        private readonly EditorStateGuard _guard;
+
+        public PlayModeEnterHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "PlayMode.Enter";
         public override string Description => "Enter play mode in Unity Editor";
 
         protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
             EditorApplication.EnterPlaymode();
             return new ValueTask<Unit>(Unit.Value);
         }

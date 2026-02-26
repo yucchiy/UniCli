@@ -9,6 +9,13 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerUpdateHandler : CommandHandler<PackageManagerUpdateRequest, PackageManagerUpdateResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public PackageManagerUpdateHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "PackageManager.Update";
         public override string Description => "Update a package to a specific version or the latest version";
 
@@ -22,6 +29,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<PackageManagerUpdateResponse> ExecuteAsync(PackageManagerUpdateRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 

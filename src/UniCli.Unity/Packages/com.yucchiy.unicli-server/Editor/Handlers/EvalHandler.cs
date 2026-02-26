@@ -13,6 +13,13 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class EvalHandler : CommandHandler<EvalRequest, EvalResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public EvalHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "Eval";
         public override string Description => "Compile and execute C# code dynamically in the Unity Editor context";
 
@@ -35,6 +42,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<EvalResponse> ExecuteAsync(EvalRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
+
             if (string.IsNullOrWhiteSpace(request.code))
                 throw new ArgumentException("code must not be empty");
 

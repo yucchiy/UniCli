@@ -8,6 +8,13 @@ namespace UniCli.Server.Editor.Handlers
     [Module("Scene")]
     public sealed class SceneNewHandler : CommandHandler<SceneNewRequest, SceneInfoResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public SceneNewHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "Scene.New";
         public override string Description => "Create a new scene via EditorSceneManager";
 
@@ -23,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneNewRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
+
             var setup = request.empty
                 ? NewSceneSetup.EmptyScene
                 : NewSceneSetup.DefaultGameObjects;

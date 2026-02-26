@@ -108,6 +108,18 @@ namespace UniCli.Server.Editor
 
         private void OnCommandReceived(CommandRequest request, CancellationToken cancellationToken, Action<CommandResponse> callback)
         {
+            if (_currentCommand is { IsCompleted: false } || !_commandQueue.IsEmpty)
+            {
+                var busyCommand = CurrentCommandName ?? "unknown";
+                callback(new CommandResponse
+                {
+                    success = false,
+                    message = $"Server is busy executing '{busyCommand}'. Please retry after the current command completes.",
+                    data = ""
+                });
+                return;
+            }
+
             _commandQueue.Enqueue((request, cancellationToken, callback));
         }
 
