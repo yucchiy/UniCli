@@ -11,6 +11,13 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
     [Module("NuGet")]
     public sealed class NuGetUninstallHandler : CommandHandler<NuGetUninstallRequest, NuGetUninstallResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public NuGetUninstallHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "NuGet.Uninstall";
         public override string Description => "Uninstall a NuGet package by id";
 
@@ -24,6 +31,8 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 
         protected override ValueTask<NuGetUninstallResponse> ExecuteAsync(NuGetUninstallRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+
             if (string.IsNullOrEmpty(request.id))
                 throw new ArgumentException("id is required");
 

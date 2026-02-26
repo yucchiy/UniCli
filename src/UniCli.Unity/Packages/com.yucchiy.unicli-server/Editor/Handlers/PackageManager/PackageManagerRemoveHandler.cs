@@ -8,6 +8,13 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class PackageManagerRemoveHandler : CommandHandler<PackageManagerRemoveRequest, PackageManagerRemoveResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public PackageManagerRemoveHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "PackageManager.Remove";
         public override string Description => "Remove a package by name (e.g., com.unity.cinemachine)";
 
@@ -21,6 +28,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<PackageManagerRemoveResponse> ExecuteAsync(PackageManagerRemoveRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+
             if (string.IsNullOrEmpty(request.name))
                 throw new ArgumentException("name is required");
 

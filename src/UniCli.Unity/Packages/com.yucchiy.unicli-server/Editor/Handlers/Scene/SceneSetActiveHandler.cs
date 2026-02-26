@@ -8,6 +8,13 @@ namespace UniCli.Server.Editor.Handlers
     [Module("Scene")]
     public sealed class SceneSetActiveHandler : CommandHandler<SceneSetActiveRequest, SceneInfoResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public SceneSetActiveHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "Scene.SetActive";
         public override string Description => "Set the active scene via SceneManager";
 
@@ -23,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneSetActiveRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
+
             var scene = SceneResolver.Resolve(request.name, request.path, request.sceneIndex);
             if (!scene.IsValid())
             {

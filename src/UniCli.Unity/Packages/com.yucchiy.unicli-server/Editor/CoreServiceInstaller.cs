@@ -10,6 +10,7 @@ namespace UniCli.Server.Editor
             services.AddSingleton(new ServerContext(pipeName));
 
             services.AddSingleton(new UniCliSettings());
+            services.AddSingleton(new EditorStateGuard());
             services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
         }
 

@@ -7,11 +7,20 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class ExecuteMenuItemHandler : CommandHandler<ExecuteMenuItemRequest, ExecuteMenuItemResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public ExecuteMenuItemHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "Menu.Execute";
         public override string Description => "Execute a Unity Editor menu item by path";
 
         protected override ValueTask<ExecuteMenuItemResponse> ExecuteAsync(ExecuteMenuItemRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
+
             if (string.IsNullOrEmpty(request.menuItemPath))
             {
                 throw new ArgumentException("menuItemPath is required");

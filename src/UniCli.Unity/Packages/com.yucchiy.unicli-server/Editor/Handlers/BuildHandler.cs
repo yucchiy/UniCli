@@ -11,6 +11,13 @@ namespace UniCli.Server.Editor.Handlers
 {
     public sealed class BuildHandler : CommandHandler<BuildRequest, BuildResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public BuildHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "BuildPlayer.Build";
         public override string Description => "Build the player using BuildPipeline.BuildPlayer";
 
@@ -55,6 +62,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<BuildResponse> ExecuteAsync(BuildRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+
             if (string.IsNullOrEmpty(request.locationPathName))
                 throw new ArgumentException("locationPathName is required.");
 

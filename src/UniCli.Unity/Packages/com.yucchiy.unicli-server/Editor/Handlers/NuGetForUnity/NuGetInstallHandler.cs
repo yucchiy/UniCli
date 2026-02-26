@@ -10,6 +10,13 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
     [Module("NuGet")]
     public sealed class NuGetInstallHandler : CommandHandler<NuGetInstallRequest, NuGetInstallResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public NuGetInstallHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "NuGet.Install";
         public override string Description => "Install a NuGet package by id and optional version";
 
@@ -23,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 
         protected override ValueTask<NuGetInstallResponse> ExecuteAsync(NuGetInstallRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+
             if (string.IsNullOrEmpty(request.id))
                 throw new ArgumentException("id is required");
 

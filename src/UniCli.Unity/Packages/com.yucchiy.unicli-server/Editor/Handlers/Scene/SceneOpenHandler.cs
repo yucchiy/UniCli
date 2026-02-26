@@ -8,6 +8,13 @@ namespace UniCli.Server.Editor.Handlers
     [Module("Scene")]
     public sealed class SceneOpenHandler : CommandHandler<SceneOpenRequest, SceneInfoResponse>
     {
+        private readonly EditorStateGuard _guard;
+
+        public SceneOpenHandler(EditorStateGuard guard)
+        {
+            _guard = guard;
+        }
+
         public override string CommandName => "Scene.Open";
         public override string Description => "Open a scene by asset path via EditorSceneManager";
 
@@ -23,6 +30,8 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<SceneInfoResponse> ExecuteAsync(SceneOpenRequest request, CancellationToken cancellationToken)
         {
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
+
             if (string.IsNullOrEmpty(request.path))
                 throw new ArgumentException("path is required");
 
