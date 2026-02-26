@@ -34,25 +34,43 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
                     $"Package {request.id}@{existing.Version} is already installed",
                     new NuGetInstallResponse { id = existing.Id, version = existing.Version });
 
-            var identifier = string.IsNullOrEmpty(request.version)
-                ? new NugetPackageIdentifier(request.id, string.Empty)
-                : new NugetPackageIdentifier(request.id, request.version);
+            var tempSourceName = !string.IsNullOrEmpty(request.source)
+                ? $"__unicli_tmp_{Guid.NewGuid():N}"
+                : null;
 
-            var success = NugetPackageInstaller.InstallIdentifier(identifier);
-
-            if (!success)
-                throw new CommandFailedException(
-                    $"Failed to install package {request.id}",
-                    new NuGetInstallResponse { id = request.id, version = request.version ?? "" });
-
-            var installed = InstalledPackagesManager.InstalledPackages
-                .FirstOrDefault(p => string.Equals(p.Id, request.id, StringComparison.OrdinalIgnoreCase));
-
-            return new ValueTask<NuGetInstallResponse>(new NuGetInstallResponse
+            try
             {
-                id = installed?.Id ?? request.id,
-                version = installed?.Version ?? request.version ?? "",
-            });
+                if (tempSourceName != null)
+                    NuGetConfigHelper.AddSource(tempSourceName, request.source);
+
+                var identifier = string.IsNullOrEmpty(request.version)
+                    ? new NugetPackageIdentifier(request.id, string.Empty)
+                    : new NugetPackageIdentifier(request.id, request.version);
+
+                var success = NugetPackageInstaller.InstallIdentifier(identifier);
+
+                if (!success)
+                    throw new CommandFailedException(
+                        $"Failed to install package {request.id}",
+                        new NuGetInstallResponse { id = request.id, version = request.version ?? "" });
+
+                var installed = InstalledPackagesManager.InstalledPackages
+                    .FirstOrDefault(p => string.Equals(p.Id, request.id, StringComparison.OrdinalIgnoreCase));
+
+                return new ValueTask<NuGetInstallResponse>(new NuGetInstallResponse
+                {
+                    id = installed?.Id ?? request.id,
+                    version = installed?.Version ?? request.version ?? "",
+                });
+            }
+            finally
+            {
+                if (tempSourceName != null)
+                {
+                    try { NuGetConfigHelper.RemoveSource(tempSourceName); }
+                    catch { /* best effort cleanup */ }
+                }
+            }
         }
     }
 
@@ -61,6 +79,7 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
     {
         public string id;
         public string version;
+        public string source;
     }
 
     [Serializable]
