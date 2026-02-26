@@ -21,6 +21,8 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 3. **Always use `--json`** when parsing output programmatically.
 4. **If connection to Unity Editor fails**: Retry 2–3 times, then ask the user to confirm Unity Editor is running with the project open.
 5. **For platform-specific verification**: Use `unicli exec BuildPlayer.Compile --target <platform> --json` to catch platform-specific errors (missing `#if` guards, unsupported APIs, etc.).
+6. **When running tests**: Always use the default `--resultFilter failures` (or `--resultFilter none` for summary-only) to keep output minimal. Only use `--resultFilter all` when you specifically need to inspect individual passed test details. This prevents large test suites from flooding context.
+7. **When checking console logs**: Use `--logType "Warning,Error"` to filter out informational noise and focus on actionable issues.
 
 ## Prerequisites
 
@@ -97,7 +99,7 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `Connection.List` | List available connection targets (players/devices) |
 | `Connection.Connect` | Connect to a target by ID, IP, or device ID |
 | `Connection.Status` | Get current profiler connection status |
-| `Console.GetLog` | Get console log entries |
+| `Console.GetLog` | Get console log entries (supports comma-separated `logType`, e.g. `"Warning,Error"`) |
 | `Console.Clear` | Clear console |
 | `PlayMode.Enter` | Enter play mode |
 | `PlayMode.Exit` | Exit play mode |
@@ -105,8 +107,8 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `PlayMode.Status` | Get the current play mode state |
 | `Menu.List` | List menu items |
 | `Menu.Execute` | Execute a menu item by path |
-| `TestRunner.RunEditMode` | Run EditMode tests |
-| `TestRunner.RunPlayMode` | Run PlayMode tests |
+| `TestRunner.RunEditMode` | Run EditMode tests (`--resultFilter`: `failures` (default), `all`, `none`) |
+| `TestRunner.RunPlayMode` | Run PlayMode tests (`--resultFilter`: `failures` (default), `all`, `none`) |
 | `GameObject.Find` | Find GameObjects by name, tag, or layer |
 | `GameObject.Create` | Create a new GameObject in the scene |
 | `GameObject.CreatePrimitive` | Create a primitive (Cube, Sphere, etc.) |
@@ -286,10 +288,21 @@ unicli exec BuildProfile.Inspect '{"path":"Assets/Settings/MyProfile.asset"}' --
 
 **Run tests:**
 
+By default, test results only include failed and skipped tests (`--resultFilter failures`). This keeps output compact and avoids flooding AI context with passed test details. Use `--resultFilter all` only when you need to inspect individual passed test results.
+
 ```bash
+# Default: only failed/skipped results (recommended for AI workflows)
 unicli exec TestRunner.RunEditMode --json
 unicli exec TestRunner.RunPlayMode --json
+
+# Filter by test name
 unicli exec TestRunner.RunEditMode --testNameFilter MyTest --json
+
+# Include all results (including passed) — use sparingly, produces large output
+unicli exec TestRunner.RunEditMode --resultFilter all --json
+
+# Summary counts only (no individual results)
+unicli exec TestRunner.RunEditMode --resultFilter none --json
 ```
 
 **Inspect the scene:**
@@ -436,8 +449,20 @@ unicli eval 'return PlayerSettings.GetScriptingBackend(UnityEditor.Build.NamedBu
 
 **Check console output:**
 
+Use `--logType` to filter by log level. Comma-separated values are supported to match multiple types at once. This is useful for reducing noise when debugging.
+
 ```bash
+# All logs (default)
 unicli exec Console.GetLog --json
+
+# Only warnings and errors (recommended for debugging)
+unicli exec Console.GetLog --logType "Warning,Error" --json
+
+# Only errors
+unicli exec Console.GetLog --logType Error --json
+
+# Search by text within logs
+unicli exec Console.GetLog --searchText "NullReference" --json
 ```
 
 **Dynamic C# code execution (Eval):**

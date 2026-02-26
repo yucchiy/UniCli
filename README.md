@@ -225,10 +225,16 @@ unicli exec Connection.Connect '{"id":-1}'
 unicli exec Connection.Connect '{"ip":"192.168.1.100"}'
 unicli exec Connection.Connect '{"deviceId":"DEVICE_SERIAL"}'
 
-# Run tests
+# Run tests (default: only failed/skipped results returned)
 unicli exec TestRunner.RunEditMode
 unicli exec TestRunner.RunPlayMode
 unicli exec TestRunner.RunEditMode --testNameFilter MyTest
+
+# Include all results (including passed)
+unicli exec TestRunner.RunEditMode --resultFilter all
+
+# Summary counts only (no individual results)
+unicli exec TestRunner.RunEditMode --resultFilter none
 
 # Find GameObjects
 unicli exec GameObject.Find --name "Main Camera"
@@ -338,6 +344,7 @@ unicli exec Menu.Execute --menuPath "Window/General/Console"
 
 # Console logs
 unicli exec Console.GetLog
+unicli exec Console.GetLog --logType "Warning,Error"  # filter by multiple types
 unicli exec Console.Clear
 
 # Dynamic C# code execution (Eval)
@@ -503,7 +510,7 @@ The following commands are built in. You can also run `unicli commands` to see t
 | Connection         | `Connection.List`                    | List available connection targets  |
 | Connection         | `Connection.Connect`                 | Connect to a target by ID, IP, or device ID |
 | Connection         | `Connection.Status`                  | Get current connection status      |
-| Console            | `Console.GetLog`                     | Get console log entries            |
+| Console            | `Console.GetLog`                     | Get console log entries (supports comma-separated `logType` filter, e.g. `"Warning,Error"`) |
 | Console            | `Console.Clear`                      | Clear console                      |
 | PlayMode           | `PlayMode.Enter`                     | Enter play mode                    |
 | PlayMode           | `PlayMode.Exit`                      | Exit play mode                     |
@@ -511,8 +518,8 @@ The following commands are built in. You can also run `unicli commands` to see t
 | PlayMode           | `PlayMode.Status`                    | Get the current play mode state    |
 | Menu               | `Menu.List`                          | List menu items                    |
 | Menu               | `Menu.Execute`                       | Execute a menu item                |
-| TestRunner         | `TestRunner.RunEditMode`             | Run EditMode tests                 |
-| TestRunner         | `TestRunner.RunPlayMode`             | Run PlayMode tests                 |
+| TestRunner         | `TestRunner.RunEditMode`             | Run EditMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
+| TestRunner         | `TestRunner.RunPlayMode`             | Run PlayMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
 | GameObject         | `GameObject.Find`                    | Find GameObjects                   |
 | GameObject         | `GameObject.Create`                  | Create a new GameObject            |
 | GameObject         | `GameObject.CreatePrimitive`         | Create a primitive GameObject      |

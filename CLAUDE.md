@@ -89,11 +89,20 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec PackageManager.Update '{"name
 # AssetDatabase operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec AssetDatabase.Delete '{"path":"Assets/Prefabs/Old.prefab"}' --json
 
-# Run Unity EditMode tests
+# Run Unity EditMode tests (default: only failed/skipped results)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
 
-# Run Unity PlayMode tests
+# Run Unity PlayMode tests (default: only failed/skipped results)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
+
+# Run tests with all results (including passed)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --resultFilter all --json
+
+# Run tests with summary counts only (no individual results)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --resultFilter none --json
+
+# Console logs filtered by type (comma-separated)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog --logType "Warning,Error" --json
 
 # Build player
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --json
