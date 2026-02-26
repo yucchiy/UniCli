@@ -186,6 +186,9 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 | `NuGet.Install` | Install a NuGet package (requires NuGetForUnity) |
 | `NuGet.Uninstall` | Uninstall a NuGet package (requires NuGetForUnity) |
 | `NuGet.Restore` | Restore all NuGet packages (requires NuGetForUnity) |
+| `NuGet.ListSources` | List all configured package sources (requires NuGetForUnity) |
+| `NuGet.AddSource` | Add a NuGet package source (requires NuGetForUnity) |
+| `NuGet.RemoveSource` | Remove a NuGet package source (requires NuGetForUnity) |
 | `Profiler.Inspect` | Get profiler status and memory statistics |
 | `Profiler.StartRecording` | Start profiler recording |
 | `Profiler.StopRecording` | Stop profiler recording |
@@ -534,11 +537,23 @@ unicli exec NuGet.List --json
 unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
 unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
 
+# Install from a local package source
+unicli exec NuGet.Install '{"id":"MyPackage","source":"/path/to/local/feed"}' --json
+
 # Uninstall a NuGet package
 unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
 
 # Restore all NuGet packages
 unicli exec NuGet.Restore --json
+
+# List configured package sources
+unicli exec NuGet.ListSources --json
+
+# Add a package source
+unicli exec NuGet.AddSource '{"name":"LocalFeed","path":"/path/to/local/feed"}' --json
+
+# Remove a package source
+unicli exec NuGet.RemoveSource '{"name":"LocalFeed"}' --json
 ```
 
 **Profiler operations:**

@@ -189,8 +189,12 @@ EOF
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.List --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Install '{"id":"MyPackage","source":"/path/to/local/feed"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.Restore --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.ListSources --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.AddSource '{"name":"LocalFeed","path":"/path/to/local/feed"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec NuGet.RemoveSource '{"name":"LocalFeed"}' --json
 
 # Profiler operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.Inspect --json

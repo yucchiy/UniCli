@@ -491,11 +491,23 @@ unicli exec NuGet.List --json
 unicli exec NuGet.Install '{"id":"Newtonsoft.Json"}' --json
 unicli exec NuGet.Install '{"id":"Newtonsoft.Json","version":"13.0.3"}' --json
 
+# Install from a local package source
+unicli exec NuGet.Install '{"id":"MyPackage","source":"/path/to/local/feed"}' --json
+
 # Uninstall a NuGet package
 unicli exec NuGet.Uninstall '{"id":"Newtonsoft.Json"}' --json
 
 # Restore all NuGet packages
 unicli exec NuGet.Restore --json
+
+# List configured package sources
+unicli exec NuGet.ListSources --json
+
+# Add a package source
+unicli exec NuGet.AddSource '{"name":"LocalFeed","path":"/path/to/local/feed"}' --json
+
+# Remove a package source
+unicli exec NuGet.RemoveSource '{"name":"LocalFeed"}' --json
 ```
 
 
@@ -604,6 +616,9 @@ The following commands are built in. You can also run `unicli commands` to see t
 | NuGet (optional)   | `NuGet.Install`                      | Install a NuGet package            |
 | NuGet (optional)   | `NuGet.Uninstall`                    | Uninstall a NuGet package          |
 | NuGet (optional)   | `NuGet.Restore`                      | Restore all NuGet packages         |
+| NuGet (optional)   | `NuGet.ListSources`                  | List all configured package sources |
+| NuGet (optional)   | `NuGet.AddSource`                    | Add a NuGet package source         |
+| NuGet (optional)   | `NuGet.RemoveSource`                 | Remove a NuGet package source      |
 | Profiler           | `Profiler.Inspect`                   | Get profiler status and memory statistics |
 | Profiler           | `Profiler.StartRecording`            | Start profiler recording           |
 | Profiler           | `Profiler.StopRecording`             | Stop profiler recording            |
