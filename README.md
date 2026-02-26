@@ -233,6 +233,12 @@ unicli exec TestRunner.RunEditMode --testNameFilter MyTest
 # Include all results (including passed)
 unicli exec TestRunner.RunEditMode --resultFilter all
 
+# Include stack traces for failures (first 3 lines)
+unicli exec TestRunner.RunEditMode --stackTraceLines 3
+
+# Full stack traces
+unicli exec TestRunner.RunEditMode --stackTraceLines -1
+
 # Summary counts only (no individual results)
 unicli exec TestRunner.RunEditMode --resultFilter none
 
@@ -345,6 +351,7 @@ unicli exec Menu.Execute --menuPath "Window/General/Console"
 # Console logs
 unicli exec Console.GetLog
 unicli exec Console.GetLog --logType "Warning,Error"  # filter by multiple types
+unicli exec Console.GetLog --logType Error --stackTraceLines 3  # with first 3 stack trace lines
 unicli exec Console.Clear
 
 # Dynamic C# code execution (Eval)

@@ -20,6 +20,14 @@ namespace UniCli.Server.Editor.Handlers
         {
             var logs = _logManager.GetLogs(request.logType, request.searchText, request.maxCount);
 
+            if (request.stackTraceLines >= 0)
+            {
+                for (var i = 0; i < logs.Length; i++)
+                {
+                    logs[i].stackTrace = StackTraceHelper.Truncate(logs[i].stackTrace, request.stackTraceLines);
+                }
+            }
+
             var response = new EditorLogResponse
             {
                 logs = logs,
@@ -37,5 +45,6 @@ namespace UniCli.Server.Editor.Handlers
         public string logType = "All";
         public string searchText = "";
         public int maxCount = 100;
+        public int stackTraceLines = 0; // 0: no stack trace (default), -1: full, N>0: first N lines
     }
 }

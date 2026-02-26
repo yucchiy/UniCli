@@ -162,7 +162,7 @@ namespace UniCli.Server.Editor.Handlers
                 filter.assemblyNames = request.assemblies;
             }
 
-            var callbacks = new TestRunnerCallbacks(tcs, request.resultFilter);
+            var callbacks = new TestRunnerCallbacks(tcs, request.resultFilter, request.stackTraceLines);
             api.RegisterCallbacks(callbacks);
             try
             {
@@ -187,6 +187,7 @@ namespace UniCli.Server.Editor.Handlers
         public string[] categories = Array.Empty<string>();
         public string[] assemblies = Array.Empty<string>();
         public string resultFilter = "failures"; // "failures" (default): failed+skipped only, "all": everything, "none": summary only
+        public int stackTraceLines = 0; // 0: no stack trace (default), -1: full, N>0: first N lines
     }
 
     internal class TestRunnerCallbacks : ICallbacks
@@ -194,14 +195,16 @@ namespace UniCli.Server.Editor.Handlers
         private readonly TaskCompletionSource<TestRunnerResponse> _tcs;
         private readonly System.Collections.Generic.List<TestResult> _testResults = new();
         private readonly string _resultFilter;
+        private readonly int _stackTraceLines;
         private int _passedCount;
         private int _failedCount;
         private int _skippedCount;
 
-        public TestRunnerCallbacks(TaskCompletionSource<TestRunnerResponse> tcs, string resultFilter = "failures")
+        public TestRunnerCallbacks(TaskCompletionSource<TestRunnerResponse> tcs, string resultFilter = "failures", int stackTraceLines = 0)
         {
             _tcs = tcs;
             _resultFilter = string.IsNullOrEmpty(resultFilter) ? "failures" : resultFilter;
+            _stackTraceLines = stackTraceLines;
         }
 
         public void RunStarted(ITestAdaptor testsToRun)
@@ -268,7 +271,7 @@ namespace UniCli.Server.Editor.Handlers
                     status = status,
                     duration = result.Duration,
                     message = result.Message ?? "",
-                    stackTrace = result.StackTrace ?? ""
+                    stackTrace = StackTraceHelper.Truncate(result.StackTrace, _stackTraceLines)
                 });
             }
         }

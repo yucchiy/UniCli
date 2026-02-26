@@ -21,8 +21,8 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 3. **Always use `--json`** when parsing output programmatically.
 4. **If connection to Unity Editor fails**: Retry 2–3 times, then ask the user to confirm Unity Editor is running with the project open.
 5. **For platform-specific verification**: Use `unicli exec BuildPlayer.Compile --target <platform> --json` to catch platform-specific errors (missing `#if` guards, unsupported APIs, etc.).
-6. **When running tests**: Always use the default `--resultFilter failures` (or `--resultFilter none` for summary-only) to keep output minimal. Only use `--resultFilter all` when you specifically need to inspect individual passed test details. This prevents large test suites from flooding context.
-7. **When checking console logs**: Use `--logType "Warning,Error"` to filter out informational noise and focus on actionable issues.
+6. **When running tests**: Always use the default `--resultFilter failures` (or `--resultFilter none` for summary-only) to keep output minimal. Only use `--resultFilter all` when you specifically need to inspect individual passed test details. This prevents large test suites from flooding context. Stack traces are omitted by default (`--stackTraceLines 0`); use `--stackTraceLines 3` when you need to diagnose a failure location.
+7. **When checking console logs**: Use `--logType "Warning,Error"` to filter out informational noise and focus on actionable issues. Stack traces are omitted by default; use `--stackTraceLines 3` when debugging errors.
 
 ## Prerequisites
 
@@ -288,15 +288,21 @@ unicli exec BuildProfile.Inspect '{"path":"Assets/Settings/MyProfile.asset"}' --
 
 **Run tests:**
 
-By default, test results only include failed and skipped tests (`--resultFilter failures`). This keeps output compact and avoids flooding AI context with passed test details. Use `--resultFilter all` only when you need to inspect individual passed test results.
+By default, test results only include failed and skipped tests (`--resultFilter failures`) and stack traces are omitted (`--stackTraceLines 0`). This keeps output compact and avoids flooding AI context. Use `--stackTraceLines 3` when you need to diagnose where a failure occurred.
 
 ```bash
-# Default: only failed/skipped results (recommended for AI workflows)
+# Default: only failed/skipped results, no stack traces (recommended for AI workflows)
 unicli exec TestRunner.RunEditMode --json
 unicli exec TestRunner.RunPlayMode --json
 
 # Filter by test name
 unicli exec TestRunner.RunEditMode --testNameFilter MyTest --json
+
+# Include stack traces for failures (first 3 lines — use when diagnosing failures)
+unicli exec TestRunner.RunEditMode --stackTraceLines 3 --json
+
+# Full stack traces
+unicli exec TestRunner.RunEditMode --stackTraceLines -1 --json
 
 # Include all results (including passed) — use sparingly, produces large output
 unicli exec TestRunner.RunEditMode --resultFilter all --json
@@ -449,17 +455,20 @@ unicli eval 'return PlayerSettings.GetScriptingBackend(UnityEditor.Build.NamedBu
 
 **Check console output:**
 
-Use `--logType` to filter by log level. Comma-separated values are supported to match multiple types at once. This is useful for reducing noise when debugging.
+Use `--logType` to filter by log level. Comma-separated values are supported to match multiple types at once. Stack traces are omitted by default (`--stackTraceLines 0`) to keep output compact.
 
 ```bash
-# All logs (default)
+# All logs, no stack traces (default)
 unicli exec Console.GetLog --json
 
 # Only warnings and errors (recommended for debugging)
 unicli exec Console.GetLog --logType "Warning,Error" --json
 
-# Only errors
-unicli exec Console.GetLog --logType Error --json
+# Only errors with stack traces (first 3 lines)
+unicli exec Console.GetLog --logType Error --stackTraceLines 3 --json
+
+# Full stack traces
+unicli exec Console.GetLog --logType Error --stackTraceLines -1 --json
 
 # Search by text within logs
 unicli exec Console.GetLog --searchText "NullReference" --json
