@@ -287,10 +287,11 @@ When creating new commands, follow the naming conventions in `doc/command-naming
 ### Releasing a new version
 
 1. Create a `release/vX.Y.Z` branch from `main`
-2. Bump version in the following 3 files:
+2. Bump version in the following 4 files:
    - `src/UniCli.Client/UniCli.Client.csproj` (`<Version>`)
    - `src/UniCli.Unity/Packages/com.yucchiy.unicli-server/package.json` (`"version"`)
    - `.claude-plugin/marketplace.json` (`"version"`)
+   - `.claude-plugin/unicli/skills/unity-development/SKILL.md` (`metadata.version`)
 3. Build and verify: `dotnet build src/UniCli.Protocol && dotnet publish src/UniCli.Client -o .build`
 4. Create a PR to `main` with a changelog summary
 5. After merge: `git tag vX.Y.Z && git push origin vX.Y.Z`

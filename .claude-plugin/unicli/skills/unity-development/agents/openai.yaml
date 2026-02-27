@@ -1,0 +1,6 @@
+interface:
+  display_name: "UniCli — Unity Editor CLI"
+  short_description: "Control Unity Editor from the terminal via UniCli CLI"
+
+policy:
+  allow_implicit_invocation: true

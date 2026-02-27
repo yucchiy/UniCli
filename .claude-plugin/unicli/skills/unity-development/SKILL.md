@@ -1,4 +1,5 @@
 ---
+name: unity-development
 description: >-
   MUST activate when performing ANY Unity-related task: editing C# scripts
   under Assets/ or Packages/, compiling Unity code, running tests, creating or
@@ -7,6 +8,11 @@ description: >-
   operation involving the Unity Editor. This skill provides required workflows
   such as .meta file generation after file creation and compilation verification
   after code changes. Always load this skill before starting Unity work.
+license: MIT
+compatibility: Requires unicli CLI installed and Unity Editor running with com.yucchiy.unicli-server package
+metadata:
+  author: yucchiy
+  version: "0.14.0"
 ---
 
 # UniCli — Unity Editor CLI
