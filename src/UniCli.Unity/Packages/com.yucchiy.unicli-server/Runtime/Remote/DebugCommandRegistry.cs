@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -9,7 +12,7 @@ namespace UniCli.Remote
     [Preserve]
     public sealed class DebugCommandRegistry
     {
-        public static bool EnableLogs { get; set; } = true;
+        public static bool EnableLogs { get; set; } = ResolveInitialEnableLogs();
 
         private readonly Dictionary<string, DebugCommand> _commands = new();
         private readonly Dictionary<string, DebugCommandAttribute> _attributes = new();
@@ -94,6 +97,32 @@ namespace UniCli.Remote
         {
             if (EnableLogs)
                 UnityEngine.Debug.LogWarning(message);
+        }
+
+        private static bool ResolveInitialEnableLogs()
+        {
+#if UNITY_EDITOR
+            var raw = EditorUserSettings.GetConfigValue("UniCli.editor.logging.enabled");
+            if (string.IsNullOrEmpty(raw))
+                raw = EditorUserSettings.GetConfigValue("UniCli.remote.logCommandDiscovery");
+
+            return ParseEnabledFlag(raw, defaultValue: true);
+#else
+            return true;
+#endif
+        }
+
+        private static bool ParseEnabledFlag(string raw, bool defaultValue)
+        {
+            if (string.IsNullOrEmpty(raw))
+                return defaultValue;
+
+            return raw switch
+            {
+                "1" => true,
+                "0" => false,
+                _ => bool.TryParse(raw, out var enabled) ? enabled : defaultValue
+            };
         }
     }
 }

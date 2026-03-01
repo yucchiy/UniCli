@@ -1,5 +1,3 @@
-using UniCli.Remote;
-
 namespace UniCli.Server.Editor
 {
     public sealed class CoreServiceInstaller : IServiceInstaller
@@ -14,8 +12,7 @@ namespace UniCli.Server.Editor
             var settings = new UniCliSettings();
             services.AddSingleton(settings);
             var enableLogs = settings.IsEditorLoggingEnabled();
-            UniCliEditorLog.EnableLogs = enableLogs;
-            DebugCommandRegistry.EnableLogs = enableLogs;
+            UniCliSettings.ApplyEditorLoggingEnabled(enableLogs);
             services.AddSingleton(new EditorStateGuard());
             services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
         }

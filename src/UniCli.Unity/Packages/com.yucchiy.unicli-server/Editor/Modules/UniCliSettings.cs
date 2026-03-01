@@ -9,9 +9,9 @@ namespace UniCli.Server.Editor
 {
     public class UniCliSettings
     {
-        const string DisabledModulesConfigKey = "UniCli.disabledModules";
-        const string EditorLoggingEnabledConfigKey = "UniCli.editor.logging.enabled";
-        const string RemoteDiscoveryLogConfigKey = "UniCli.remote.logCommandDiscovery";
+        internal const string DisabledModulesConfigKey = "UniCli.disabledModules";
+        internal const string EditorLoggingEnabledConfigKey = "UniCli.editor.logging.enabled";
+        internal const string RemoteDiscoveryLogConfigKey = "UniCli.remote.logCommandDiscovery";
 
         HashSet<string> LoadDisabledModules()
         {
@@ -29,6 +29,20 @@ namespace UniCli.Server.Editor
 
         public bool IsEditorLoggingEnabled()
         {
+            return ReadEditorLoggingEnabled();
+        }
+
+        public void SetEditorLoggingEnabled(bool enabled)
+        {
+            var value = enabled ? "1" : "0";
+            EditorUserSettings.SetConfigValue(EditorLoggingEnabledConfigKey, value);
+            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, value);
+
+            ApplyEditorLoggingEnabled(enabled);
+        }
+
+        internal static bool ReadEditorLoggingEnabled()
+        {
             var raw = EditorUserSettings.GetConfigValue(EditorLoggingEnabledConfigKey);
             if (string.IsNullOrEmpty(raw))
             {
@@ -39,17 +53,13 @@ namespace UniCli.Server.Editor
             return ParseEnabledFlag(raw, defaultValue: true);
         }
 
-        public void SetEditorLoggingEnabled(bool enabled)
+        internal static void ApplyEditorLoggingEnabled(bool enabled)
         {
-            var value = enabled ? "1" : "0";
-            EditorUserSettings.SetConfigValue(EditorLoggingEnabledConfigKey, value);
-            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, value);
-
             UniCliEditorLog.EnableLogs = enabled;
             DebugCommandRegistry.EnableLogs = enabled;
         }
 
-        private static bool ParseEnabledFlag(string raw, bool defaultValue)
+        internal static bool ParseEnabledFlag(string raw, bool defaultValue)
         {
             if (string.IsNullOrEmpty(raw))
                 return defaultValue;

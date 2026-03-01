@@ -9,7 +9,7 @@ namespace UniCli.Server.Editor
 {
     internal static class UniCliEditorLog
     {
-        public static bool EnableLogs { get; set; } = true;
+        public static bool EnableLogs { get; set; } = UniCliSettings.ReadEditorLoggingEnabled();
 
         public static void Log(string message)
         {
