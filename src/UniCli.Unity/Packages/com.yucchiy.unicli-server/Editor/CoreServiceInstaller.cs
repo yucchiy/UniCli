@@ -13,7 +13,9 @@ namespace UniCli.Server.Editor
 
             var settings = new UniCliSettings();
             services.AddSingleton(settings);
-            DebugCommandRegistry.EnableDiscoveryLog = settings.IsRemoteCommandDiscoveryLogEnabled();
+            var enableLogs = settings.IsEditorLoggingEnabled();
+            UniCliEditorLog.EnableLogs = enableLogs;
+            DebugCommandRegistry.EnableLogs = enableLogs;
             services.AddSingleton(new EditorStateGuard());
             services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
         }

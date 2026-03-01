@@ -73,19 +73,19 @@ namespace UniCli.Server.Editor
                     }
 
                     EditorGUILayout.Space(12);
-                    EditorGUILayout.LabelField("Remote", EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField("Logging", EditorStyles.boldLabel);
 
                     EditorGUILayout.Space(2);
-                    var discoveryLogEnabled = settings.IsRemoteCommandDiscoveryLogEnabled();
-                    var newDiscoveryLogEnabled = EditorGUILayout.ToggleLeft(
+                    var editorLoggingEnabled = settings.IsEditorLoggingEnabled();
+                    var newEditorLoggingEnabled = EditorGUILayout.ToggleLeft(
                         new GUIContent(
-                            "Log command discovery summary",
-                            "Controls the [UniCli.Remote] Discovered ... debug log emitted by DebugCommandRegistry."),
-                        discoveryLogEnabled);
+                            "Enable UniCli editor logs",
+                            "Controls UniCli log, warning, and error messages emitted while running in the Unity Editor."),
+                        editorLoggingEnabled);
 
-                    if (newDiscoveryLogEnabled != discoveryLogEnabled)
+                    if (newEditorLoggingEnabled != editorLoggingEnabled)
                     {
-                        settings.SetRemoteCommandDiscoveryLogEnabled(newDiscoveryLogEnabled);
+                        settings.SetEditorLoggingEnabled(newEditorLoggingEnabled);
                     }
 
                     EditorGUILayout.Space(8);

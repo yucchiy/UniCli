@@ -93,7 +93,7 @@ namespace UniCli.Server.Editor
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
+                    UniCliEditorLog.LogError($"[UniCli] Client handling error: {ex.Message}\n{ex.StackTrace}");
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace UniCli.Server.Editor
                 length = BitConverter.ToInt32(lengthBuffer, 0);
                 if (length <= 0 || length > ProtocolConstants.MaxMessageSize)
                 {
-                    Debug.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
+                    UniCliEditorLog.LogWarning($"[UniCli] Invalid request length: {length} bytes, closing connection");
                     return null;
                 }
             }
@@ -125,7 +125,7 @@ namespace UniCli.Server.Editor
             {
                 if (!await ReadExactAsync(server, jsonBuffer, length, cancellationToken))
                 {
-                    Debug.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
+                    UniCliEditorLog.LogWarning($"[UniCli] Client disconnected while reading request body ({length} bytes)");
                     return null;
                 }
 
@@ -166,7 +166,7 @@ namespace UniCli.Server.Editor
             }
             catch (IOException ex)
             {
-                Debug.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
+                UniCliEditorLog.LogWarning($"[UniCli] Client disconnected during response write for '{request.command}': {ex.Message}");
                 return false;
             }
         }
@@ -200,20 +200,20 @@ namespace UniCli.Server.Editor
             {
                 if (!await ReadExactAsync(server, recvBuffer, ProtocolConstants.HandshakeSize, cancellationToken))
                 {
-                    Debug.LogWarning("[UniCli] Client disconnected during handshake");
+                    UniCliEditorLog.LogWarning("[UniCli] Client disconnected during handshake");
                     return false;
                 }
 
                 if (!ProtocolConstants.ValidateMagicBytes(recvBuffer))
                 {
-                    Debug.LogWarning("[UniCli] Handshake failed: invalid magic bytes from client");
+                    UniCliEditorLog.LogWarning("[UniCli] Handshake failed: invalid magic bytes from client");
                     return false;
                 }
 
                 var clientVersion = BitConverter.ToUInt16(recvBuffer, 4);
                 if (clientVersion != ProtocolConstants.ProtocolVersion)
                 {
-                    Debug.LogWarning(
+                    UniCliEditorLog.LogWarning(
                         $"[UniCli] Protocol version mismatch (server: {ProtocolConstants.ProtocolVersion}, client: {clientVersion}). "
                         + "Please update unicli or the Unity server package.");
                     return false;

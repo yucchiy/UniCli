@@ -10,6 +10,7 @@ namespace UniCli.Server.Editor
     public class UniCliSettings
     {
         const string DisabledModulesConfigKey = "UniCli.disabledModules";
+        const string EditorLoggingEnabledConfigKey = "UniCli.editor.logging.enabled";
         const string RemoteDiscoveryLogConfigKey = "UniCli.remote.logCommandDiscovery";
 
         HashSet<string> LoadDisabledModules()
@@ -26,24 +27,39 @@ namespace UniCli.Server.Editor
             EditorUserSettings.SetConfigValue(DisabledModulesConfigKey, value);
         }
 
-        public bool IsRemoteCommandDiscoveryLogEnabled()
+        public bool IsEditorLoggingEnabled()
         {
-            var raw = EditorUserSettings.GetConfigValue(RemoteDiscoveryLogConfigKey);
+            var raw = EditorUserSettings.GetConfigValue(EditorLoggingEnabledConfigKey);
             if (string.IsNullOrEmpty(raw))
-                return true;
+            {
+                // Backward compatibility with the previous remote-only setting key.
+                raw = EditorUserSettings.GetConfigValue(RemoteDiscoveryLogConfigKey);
+            }
+
+            return ParseEnabledFlag(raw, defaultValue: true);
+        }
+
+        public void SetEditorLoggingEnabled(bool enabled)
+        {
+            var value = enabled ? "1" : "0";
+            EditorUserSettings.SetConfigValue(EditorLoggingEnabledConfigKey, value);
+            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, value);
+
+            UniCliEditorLog.EnableLogs = enabled;
+            DebugCommandRegistry.EnableLogs = enabled;
+        }
+
+        private static bool ParseEnabledFlag(string raw, bool defaultValue)
+        {
+            if (string.IsNullOrEmpty(raw))
+                return defaultValue;
 
             return raw switch
             {
                 "1" => true,
                 "0" => false,
-                _ => bool.TryParse(raw, out var enabled) ? enabled : true
+                _ => bool.TryParse(raw, out var enabled) ? enabled : defaultValue
             };
-        }
-
-        public void SetRemoteCommandDiscoveryLogEnabled(bool enabled)
-        {
-            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, enabled ? "1" : "0");
-            DebugCommandRegistry.EnableDiscoveryLog = enabled;
         }
 
         public bool IsModuleEnabled(string name)

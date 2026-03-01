@@ -48,7 +48,8 @@ namespace UniCli.Remote
             PlayerConnection.instance.Register(RuntimeMessageGuids.CommandRequest, OnCommandRequest);
             PlayerConnection.instance.Register(RuntimeMessageGuids.ListRequest, OnListRequest);
 
-            UnityEngine.Debug.Log("[UniCli.Remote] RuntimeDebugReceiver initialized");
+            if (DebugCommandRegistry.EnableLogs)
+                UnityEngine.Debug.Log("[UniCli.Remote] RuntimeDebugReceiver initialized");
         }
 
         private void OnDestroy()
