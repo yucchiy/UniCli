@@ -9,6 +9,8 @@ namespace UniCli.Remote
     [Preserve]
     public sealed class DebugCommandRegistry
     {
+        public static bool EnableLogs { get; set; } = true;
+
         private readonly Dictionary<string, DebugCommand> _commands = new();
         private readonly Dictionary<string, DebugCommandAttribute> _attributes = new();
 
@@ -47,7 +49,7 @@ namespace UniCli.Remote
                         var instance = (DebugCommand)Activator.CreateInstance(type);
                         if (!_commands.TryAdd(attr.Name, instance))
                         {
-                            UnityEngine.Debug.LogWarning($"[UniCli.Remote] Duplicate debug command '{attr.Name}', skipping {type.FullName}");
+                            LogWarning($"[UniCli.Remote] Duplicate debug command '{attr.Name}', skipping {type.FullName}");
                             continue;
                         }
 
@@ -55,12 +57,12 @@ namespace UniCli.Remote
                     }
                     catch (Exception ex)
                     {
-                        UnityEngine.Debug.LogWarning($"[UniCli.Remote] Failed to create debug command '{attr.Name}' ({type.FullName}): {ex.Message}");
+                        LogWarning($"[UniCli.Remote] Failed to create debug command '{attr.Name}' ({type.FullName}): {ex.Message}");
                     }
                 }
             }
 
-            UnityEngine.Debug.Log($"[UniCli.Remote] Discovered {_commands.Count} debug command(s)");
+            Log($"[UniCli.Remote] Discovered {_commands.Count} debug command(s)");
         }
 
         public bool TryGetCommand(string name, out DebugCommand command)
@@ -80,6 +82,18 @@ namespace UniCli.Remote
                 });
             }
             return infos.ToArray();
+        }
+
+        private static void Log(string message)
+        {
+            if (EnableLogs)
+                UnityEngine.Debug.Log(message);
+        }
+
+        private static void LogWarning(string message)
+        {
+            if (EnableLogs)
+                UnityEngine.Debug.LogWarning(message);
         }
     }
 }

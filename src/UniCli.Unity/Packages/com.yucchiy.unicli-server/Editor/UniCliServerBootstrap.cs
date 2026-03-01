@@ -7,6 +7,29 @@ using UnityEngine;
 
 namespace UniCli.Server.Editor
 {
+    internal static class UniCliEditorLog
+    {
+        public static bool EnableLogs { get; set; } = true;
+
+        public static void Log(string message)
+        {
+            if (EnableLogs)
+                UnityEngine.Debug.Log(message);
+        }
+
+        public static void LogWarning(string message)
+        {
+            if (EnableLogs)
+                UnityEngine.Debug.LogWarning(message);
+        }
+
+        public static void LogError(string message)
+        {
+            if (EnableLogs)
+                UnityEngine.Debug.LogError(message);
+        }
+    }
+
     [InitializeOnLoad]
     public static class UniCliServerBootstrap
     {
@@ -57,8 +80,8 @@ namespace UniCli.Server.Editor
             _server = new UniCliServer(
                 pipeName,
                 _dispatcher,
-                logger: UnityEngine.Debug.Log,
-                errorLogger: UnityEngine.Debug.LogError
+                logger: UniCliEditorLog.Log,
+                errorLogger: UniCliEditorLog.LogError
             );
         }
 
@@ -69,7 +92,7 @@ namespace UniCli.Server.Editor
 
             _dispatcher = new CommandDispatcher(Services);
             _server.ReplaceDispatcher(_dispatcher);
-            UnityEngine.Debug.Log("[UniCli] Dispatcher reloaded");
+            UniCliEditorLog.Log("[UniCli] Dispatcher reloaded");
         }
 
         public static void StopServer()
@@ -106,7 +129,7 @@ namespace UniCli.Server.Editor
             }
             catch (Exception ex)
             {
-                UnityEngine.Debug.LogWarning($"[UniCli] Failed to write PID file: {ex.Message}");
+                UniCliEditorLog.LogWarning($"[UniCli] Failed to write PID file: {ex.Message}");
             }
         }
 
@@ -140,7 +163,7 @@ namespace UniCli.Server.Editor
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.LogError($"[UniCli] Failed to run service installer {type.FullName}: {ex.Message}");
+                    UniCliEditorLog.LogError($"[UniCli] Failed to run service installer {type.FullName}: {ex.Message}");
                 }
             }
         }

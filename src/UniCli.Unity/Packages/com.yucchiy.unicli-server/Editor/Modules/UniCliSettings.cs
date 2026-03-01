@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UniCli.Remote;
 using UniCli.Server.Editor.Handlers;
 using UnityEditor;
 
@@ -8,11 +9,13 @@ namespace UniCli.Server.Editor
 {
     public class UniCliSettings
     {
-        const string ConfigKey = "UniCli.disabledModules";
+        const string DisabledModulesConfigKey = "UniCli.disabledModules";
+        const string EditorLoggingEnabledConfigKey = "UniCli.editor.logging.enabled";
+        const string RemoteDiscoveryLogConfigKey = "UniCli.remote.logCommandDiscovery";
 
         HashSet<string> LoadDisabledModules()
         {
-            var raw = EditorUserSettings.GetConfigValue(ConfigKey);
+            var raw = EditorUserSettings.GetConfigValue(DisabledModulesConfigKey);
             return string.IsNullOrEmpty(raw)
                 ? new HashSet<string>()
                 : new HashSet<string>(raw.Split(',', StringSplitOptions.RemoveEmptyEntries));
@@ -21,7 +24,42 @@ namespace UniCli.Server.Editor
         void SaveDisabledModules(HashSet<string> modules)
         {
             var value = modules.Count > 0 ? string.Join(",", modules) : "";
-            EditorUserSettings.SetConfigValue(ConfigKey, value);
+            EditorUserSettings.SetConfigValue(DisabledModulesConfigKey, value);
+        }
+
+        public bool IsEditorLoggingEnabled()
+        {
+            var raw = EditorUserSettings.GetConfigValue(EditorLoggingEnabledConfigKey);
+            if (string.IsNullOrEmpty(raw))
+            {
+                // Backward compatibility with the previous remote-only setting key.
+                raw = EditorUserSettings.GetConfigValue(RemoteDiscoveryLogConfigKey);
+            }
+
+            return ParseEnabledFlag(raw, defaultValue: true);
+        }
+
+        public void SetEditorLoggingEnabled(bool enabled)
+        {
+            var value = enabled ? "1" : "0";
+            EditorUserSettings.SetConfigValue(EditorLoggingEnabledConfigKey, value);
+            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, value);
+
+            UniCliEditorLog.EnableLogs = enabled;
+            DebugCommandRegistry.EnableLogs = enabled;
+        }
+
+        private static bool ParseEnabledFlag(string raw, bool defaultValue)
+        {
+            if (string.IsNullOrEmpty(raw))
+                return defaultValue;
+
+            return raw switch
+            {
+                "1" => true,
+                "0" => false,
+                _ => bool.TryParse(raw, out var enabled) ? enabled : defaultValue
+            };
         }
 
         public bool IsModuleEnabled(string name)

@@ -61,20 +61,20 @@ namespace UniCli.Server.Editor
                     var instance = services.CreateInstance(type);
                     if (instance == null)
                     {
-                        Debug.LogWarning($"[UniCli] Failed to create handler instance: {type.FullName} (unresolvable constructor parameters)");
+                        UniCliEditorLog.LogWarning($"[UniCli] Failed to create handler instance: {type.FullName} (unresolvable constructor parameters)");
                         continue;
                     }
                     handler = (ICommandHandler)instance;
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"[UniCli] Failed to create handler instance: {type.FullName} ({ex.Message})");
+                    UniCliEditorLog.LogWarning($"[UniCli] Failed to create handler instance: {type.FullName} ({ex.Message})");
                     continue;
                 }
 
                 if (!_handlers.TryAdd(handler.CommandName, handler))
                 {
-                    Debug.LogWarning($"[UniCli] Command '{handler.CommandName}' is already registered, skipping {type.FullName}");
+                    UniCliEditorLog.LogWarning($"[UniCli] Command '{handler.CommandName}' is already registered, skipping {type.FullName}");
                 }
             }
         }
