@@ -9,8 +9,21 @@ namespace UniCli.Remote
     [Preserve]
     public sealed class DebugCommandRegistry
     {
+        public static bool EnableDiscoveryLog { get; set; } = true;
+
         private readonly Dictionary<string, DebugCommand> _commands = new();
         private readonly Dictionary<string, DebugCommandAttribute> _attributes = new();
+        private readonly bool _enableDiscoveryLog;
+
+        public DebugCommandRegistry()
+            : this(EnableDiscoveryLog)
+        {
+        }
+
+        public DebugCommandRegistry(bool enableDiscoveryLog)
+        {
+            _enableDiscoveryLog = enableDiscoveryLog;
+        }
 
         public void DiscoverCommands()
         {
@@ -60,7 +73,10 @@ namespace UniCli.Remote
                 }
             }
 
-            UnityEngine.Debug.Log($"[UniCli.Remote] Discovered {_commands.Count} debug command(s)");
+            if (_enableDiscoveryLog)
+            {
+                UnityEngine.Debug.Log($"[UniCli.Remote] Discovered {_commands.Count} debug command(s)");
+            }
         }
 
         public bool TryGetCommand(string name, out DebugCommand command)

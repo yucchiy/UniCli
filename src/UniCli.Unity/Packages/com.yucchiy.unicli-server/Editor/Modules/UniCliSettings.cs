@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UniCli.Remote;
 using UniCli.Server.Editor.Handlers;
 using UnityEditor;
 
@@ -8,11 +9,12 @@ namespace UniCli.Server.Editor
 {
     public class UniCliSettings
     {
-        const string ConfigKey = "UniCli.disabledModules";
+        const string DisabledModulesConfigKey = "UniCli.disabledModules";
+        const string RemoteDiscoveryLogConfigKey = "UniCli.remote.logCommandDiscovery";
 
         HashSet<string> LoadDisabledModules()
         {
-            var raw = EditorUserSettings.GetConfigValue(ConfigKey);
+            var raw = EditorUserSettings.GetConfigValue(DisabledModulesConfigKey);
             return string.IsNullOrEmpty(raw)
                 ? new HashSet<string>()
                 : new HashSet<string>(raw.Split(',', StringSplitOptions.RemoveEmptyEntries));
@@ -21,7 +23,27 @@ namespace UniCli.Server.Editor
         void SaveDisabledModules(HashSet<string> modules)
         {
             var value = modules.Count > 0 ? string.Join(",", modules) : "";
-            EditorUserSettings.SetConfigValue(ConfigKey, value);
+            EditorUserSettings.SetConfigValue(DisabledModulesConfigKey, value);
+        }
+
+        public bool IsRemoteCommandDiscoveryLogEnabled()
+        {
+            var raw = EditorUserSettings.GetConfigValue(RemoteDiscoveryLogConfigKey);
+            if (string.IsNullOrEmpty(raw))
+                return true;
+
+            return raw switch
+            {
+                "1" => true,
+                "0" => false,
+                _ => bool.TryParse(raw, out var enabled) ? enabled : true
+            };
+        }
+
+        public void SetRemoteCommandDiscoveryLogEnabled(bool enabled)
+        {
+            EditorUserSettings.SetConfigValue(RemoteDiscoveryLogConfigKey, enabled ? "1" : "0");
+            DebugCommandRegistry.EnableDiscoveryLog = enabled;
         }
 
         public bool IsModuleEnabled(string name)

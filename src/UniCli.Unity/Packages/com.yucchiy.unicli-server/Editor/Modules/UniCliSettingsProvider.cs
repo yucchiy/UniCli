@@ -72,6 +72,22 @@ namespace UniCli.Server.Editor
                             MessageType.Warning);
                     }
 
+                    EditorGUILayout.Space(12);
+                    EditorGUILayout.LabelField("Remote", EditorStyles.boldLabel);
+
+                    EditorGUILayout.Space(2);
+                    var discoveryLogEnabled = settings.IsRemoteCommandDiscoveryLogEnabled();
+                    var newDiscoveryLogEnabled = EditorGUILayout.ToggleLeft(
+                        new GUIContent(
+                            "Log command discovery summary",
+                            "Controls the [UniCli.Remote] Discovered ... debug log emitted by DebugCommandRegistry."),
+                        discoveryLogEnabled);
+
+                    if (newDiscoveryLogEnabled != discoveryLogEnabled)
+                    {
+                        settings.SetRemoteCommandDiscoveryLogEnabled(newDiscoveryLogEnabled);
+                    }
+
                     EditorGUILayout.Space(8);
 
                     if (GUILayout.Button("Reload Server", GUILayout.MaxWidth(150)))
