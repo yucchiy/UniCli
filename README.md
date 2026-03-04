@@ -406,7 +406,7 @@ if (hasErrors)
 
 ## Built-in Commands
 
-The following commands are built in. Run `unicli commands` to see this list from the terminal, or `unicli exec <command> --help` to see parameters for any command.
+The following commands are built in. Run `unicli commands` to see this list from the terminal, or `unicli exec <command> --help` to see parameters for any command. For a full reference with parameter and response details, see [`doc/commands.md`](doc/commands.md).
 
 ### Core
 
