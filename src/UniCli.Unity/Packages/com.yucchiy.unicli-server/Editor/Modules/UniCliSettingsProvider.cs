@@ -72,6 +72,22 @@ namespace UniCli.Server.Editor
                             MessageType.Warning);
                     }
 
+                    EditorGUILayout.Space(12);
+                    EditorGUILayout.LabelField("Logging", EditorStyles.boldLabel);
+
+                    EditorGUILayout.Space(2);
+                    var editorLoggingEnabled = settings.IsEditorLoggingEnabled();
+                    var newEditorLoggingEnabled = EditorGUILayout.ToggleLeft(
+                        new GUIContent(
+                            "Enable UniCli editor logs",
+                            "Controls UniCli log, warning, and error messages emitted while running in the Unity Editor."),
+                        editorLoggingEnabled);
+
+                    if (newEditorLoggingEnabled != editorLoggingEnabled)
+                    {
+                        settings.SetEditorLoggingEnabled(newEditorLoggingEnabled);
+                    }
+
                     EditorGUILayout.Space(8);
 
                     if (GUILayout.Button("Reload Server", GUILayout.MaxWidth(150)))

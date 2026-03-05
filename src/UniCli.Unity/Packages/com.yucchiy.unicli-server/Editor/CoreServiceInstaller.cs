@@ -9,7 +9,10 @@ namespace UniCli.Server.Editor
             var pipeName = ProjectIdentifier.GetPipeName();
             services.AddSingleton(new ServerContext(pipeName));
 
-            services.AddSingleton(new UniCliSettings());
+            var settings = new UniCliSettings();
+            services.AddSingleton(settings);
+            var enableLogs = settings.IsEditorLoggingEnabled();
+            UniCliSettings.ApplyEditorLoggingEnabled(enableLogs);
             services.AddSingleton(new EditorStateGuard());
             services.AddSingleton<IDispatcherReloader>(new BootstrapDispatcherReloader());
         }
