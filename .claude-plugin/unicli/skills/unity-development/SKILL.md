@@ -122,13 +122,26 @@ When built-in commands don't cover what you need, choose the right approach:
 1. **One-shot tasks → Eval**: Use `unicli eval` for ad-hoc operations, quick inspections, prototyping, and tasks that don't need to be reused. No files to create or compile — just pass the code directly.
 2. **Reusable project commands → CommandHandler**: Use `CommandHandler` when the operation will be called repeatedly or is part of the project's workflow. This provides type-safe parameters, structured responses, and discoverability via `unicli commands`.
 
-**Remote debug commands (requires Development Build):**
+**Connect to a running player:**
 
-Remote commands require: `UNICLI_REMOTE` scripting define symbol + Development Build with Autoconnect Profiler enabled.
+`Connection.*` commands manage the Unity Editor's PlayerConnection — used to connect to Development Builds running on devices or the local machine. This connection is required for remote debug commands and profiler data collection.
+
+```bash
+unicli exec Connection.List --json                          # List available targets
+unicli exec Connection.Connect '{"id":-1}' --json           # Connect by player ID
+unicli exec Connection.Connect '{"ip":"192.168.1.100"}' --json  # Connect by IP
+unicli exec Connection.Connect '{"deviceId":"SERIAL"}' --json   # Connect by device serial
+unicli exec Connection.Status --json                        # Check connection status
+```
+
+**Invoke remote debug commands on connected player:**
+
+`Remote.*` commands invoke debug commands on a connected Development Build. Requires: `UNICLI_REMOTE` scripting define symbol + Development Build with Autoconnect Profiler enabled.
 
 ```bash
 unicli exec Remote.List --json
 unicli exec Remote.Invoke '{"command":"Debug.Stats"}' --json
+unicli exec Remote.Invoke '{"command":"Debug.GetPlayerPref","data":"{\"key\":\"HighScore\",\"type\":\"int\"}"}' --json
 ```
 
 Built-in debug commands: `Debug.SystemInfo`, `Debug.Stats`, `Debug.GetLogs`, `Debug.GetHierarchy`, `Debug.FindGameObjects`, `Debug.GetScenes`, `Debug.GetPlayerPref`
