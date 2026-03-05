@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.GetLogs", "Get recent log entries")]
     public sealed class GetLogsCommand : DebugCommand<GetLogsCommand.Request, GetLogsCommand.Response>
     {
+        public override string CommandName => "Debug.GetLogs";
+        public override string Description => "Get recent log entries";
+
         protected override Response ExecuteCommand(Request request)
         {
             var capture = RuntimeDebugReceiver.RuntimeLogCapture;

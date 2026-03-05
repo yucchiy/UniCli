@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.Stats", "Get runtime performance statistics")]
     public sealed class StatsCommand : DebugCommand<Unit, StatsCommand.Response>
     {
+        public override string CommandName => "Debug.Stats";
+        public override string Description => "Get runtime performance statistics";
+
         protected override Response ExecuteCommand(Unit request)
         {
             var resolution = Screen.currentResolution;

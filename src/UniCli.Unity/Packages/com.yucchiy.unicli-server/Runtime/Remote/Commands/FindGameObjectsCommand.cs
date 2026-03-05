@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.FindGameObjects", "Find GameObjects by name (substring match)")]
     public sealed class FindGameObjectsCommand : DebugCommand<FindGameObjectsCommand.Request, FindGameObjectsCommand.Response>
     {
+        public override string CommandName => "Debug.FindGameObjects";
+        public override string Description => "Find GameObjects by name (substring match)";
+
         protected override Response ExecuteCommand(Request request)
         {
             if (string.IsNullOrEmpty(request.name))

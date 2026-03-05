@@ -7,6 +7,8 @@ namespace UniCli.Remote
     [RequireDerived]
     public abstract class DebugCommand
     {
+        public abstract string CommandName { get; }
+        public virtual string Description => "";
         public abstract string Execute(string requestJson);
     }
 

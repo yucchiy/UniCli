@@ -779,16 +779,18 @@ The following debug commands are included in the package and available on any De
 
 ### Creating custom debug commands
 
-Inherit from `DebugCommand<TRequest, TResponse>` and annotate with `[DebugCommand]`. Commands are auto-discovered at runtime via reflection.
+Inherit from `DebugCommand<TRequest, TResponse>` and override `CommandName` / `Description`. Commands are auto-discovered at runtime via reflection.
 
 ```csharp
 using System;
 using UniCli.Remote;
 using UnityEngine;
 
-[DebugCommand("Debug.ToggleHitboxes", "Toggle hitbox visualization")]
 public sealed class ToggleHitboxesCommand : DebugCommand<ToggleHitboxesCommand.Request, ToggleHitboxesCommand.Response>
 {
+    public override string CommandName => "Debug.ToggleHitboxes";
+    public override string Description => "Toggle hitbox visualization";
+
     protected override Response ExecuteCommand(Request request)
     {
         HitboxVisualizer.Enabled = request.enabled;
@@ -812,9 +814,11 @@ public sealed class ToggleHitboxesCommand : DebugCommand<ToggleHitboxesCommand.R
 Use `Unit` as the type parameter when no input or output is needed:
 
 ```csharp
-[DebugCommand("Debug.ResetState", "Reset game state")]
 public sealed class ResetStateCommand : DebugCommand<Unit, Unit>
 {
+    public override string CommandName => "Debug.ResetState";
+    public override string Description => "Reset game state";
+
     protected override Unit ExecuteCommand(Unit request)
     {
         GameManager.ResetAll();
@@ -828,7 +832,7 @@ Key points:
 - Request/Response types must be `[Serializable]` with **public fields** (required by `JsonUtility`)
 - The base class uses `[RequireDerived]` to protect all subclasses from Managed Stripping automatically
 - Commands run synchronously on the main thread
-- The `[DebugCommand]` attribute takes a name (by convention `Debug.*`) and an optional description
+- Override `CommandName` (by convention `Debug.*`) and optionally `Description`
 - Place custom commands anywhere in your project — they are discovered automatically via reflection at startup
 
 

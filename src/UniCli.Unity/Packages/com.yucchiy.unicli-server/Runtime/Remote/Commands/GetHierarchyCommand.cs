@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.GetHierarchy", "Get scene hierarchy including inactive objects")]
     public sealed class GetHierarchyCommand : DebugCommand<Unit, GetHierarchyCommand.Response>
     {
+        public override string CommandName => "Debug.GetHierarchy";
+        public override string Description => "Get scene hierarchy including inactive objects";
+
         protected override Response ExecuteCommand(Unit request)
         {
             var scene = SceneManager.GetActiveScene();

@@ -9,12 +9,10 @@ namespace UniCli.Remote
     public sealed class DebugCommandRegistry
     {
         private readonly Dictionary<string, DebugCommand> _commands = new();
-        private readonly Dictionary<string, DebugCommandAttribute> _attributes = new();
 
         public void DiscoverCommands()
         {
             _commands.Clear();
-            _attributes.Clear();
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)
@@ -37,17 +35,11 @@ namespace UniCli.Remote
                     if (!typeof(DebugCommand).IsAssignableFrom(type))
                         continue;
 
-                    var attr = type.GetCustomAttribute<DebugCommandAttribute>();
-                    if (attr == null)
-                        continue;
-
                     try
                     {
                         var instance = (DebugCommand)Activator.CreateInstance(type);
-                        if (!_commands.TryAdd(attr.Name, instance))
+                        if (!_commands.TryAdd(instance.CommandName, instance))
                             continue;
-
-                        _attributes[attr.Name] = attr;
                     }
                     catch
                     {
@@ -65,11 +57,11 @@ namespace UniCli.Remote
         public RuntimeCommandInfo[] GetCommandInfos()
         {
             var infos = new List<RuntimeCommandInfo>(_commands.Count);
-            foreach (var kvp in _attributes)
+            foreach (var kvp in _commands)
             {
                 infos.Add(new RuntimeCommandInfo
                 {
-                    name = kvp.Value.Name,
+                    name = kvp.Value.CommandName,
                     description = kvp.Value.Description
                 });
             }

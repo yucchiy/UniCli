@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.GetPlayerPref", "Get a PlayerPrefs value by key")]
     public sealed class GetPlayerPrefCommand : DebugCommand<GetPlayerPrefCommand.Request, GetPlayerPrefCommand.Response>
     {
+        public override string CommandName => "Debug.GetPlayerPref";
+        public override string Description => "Get a PlayerPrefs value by key";
+
         protected override Response ExecuteCommand(Request request)
         {
             if (string.IsNullOrEmpty(request.key))

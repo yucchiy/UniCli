@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.SystemInfo", "Get device and application information")]
     public sealed class SystemInfoCommand : DebugCommand<Unit, SystemInfoCommand.Response>
     {
+        public override string CommandName => "Debug.SystemInfo";
+        public override string Description => "Get device and application information";
+
         protected override Response ExecuteCommand(Unit request)
         {
             return new Response

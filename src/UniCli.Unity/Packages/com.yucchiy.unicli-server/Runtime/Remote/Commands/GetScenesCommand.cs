@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 namespace UniCli.Remote.Commands
 {
-    [DebugCommand("Debug.GetScenes", "List all loaded scenes")]
     public sealed class GetScenesCommand : DebugCommand<Unit, GetScenesCommand.Response>
     {
+        public override string CommandName => "Debug.GetScenes";
+        public override string Description => "List all loaded scenes";
+
         protected override Response ExecuteCommand(Unit request)
         {
             var activeScene = SceneManager.GetActiveScene();
