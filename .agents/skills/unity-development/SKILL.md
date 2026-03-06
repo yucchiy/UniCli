@@ -28,6 +28,22 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 7. **When checking console logs**: Use `--logType "Warning,Error"` to filter out informational noise and focus on actionable issues. Stack traces are omitted by default; use `--stackTraceLines 3` when debugging errors.
 8. **Discover commands dynamically**: Use `unicli commands --json` to list all available commands and `unicli exec <command> --help` to see parameters for any command. Do not rely on memorized command lists — the project may have custom commands.
 
+## Project Path
+
+By default, `unicli` looks for a Unity project in the current working directory.
+If the Unity project is in a subdirectory, set the `UNICLI_PROJECT` environment variable:
+
+```bash
+export UNICLI_PROJECT=path/to/unity/project
+unicli exec Compile --json
+```
+
+Or prefix each command:
+
+```bash
+UNICLI_PROJECT=path/to/unity/project unicli exec Compile --json
+```
+
 ## Prerequisites
 
 Before running commands, verify that the CLI is installed and the Editor is reachable:
