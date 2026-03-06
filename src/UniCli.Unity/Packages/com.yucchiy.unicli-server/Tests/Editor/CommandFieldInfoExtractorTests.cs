@@ -38,6 +38,26 @@ namespace UniCli.Server.Editor.Tests
             public double precision;
         }
 
+        [Serializable]
+        private class NestedConfig
+        {
+            public string profile;
+            public int retries;
+        }
+
+        [Serializable]
+        private class NestedTypeRequest
+        {
+            public NestedConfig config;
+            public NestedConfig[] configs;
+        }
+
+        [Serializable]
+        private class RecursiveRequest
+        {
+            public RecursiveRequest child;
+        }
+
         [Test]
         public void ExtractFieldInfos_UnitType_ReturnsEmptyArray()
         {
@@ -126,6 +146,36 @@ namespace UniCli.Server.Editor.Tests
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("string[]", result[0].type);
             Assert.AreEqual("int[]", result[1].type);
+        }
+
+        [Test]
+        public void ExtractFieldInfos_NestedTypes_ExtractsChildren()
+        {
+            var result = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(NestedTypeRequest));
+
+            Assert.AreEqual(2, result.Length);
+
+            Assert.AreEqual("config", result[0].name);
+            Assert.AreEqual("NestedConfig", result[0].type);
+            Assert.AreEqual(2, result[0].children.Length);
+            Assert.AreEqual("profile", result[0].children[0].name);
+            Assert.AreEqual("string", result[0].children[0].type);
+            Assert.AreEqual("retries", result[0].children[1].name);
+            Assert.AreEqual("int", result[0].children[1].type);
+
+            Assert.AreEqual("configs", result[1].name);
+            Assert.AreEqual("NestedConfig[]", result[1].type);
+            Assert.AreEqual(2, result[1].children.Length);
+        }
+
+        [Test]
+        public void ExtractFieldInfos_RecursiveType_StopsAtCurrentType()
+        {
+            var result = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(RecursiveRequest));
+
+            Assert.AreEqual(1, result.Length);
+            Assert.AreEqual("RecursiveRequest", result[0].type);
+            Assert.AreEqual(0, result[0].children.Length);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -174,30 +175,93 @@ internal static class CommandExecutor
         {
             Console.WriteLine();
             Console.WriteLine("Request parameters:");
-            var maxNameLen = cmd.requestFields.Max(f => f.name.Length);
-            var maxTypeLen = cmd.requestFields.Max(f => f.type.Length);
-
-            foreach (var field in cmd.requestFields)
-            {
-                var defaultPart = string.IsNullOrEmpty(field.defaultValue)
-                    ? ""
-                    : $"  (default: {field.defaultValue})";
-                Console.WriteLine($"  {field.name.PadRight(maxNameLen)}  {field.type.PadRight(maxTypeLen)}{defaultPart}");
-            }
+            WriteFieldTable(cmd.requestFields, includeDefaultValue: true);
+            WriteNestedTypeDetails("Request type details:", cmd.requestFields, includeDefaultValue: true);
         }
 
         if (cmd.responseFields != null && cmd.responseFields.Length > 0)
         {
             Console.WriteLine();
             Console.WriteLine("Response fields:");
-            var maxNameLen = cmd.responseFields.Max(f => f.name.Length);
-            var maxTypeLen = cmd.responseFields.Max(f => f.type.Length);
-
-            foreach (var field in cmd.responseFields)
-            {
-                Console.WriteLine($"  {field.name.PadRight(maxNameLen)}  {field.type.PadRight(maxTypeLen)}");
-            }
+            WriteFieldTable(cmd.responseFields, includeDefaultValue: false);
+            WriteNestedTypeDetails("Response type details:", cmd.responseFields, includeDefaultValue: false);
         }
+    }
+
+    private static void WriteFieldTable(CommandFieldInfo[] fields, bool includeDefaultValue, string indent = "  ")
+    {
+        if (fields.Length == 0)
+            return;
+
+        var maxNameLen = fields.Max(f => f.name.Length);
+        var maxTypeLen = fields.Max(f => f.type.Length);
+
+        foreach (var field in fields)
+        {
+            var defaultPart = includeDefaultValue && !string.IsNullOrEmpty(field.defaultValue)
+                ? $"  (default: {field.defaultValue})"
+                : "";
+            Console.WriteLine($"{indent}{field.name.PadRight(maxNameLen)}  {field.type.PadRight(maxTypeLen)}{defaultPart}");
+        }
+    }
+
+    private static void WriteNestedTypeDetails(string title, CommandFieldInfo[] fields, bool includeDefaultValue)
+    {
+        var details = CollectNestedTypeDetails(fields);
+        if (details.Count == 0)
+            return;
+
+        Console.WriteLine();
+        Console.WriteLine(title);
+
+        foreach (var detail in details)
+        {
+            Console.WriteLine($"  {detail.typeName}:");
+            WriteFieldTable(detail.fields, includeDefaultValue, "    ");
+        }
+    }
+
+    private static List<(string typeName, CommandFieldInfo[] fields)> CollectNestedTypeDetails(CommandFieldInfo[] rootFields)
+    {
+        var result = new List<(string typeName, CommandFieldInfo[] fields)>();
+        var visitedTypes = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var field in rootFields)
+        {
+            CollectNestedTypeDetails(field, visitedTypes, result);
+        }
+
+        return result;
+    }
+
+    private static void CollectNestedTypeDetails(
+        CommandFieldInfo field,
+        HashSet<string> visitedTypes,
+        List<(string typeName, CommandFieldInfo[] fields)> result)
+    {
+        if (field.children == null || field.children.Length == 0)
+            return;
+
+        var typeName = NormalizeTypeName(field.type);
+        if (visitedTypes.Add(typeName))
+        {
+            result.Add((typeName, field.children));
+        }
+
+        foreach (var child in field.children)
+        {
+            CollectNestedTypeDetails(child, visitedTypes, result);
+        }
+    }
+
+    private static string NormalizeTypeName(string typeName)
+    {
+        var normalized = typeName;
+        while (normalized.EndsWith("[]", StringComparison.Ordinal))
+        {
+            normalized = normalized.Substring(0, normalized.Length - 2);
+        }
+        return normalized;
     }
 
     public static async Task<CliResult> ExecuteWithKeyValueAsync(

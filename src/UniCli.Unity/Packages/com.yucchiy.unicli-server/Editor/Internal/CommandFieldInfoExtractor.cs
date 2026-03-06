@@ -9,23 +9,76 @@ namespace UniCli.Server.Editor.Internal
     {
         public static CommandFieldInfo[] ExtractFieldInfos(Type type)
         {
+            return ExtractFieldInfos(type, new HashSet<Type>());
+        }
+
+        private static CommandFieldInfo[] ExtractFieldInfos(Type type, HashSet<Type> visitingTypes)
+        {
             if (type == typeof(Unit))
+                return Array.Empty<CommandFieldInfo>();
+
+            if (!visitingTypes.Add(type))
                 return Array.Empty<CommandFieldInfo>();
 
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
             var result = new List<CommandFieldInfo>(fields.Length);
 
-            foreach (var field in fields)
+            try
             {
-                result.Add(new CommandFieldInfo
+                foreach (var field in fields)
                 {
-                    name = field.Name,
-                    type = ToSimpleTypeName(field.FieldType),
-                    defaultValue = GetDefaultValueString(field)
-                });
+                    var nestedType = ResolveNestedType(field.FieldType);
+                    result.Add(new CommandFieldInfo
+                    {
+                        name = field.Name,
+                        type = ToSimpleTypeName(field.FieldType),
+                        defaultValue = GetDefaultValueString(field),
+                        children = nestedType == null
+                            ? Array.Empty<CommandFieldInfo>()
+                            : ExtractFieldInfos(nestedType, visitingTypes)
+                    });
+                }
+            }
+            finally
+            {
+                visitingTypes.Remove(type);
             }
 
             return result.ToArray();
+        }
+
+        private static Type ResolveNestedType(Type type)
+        {
+            var targetType = type.IsArray ? type.GetElementType() : type;
+
+            if (targetType == null || !IsNestedFieldTarget(targetType))
+                return null;
+
+            return targetType;
+        }
+
+        private static bool IsNestedFieldTarget(Type type)
+        {
+            if (type == typeof(Unit))
+                return false;
+
+            if (type.IsPrimitive || type.IsEnum)
+                return false;
+
+            if (type == typeof(string) || type == typeof(decimal))
+                return false;
+
+            if (type.Namespace != null)
+            {
+                if (type.Namespace.StartsWith("System", StringComparison.Ordinal))
+                    return false;
+
+                if (type.Namespace.StartsWith("UnityEngine", StringComparison.Ordinal)
+                    || type.Namespace.StartsWith("UnityEditor", StringComparison.Ordinal))
+                    return false;
+            }
+
+            return type.IsClass || type.IsValueType;
         }
 
         public static string ToSimpleTypeName(Type type)

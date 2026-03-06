@@ -19,6 +19,7 @@ namespace UniCli.Protocol
         public string name;
         public string type;
         public string defaultValue;
+        public CommandFieldInfo[] children;
     }
 
     [Serializable]
