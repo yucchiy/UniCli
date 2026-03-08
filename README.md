@@ -231,13 +231,14 @@ unicli exec GameObject.Find --help
 ### Inspect nested request/response types
 
 `unicli exec <command> --help` shows top-level fields and, when available, nested type details.
-For machine-readable schemas, use `unicli commands --json`: each field includes a `children` array.
+For machine-readable schemas, use `unicli commands --json`: nested types are exposed via each command's `requestTypeDetails` and `responseTypeDetails` arrays.
+Match nested type details by `typeId`; `type` and `typeName` stay human-friendly and may not be unique.
 
 ```bash
 # Human-friendly schema (includes nested type details)
 unicli exec AssetDatabase.Find --help
 
-# Machine-readable schema (fields include "children")
+# Machine-readable schema (commands include "requestTypeDetails" / "responseTypeDetails")
 unicli commands --json
 ```
 

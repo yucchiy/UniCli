@@ -129,7 +129,7 @@ namespace UniCli.Server.Editor.Tests
         }
 
         [Test]
-        public void BuildResponse_CommandListResponse_WithDeepChildren_SerializesFullDepth()
+        public void BuildResponse_CommandListResponse_WithFlatTypeDetails_UsesDefaultJsonSerialization()
         {
             var dispatcher = new CommandDispatcher(CreateServiceRegistry());
             var handler = new StubHandler();
@@ -143,8 +143,19 @@ namespace UniCli.Server.Editor.Tests
                         description = "Command metadata",
                         builtIn = true,
                         module = "",
-                        requestFields = new[] { CreateFieldChain(12) },
-                        responseFields = Array.Empty<CommandFieldInfo>()
+                        requestFields = Array.Empty<CommandFieldInfo>(),
+                        responseFields = new[]
+                        {
+                            new CommandFieldInfo
+                            {
+                                name = "root",
+                                type = "Level0",
+                                typeId = "Tests:Level0",
+                                defaultValue = ""
+                            }
+                        },
+                        requestTypeDetails = Array.Empty<CommandTypeDetail>(),
+                        responseTypeDetails = CreateTypeDetailChain(12)
                     }
                 }
             };
@@ -155,33 +166,130 @@ namespace UniCli.Server.Editor.Tests
 
             for (var i = 0; i < 12; i++)
             {
-                StringAssert.Contains($"\"name\":\"level{i}\"", response.data);
+                StringAssert.Contains($"\"typeName\":\"Level{i}\"", response.data);
             }
 
-            StringAssert.Contains(
-                "\"name\":\"level10\",\"type\":\"Level10\",\"defaultValue\":\"\",\"children\":[{\"name\":\"level11\",\"type\":\"Level11\",\"defaultValue\":\"\",\"children\":[]}]",
-                response.data);
-            Assert.AreEqual(12, CountOccurrences(response.data, "\"children\":"));
+            StringAssert.Contains("\"responseTypeDetails\":", response.data);
+            StringAssert.Contains("\"name\":\"root\",\"type\":\"Level0\",\"typeId\":\"Tests:Level0\",\"defaultValue\":\"\"", response.data);
+            Assert.AreEqual(12, CountOccurrences(response.data, "\"typeName\":"));
+            Assert.AreEqual(25, CountOccurrences(response.data, "\"typeId\":"));
+            Assert.IsFalse(response.data.Contains("\"children\":", StringComparison.Ordinal));
         }
 
-        private static CommandFieldInfo CreateFieldChain(int depth)
+        [Test]
+        public void BuildResponse_CommandListResponse_WithCollidingTypeNames_PreservesDistinctTypeIds()
         {
-            CommandFieldInfo current = null;
-
-            for (var i = depth - 1; i >= 0; i--)
+            var dispatcher = new CommandDispatcher(CreateServiceRegistry());
+            var handler = new StubHandler();
+            var data = new CommandListResponse
             {
-                current = new CommandFieldInfo
+                commands = new[]
                 {
-                    name = $"level{i}",
-                    type = $"Level{i}",
-                    defaultValue = "",
-                    children = current == null
-                        ? Array.Empty<CommandFieldInfo>()
-                        : new[] { current }
+                    new CommandInfo
+                    {
+                        name = "Test.Collision",
+                        description = "Collision metadata",
+                        builtIn = true,
+                        module = "",
+                        requestFields = new[]
+                        {
+                            new CommandFieldInfo
+                            {
+                                name = "alpha",
+                                type = "Duplicate",
+                                typeId = "Tests:Alpha.Duplicate",
+                                defaultValue = ""
+                            },
+                            new CommandFieldInfo
+                            {
+                                name = "beta",
+                                type = "Duplicate",
+                                typeId = "Tests:Beta.Duplicate",
+                                defaultValue = ""
+                            }
+                        },
+                        responseFields = Array.Empty<CommandFieldInfo>(),
+                        requestTypeDetails = new[]
+                        {
+                            new CommandTypeDetail
+                            {
+                                typeName = "Duplicate",
+                                typeId = "Tests:Alpha.Duplicate",
+                                fields = new[]
+                                {
+                                    new CommandFieldInfo
+                                    {
+                                        name = "profile",
+                                        type = "string",
+                                        typeId = "",
+                                        defaultValue = ""
+                                    }
+                                }
+                            },
+                            new CommandTypeDetail
+                            {
+                                typeName = "Duplicate",
+                                typeId = "Tests:Beta.Duplicate",
+                                fields = new[]
+                                {
+                                    new CommandFieldInfo
+                                    {
+                                        name = "retries",
+                                        type = "int",
+                                        typeId = "",
+                                        defaultValue = ""
+                                    }
+                                }
+                            }
+                        },
+                        responseTypeDetails = Array.Empty<CommandTypeDetail>()
+                    }
+                }
+            };
+
+            var response = dispatcher.BuildResponse(true, "ok", data, handler, false);
+
+            StringAssert.Contains("\"typeName\":\"Duplicate\",\"typeId\":\"Tests:Alpha.Duplicate\"", response.data);
+            StringAssert.Contains("\"typeName\":\"Duplicate\",\"typeId\":\"Tests:Beta.Duplicate\"", response.data);
+            StringAssert.Contains("\"name\":\"alpha\",\"type\":\"Duplicate\",\"typeId\":\"Tests:Alpha.Duplicate\"", response.data);
+            StringAssert.Contains("\"name\":\"beta\",\"type\":\"Duplicate\",\"typeId\":\"Tests:Beta.Duplicate\"", response.data);
+        }
+
+        private static CommandTypeDetail[] CreateTypeDetailChain(int depth)
+        {
+            var result = new CommandTypeDetail[depth];
+
+            for (var i = 0; i < depth; i++)
+            {
+                result[i] = new CommandTypeDetail
+                {
+                    typeName = $"Level{i}",
+                    typeId = $"Tests:Level{i}",
+                    fields = i == depth - 1
+                        ? new[]
+                        {
+                            new CommandFieldInfo
+                            {
+                                name = "value",
+                                type = "string",
+                                typeId = "",
+                                defaultValue = ""
+                            }
+                        }
+                        : new[]
+                        {
+                            new CommandFieldInfo
+                            {
+                                name = $"level{i + 1}",
+                                type = $"Level{i + 1}",
+                                typeId = $"Tests:Level{i + 1}",
+                                defaultValue = ""
+                            }
+                        }
                 };
             }
 
-            return current;
+            return result;
         }
 
         private static int CountOccurrences(string text, string value)

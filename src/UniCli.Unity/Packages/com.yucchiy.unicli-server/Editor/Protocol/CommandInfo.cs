@@ -11,6 +11,8 @@ namespace UniCli.Protocol
         public string module;
         public CommandFieldInfo[] requestFields;
         public CommandFieldInfo[] responseFields;
+        public CommandTypeDetail[] requestTypeDetails;
+        public CommandTypeDetail[] responseTypeDetails;
     }
 
     [Serializable]
@@ -18,8 +20,16 @@ namespace UniCli.Protocol
     {
         public string name;
         public string type;
+        public string typeId;
         public string defaultValue;
-        public CommandFieldInfo[] children;
+    }
+
+    [Serializable]
+    public class CommandTypeDetail
+    {
+        public string typeName;
+        public string typeId;
+        public CommandFieldInfo[] fields;
     }
 
     [Serializable]

@@ -182,7 +182,7 @@ internal static class CommandExecutor
             Console.WriteLine();
             Console.WriteLine("Request parameters:");
             WriteFieldTable(cmd.requestFields, includeDefaultValue: true);
-            WriteNestedTypeDetails("Request type details:", cmd.requestFields, includeDefaultValue: true);
+            WriteTypeDetails("Request type details:", cmd.requestTypeDetails, includeDefaultValue: true);
         }
 
         if (cmd.responseFields != null && cmd.responseFields.Length > 0)
@@ -190,7 +190,7 @@ internal static class CommandExecutor
             Console.WriteLine();
             Console.WriteLine("Response fields:");
             WriteFieldTable(cmd.responseFields, includeDefaultValue: false);
-            WriteNestedTypeDetails("Response type details:", cmd.responseFields, includeDefaultValue: false);
+            WriteTypeDetails("Response type details:", cmd.responseTypeDetails, includeDefaultValue: false);
         }
     }
 
@@ -211,63 +211,33 @@ internal static class CommandExecutor
         }
     }
 
-    private static void WriteNestedTypeDetails(string title, CommandFieldInfo[] fields, bool includeDefaultValue)
+    private static void WriteTypeDetails(string title, CommandTypeDetail[]? details, bool includeDefaultValue)
     {
-        var details = CollectNestedTypeDetails(fields);
-        if (details.Count == 0)
+        if (details == null || details.Length == 0)
             return;
+
+        var typeNameCounts = details
+            .GroupBy(d => d.typeName, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
 
         Console.WriteLine();
         Console.WriteLine(title);
 
         foreach (var detail in details)
         {
-            Console.WriteLine($"  {detail.typeName}:");
+            Console.WriteLine($"  {FormatTypeDetailHeading(detail, typeNameCounts)}:");
             WriteFieldTable(detail.fields, includeDefaultValue, "    ");
         }
     }
 
-    private static List<(string typeName, CommandFieldInfo[] fields)> CollectNestedTypeDetails(CommandFieldInfo[] rootFields)
+    internal static string FormatTypeDetailHeading(
+        CommandTypeDetail detail,
+        IReadOnlyDictionary<string, int> typeNameCounts)
     {
-        var result = new List<(string typeName, CommandFieldInfo[] fields)>();
-        var visitedTypes = new HashSet<string>(StringComparer.Ordinal);
+        if (!typeNameCounts.TryGetValue(detail.typeName, out var count) || count <= 1)
+            return detail.typeName;
 
-        foreach (var field in rootFields)
-        {
-            CollectNestedTypeDetails(field, visitedTypes, result);
-        }
-
-        return result;
-    }
-
-    private static void CollectNestedTypeDetails(
-        CommandFieldInfo field,
-        HashSet<string> visitedTypes,
-        List<(string typeName, CommandFieldInfo[] fields)> result)
-    {
-        if (field.children == null || field.children.Length == 0)
-            return;
-
-        var typeName = NormalizeTypeName(field.type);
-        if (visitedTypes.Add(typeName))
-        {
-            result.Add((typeName, field.children));
-        }
-
-        foreach (var child in field.children)
-        {
-            CollectNestedTypeDetails(child, visitedTypes, result);
-        }
-    }
-
-    private static string NormalizeTypeName(string typeName)
-    {
-        var normalized = typeName;
-        while (normalized.EndsWith("[]", StringComparison.Ordinal))
-        {
-            normalized = normalized.Substring(0, normalized.Length - 2);
-        }
-        return normalized;
+        return $"{detail.typeName} ({detail.typeId})";
     }
 
     public static async Task<CliResult> ExecuteWithKeyValueAsync(

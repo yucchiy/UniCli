@@ -36,14 +36,18 @@ namespace UniCli.Server.Editor.Handlers
         {
             var handlerType = GetType();
             var assemblyName = handlerType.Assembly.GetName().Name;
+            var requestMetadata = CommandFieldInfoExtractor.Extract(typeof(TRequest));
+            var responseMetadata = CommandFieldInfoExtractor.Extract(typeof(TResponse));
             return new CommandInfo
             {
                 name = CommandName,
                 description = Description,
                 builtIn = assemblyName.StartsWith("UniCli.Server.Editor"),
                 module = ModuleRegistry.ResolveModuleName(handlerType),
-                requestFields = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(TRequest)),
-                responseFields = CommandFieldInfoExtractor.ExtractFieldInfos(typeof(TResponse))
+                requestFields = requestMetadata.Fields,
+                responseFields = responseMetadata.Fields,
+                requestTypeDetails = requestMetadata.TypeDetails,
+                responseTypeDetails = responseMetadata.TypeDetails
             };
         }
 

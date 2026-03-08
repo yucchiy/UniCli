@@ -1,4 +1,5 @@
 using System.IO;
+using UniCli.Protocol;
 using UniCli.Client;
 
 namespace UniCli.Client.Tests;
@@ -22,5 +23,40 @@ public class BuildLaunchStartedMessageTests
 
         Assert.Contains(Path.GetFullPath("src/UniCli.Unity"), result);
         Assert.DoesNotContain(Path.GetFullPath("src/UniCli.Unity/Assets"), result);
+    }
+}
+
+public class FormatTypeDetailHeadingTests
+{
+    [Fact]
+    public void ReturnsTypeName_WhenUnique()
+    {
+        var detail = new CommandTypeDetail
+        {
+            typeName = "Duplicate",
+            typeId = "Tests:Alpha.Duplicate"
+        };
+
+        var result = CommandExecutor.FormatTypeDetailHeading(
+            detail,
+            new Dictionary<string, int> { ["Duplicate"] = 1 });
+
+        Assert.Equal("Duplicate", result);
+    }
+
+    [Fact]
+    public void AppendsTypeId_WhenTypeNameCollides()
+    {
+        var detail = new CommandTypeDetail
+        {
+            typeName = "Duplicate",
+            typeId = "Tests:Alpha.Duplicate"
+        };
+
+        var result = CommandExecutor.FormatTypeDetailHeading(
+            detail,
+            new Dictionary<string, int> { ["Duplicate"] = 2 });
+
+        Assert.Equal("Duplicate (Tests:Alpha.Duplicate)", result);
     }
 }
