@@ -1,13 +1,14 @@
-using System.IO;
-using UniCli.Client;
+using System.Runtime.InteropServices;
 
 namespace UniCli.Client.Tests;
 
 public class CreateStartInfoTests
 {
-    [Fact]
-    public void MacOS_UsesOpenCommandWithAppBundle()
+    [SkippableFact]
+    public void UsesOpenCommandWithAppBundle_Unix()
     {
+        Skip.If(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
         var editorPath = "/Applications/Unity/Hub/Editor/6000.0.0f1/Unity.app/Contents/MacOS/Unity";
         var projectRoot = "/tmp/MyProject";
 
@@ -20,9 +21,11 @@ public class CreateStartInfoTests
         Assert.Equal(["-a", "/Applications/Unity/Hub/Editor/6000.0.0f1/Unity.app", "--args", "-projectPath", projectRoot], startInfo.ArgumentList);
     }
 
-    [Fact]
-    public void NonMacOS_UsesDetachedDirectLaunch()
+    [SkippableFact]
+    public void UsesDetachedDirectLaunch_Windows()
     {
+        Skip.IfNot(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
         var editorPath = @"C:\Program Files\Unity\Hub\Editor\6000.0.0f1\Editor\Unity.exe";
         var projectRoot = @"C:\work\MyProject";
 
