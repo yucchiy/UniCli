@@ -47,28 +47,35 @@ namespace UniCli.Server.Editor
         static UniCliServerBootstrap()
         {
             EnsurePidFile();
-            EditorApplication.update += InitializeOnce;
-        }
 
-        private static void InitializeOnce()
-        {
-            EditorApplication.update -= InitializeOnce;
-            Initialize();
+            EditorApplication.update -= Initialize;
+            EditorApplication.update += Initialize;
         }
 
         private static void Initialize()
         {
+            EditorApplication.update -= Initialize;
+
             RunServiceInstallers(Services);
 
+            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-            EditorApplication.update += OnEditorUpdate;
+            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
+            AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
+            EditorApplication.quitting -= OnEditorQuitting;
             EditorApplication.quitting += OnEditorQuitting;
 
-            StartServer();
+            EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.update += OnEditorUpdate;
+
+            EditorApplication.update -= StartServer;
+            EditorApplication.update += StartServer;
         }
 
         public static void StartServer()
         {
+            EditorApplication.update -= StartServer;
+
             if (_server != null)
                 return;
 
@@ -170,7 +177,19 @@ namespace UniCli.Server.Editor
 
         private static void OnBeforeAssemblyReload()
         {
+            EditorApplication.update -= OnEditorUpdate;
+            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
+
             StopServer();
+        }
+
+        private static void OnAfterAssemblyReload()
+        {
+            AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
+            EditorApplication.update += OnEditorUpdate;
+
+            EditorApplication.update -= StartServer;
+            EditorApplication.update += StartServer;
         }
 
         private static void OnEditorQuitting()
