@@ -9,12 +9,6 @@ namespace UniCli.Client;
 
 public partial class Commands
 {
-    private const string DefaultGitUrl =
-        "https://github.com/yucchiy/UniCli.git?path=src/UniCli.Unity/Packages/com.yucchiy.unicli-server";
-
-    private static string GetVersionedGitUrl() =>
-        $"{DefaultGitUrl}#v{VersionInfo.Version}";
-
     /// <summary>
     /// Install the UniCli server package into a Unity project
     /// </summary>
@@ -38,7 +32,7 @@ public partial class Commands
             return Task.FromResult(OutputWriter.Write(result, json));
         }
 
-        var effectiveSource = string.IsNullOrEmpty(source) ? GetVersionedGitUrl() : source;
+        var effectiveSource = string.IsNullOrEmpty(source) ? ServerReleaseInfo.RecommendedSource : source;
 
         if (update)
         {

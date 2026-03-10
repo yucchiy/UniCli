@@ -61,7 +61,7 @@ If `unicli check` reports that the server package is not installed, run `unicli 
 unicli install
 ```
 
-If the server package version does not match the CLI version, run `unicli install --update` to update it:
+If the installed server package source is not the recommended one, run `unicli install --update` to switch it back:
 
 ```bash
 unicli install --update

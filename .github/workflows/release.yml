@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'cli/v*'
 
 jobs:
   build:
@@ -61,8 +61,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
+          VERSION="${GITHUB_REF_NAME#cli/v}"
           gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref_name }}" \
+            --title "unicli v${VERSION}" \
             --generate-notes \
             unicli-osx-arm64.tar.gz \
             unicli-osx-x64.tar.gz \
@@ -72,7 +73,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.UNICLI_RELEASE_TOKEN }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${GITHUB_REF_NAME#cli/v}"
           SHA256=$(sha256sum unicli-win-x64.zip | awk '{print $1}')
 
           cat > /tmp/unicli.json <<EOF
@@ -83,7 +84,7 @@ jobs:
             "license": "MIT",
             "architecture": {
               "64bit": {
-                "url": "https://github.com/yucchiy/UniCli/releases/download/v${VERSION}/unicli-win-x64.zip",
+                "url": "https://github.com/yucchiy/UniCli/releases/download/${GITHUB_REF_NAME}/unicli-win-x64.zip",
                 "hash": "${SHA256}"
               }
             },
@@ -94,7 +95,7 @@ jobs:
             "autoupdate": {
               "architecture": {
                 "64bit": {
-                  "url": "https://github.com/yucchiy/UniCli/releases/download/v\$version/unicli-win-x64.zip"
+                  "url": "https://github.com/yucchiy/UniCli/releases/download/cli/v\$version/unicli-win-x64.zip"
                 }
               }
             }
@@ -121,7 +122,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.UNICLI_RELEASE_TOKEN }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${GITHUB_REF_NAME#cli/v}"
           SHA256_ARM64=$(sha256sum unicli-osx-arm64.tar.gz | awk '{print $1}')
           SHA256_X64=$(sha256sum unicli-osx-x64.tar.gz | awk '{print $1}')
 
@@ -134,10 +135,10 @@ jobs:
 
             on_macos do
               if Hardware::CPU.arm?
-                url "https://github.com/yucchiy/UniCli/releases/download/v#{version}/unicli-osx-arm64.tar.gz"
+                url "https://github.com/yucchiy/UniCli/releases/download/cli/v#{version}/unicli-osx-arm64.tar.gz"
                 sha256 "${SHA256_ARM64}"
               else
-                url "https://github.com/yucchiy/UniCli/releases/download/v#{version}/unicli-osx-x64.tar.gz"
+                url "https://github.com/yucchiy/UniCli/releases/download/cli/v#{version}/unicli-osx-x64.tar.gz"
                 sha256 "${SHA256_X64}"
               end
             end

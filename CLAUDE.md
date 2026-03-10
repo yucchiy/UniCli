@@ -286,17 +286,13 @@ When creating new commands, follow the naming conventions in `doc/command-naming
 
 ### Releasing a new version
 
-1. Create a `release/vX.Y.Z` branch from `main`
-2. Bump version in the following 4 files:
-   - `src/UniCli.Client/UniCli.Client.csproj` (`<Version>`)
-   - `src/UniCli.Unity/Packages/com.yucchiy.unicli-server/package.json` (`"version"`)
-   - `.claude-plugin/marketplace.json` (`"version"`)
-   - `.claude-plugin/unicli/skills/unity-development/SKILL.md` (`metadata.version`)
-3. Build and verify: `dotnet build src/UniCli.Protocol && dotnet publish src/UniCli.Client -o .build`
-4. Create a PR to `main` with a changelog summary
-5. After merge: `git tag vX.Y.Z && git push origin vX.Y.Z`
-   - GitHub Actions (`.github/workflows/release.yml`) will automatically build binaries and create a GitHub Release
-   - The Homebrew formula (`yucchiy/homebrew-tap`) and Scoop manifest (`yucchiy/scoop-bucket`) are automatically updated by CI (using the `UNICLI_RELEASE_TOKEN` secret)
+Use `doc/release-versioning.md` as the source of truth.
+
+Short version:
+
+- CLI, Unity server, Codex skill, Claude Code plugin, and Claude Code skill are versioned independently.
+- `ProtocolVersion` is only a compatibility guard for breaking wire changes.
+- Existing automation may still reflect the old shared `vX.Y.Z` model; treat that as transitional and follow `doc/release-versioning.md` when updating process or tooling.
 
 ### Tests requiring Unity connection
 

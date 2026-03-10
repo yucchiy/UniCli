@@ -36,9 +36,22 @@ public partial class Commands
         }
 
         var clientVersion = VersionInfo.Version;
-        var versionMatch = serverVersion != null && serverVersion == clientVersion;
+        var recommendedServerVersion = ServerReleaseInfo.RecommendedVersion;
+        var recommendedSource = ServerReleaseInfo.RecommendedSource;
+        var sourceMatchesRecommended = source == recommendedSource;
+        var serverVersionMatchesRecommended =
+            serverVersion != null && serverVersion == recommendedServerVersion;
 
-        var cliResult = BuildCheckResult(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
+        var cliResult = BuildCheckResult(
+            installed,
+            source,
+            serverRunning,
+            clientVersion,
+            serverVersion,
+            recommendedServerVersion,
+            recommendedSource,
+            sourceMatchesRecommended,
+            serverVersionMatchesRecommended);
         return OutputWriter.Write(cliResult, json);
     }
 
@@ -85,20 +98,41 @@ public partial class Commands
             onError: _ => (false, null));
     }
 
-    private static CliResult BuildCheckResult(
+    internal static CliResult BuildCheckResult(
         bool installed, string? source, bool serverRunning,
-        string clientVersion, string? serverVersion, bool versionMatch)
+        string clientVersion, string? serverVersion,
+        string recommendedServerVersion, string recommendedSource,
+        bool sourceMatchesRecommended, bool serverVersionMatchesRecommended)
     {
-        var jsonData = BuildCheckJson(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
-        var formattedText = BuildCheckText(installed, source, serverRunning, clientVersion, serverVersion, versionMatch);
+        var jsonData = BuildCheckJson(
+            installed,
+            source,
+            serverRunning,
+            clientVersion,
+            serverVersion,
+            recommendedServerVersion,
+            recommendedSource,
+            sourceMatchesRecommended,
+            serverVersionMatchesRecommended);
+        var formattedText = BuildCheckText(
+            installed,
+            source,
+            serverRunning,
+            clientVersion,
+            serverVersion,
+            recommendedServerVersion,
+            sourceMatchesRecommended,
+            serverVersionMatchesRecommended);
         var message = installed ? "Package is installed" : "Package is not installed";
 
         return CliResult.Ok(message, jsonData, formattedText);
     }
 
-    private static string BuildCheckJson(
+    internal static string BuildCheckJson(
         bool installed, string? source, bool serverRunning,
-        string clientVersion, string? serverVersion, bool versionMatch)
+        string clientVersion, string? serverVersion,
+        string recommendedServerVersion, string recommendedSource,
+        bool sourceMatchesRecommended, bool serverVersionMatchesRecommended)
     {
         var buffer = new ArrayBufferWriter<byte>();
         using var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = false });
@@ -113,22 +147,28 @@ public partial class Commands
 
         writer.WriteBoolean("serverRunning", serverRunning);
         writer.WriteString("clientVersion", clientVersion);
+        writer.WriteString("recommendedServerVersion", recommendedServerVersion);
+        writer.WriteString("recommendedSource", recommendedSource);
+        writer.WriteBoolean("sourceMatchesRecommended", sourceMatchesRecommended);
 
         if (serverVersion != null)
             writer.WriteString("serverVersion", serverVersion);
         else
             writer.WriteNull("serverVersion");
 
-        writer.WriteBoolean("versionMatch", versionMatch);
+        writer.WriteBoolean("serverVersionMatchesRecommended", serverVersionMatchesRecommended);
+        writer.WriteBoolean("versionMatch", sourceMatchesRecommended);
         writer.WriteEndObject();
         writer.Flush();
 
         return System.Text.Encoding.UTF8.GetString(buffer.WrittenSpan);
     }
 
-    private static string BuildCheckText(
+    internal static string BuildCheckText(
         bool installed, string? source, bool serverRunning,
-        string clientVersion, string? serverVersion, bool versionMatch)
+        string clientVersion, string? serverVersion,
+        string recommendedServerVersion,
+        bool sourceMatchesRecommended, bool serverVersionMatchesRecommended)
     {
         var sb = new System.Text.StringBuilder();
 
@@ -137,15 +177,31 @@ public partial class Commands
         else
             sb.AppendLine("Package: not installed");
 
+        if (installed)
+        {
+            sb.Append("Package Source: ");
+            if (sourceMatchesRecommended)
+            {
+                sb.AppendLine("recommended");
+            }
+            else
+            {
+                sb.AppendLine("custom or outdated (run 'unicli install --update' to switch to the recommended server source)");
+            }
+        }
+
         sb.AppendLine($"Server:  {(serverRunning ? "running" : "not running")}");
-        sb.Append($"Client Version: {clientVersion}");
+        sb.AppendLine($"Client Version: {clientVersion}");
+        sb.Append($"Recommended Server Version: {recommendedServerVersion}");
 
         if (serverVersion != null)
         {
             sb.AppendLine();
             sb.Append($"Server Version: {serverVersion}");
-            if (!versionMatch)
-                sb.Append(" (mismatch! run 'unicli install --update')");
+            if (serverVersionMatchesRecommended)
+                sb.Append(" (recommended)");
+            else
+                sb.Append(" (different from the recommended server version)");
         }
         else if (serverRunning)
         {
