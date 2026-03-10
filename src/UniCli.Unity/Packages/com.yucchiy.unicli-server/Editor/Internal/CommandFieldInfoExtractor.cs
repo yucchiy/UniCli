@@ -5,46 +5,91 @@ using UniCli.Protocol;
 
 namespace UniCli.Server.Editor.Internal
 {
+    internal readonly struct CommandFieldExtractionResult
+    {
+        public readonly CommandFieldInfo[] Fields;
+        public readonly CommandTypeDetail[] TypeDetails;
+
+        public CommandFieldExtractionResult(CommandFieldInfo[] fields, CommandTypeDetail[] typeDetails)
+        {
+            Fields = fields;
+            TypeDetails = typeDetails;
+        }
+    }
+
     internal static class CommandFieldInfoExtractor
     {
-        public static CommandFieldInfo[] ExtractFieldInfos(Type type)
+        public static CommandFieldExtractionResult Extract(Type type)
         {
-            return ExtractFieldInfos(type, new HashSet<Type>());
+            var extraction = new ExtractionState();
+            var fields = extraction.ExtractFields(type);
+            return new CommandFieldExtractionResult(fields, extraction.GetTypeDetails());
         }
 
-        private static CommandFieldInfo[] ExtractFieldInfos(Type type, HashSet<Type> visitingTypes)
+        private sealed class ExtractionState
         {
-            if (type == typeof(Unit))
-                return Array.Empty<CommandFieldInfo>();
+            private readonly List<CommandTypeDetail> _typeDetails = new();
+            private readonly HashSet<string> _collectedTypeIds = new(StringComparer.Ordinal);
+            private readonly HashSet<string> _visitingTypeIds = new(StringComparer.Ordinal);
 
-            if (!visitingTypes.Add(type))
-                return Array.Empty<CommandFieldInfo>();
-
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-            var result = new List<CommandFieldInfo>(fields.Length);
-
-            try
+            public CommandFieldInfo[] ExtractFields(Type type)
             {
+                if (type == typeof(Unit))
+                    return Array.Empty<CommandFieldInfo>();
+
+                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                var result = new List<CommandFieldInfo>(fields.Length);
+
                 foreach (var field in fields)
                 {
                     var nestedType = ResolveNestedType(field.FieldType);
+                    var nestedTypeId = nestedType == null ? "" : GetTypeId(nestedType);
                     result.Add(new CommandFieldInfo
                     {
                         name = field.Name,
                         type = ToSimpleTypeName(field.FieldType),
-                        defaultValue = GetDefaultValueString(field),
-                        children = nestedType == null
-                            ? Array.Empty<CommandFieldInfo>()
-                            : ExtractFieldInfos(nestedType, visitingTypes)
+                        typeId = nestedTypeId,
+                        defaultValue = GetDefaultValueString(field)
                     });
+
+                    if (nestedType != null)
+                        CollectTypeDetail(nestedType);
                 }
-            }
-            finally
-            {
-                visitingTypes.Remove(type);
+
+                return result.ToArray();
             }
 
-            return result.ToArray();
+            public CommandTypeDetail[] GetTypeDetails()
+            {
+                return _typeDetails.ToArray();
+            }
+
+            private void CollectTypeDetail(Type type)
+            {
+                var typeId = GetTypeId(type);
+                if (!_collectedTypeIds.Add(typeId))
+                    return;
+
+                if (!_visitingTypeIds.Add(typeId))
+                    return;
+
+                var detail = new CommandTypeDetail
+                {
+                    typeName = NormalizeTypeName(ToSimpleTypeName(type)),
+                    typeId = typeId,
+                    fields = Array.Empty<CommandFieldInfo>()
+                };
+                _typeDetails.Add(detail);
+
+                try
+                {
+                    detail.fields = ExtractFields(type);
+                }
+                finally
+                {
+                    _visitingTypeIds.Remove(typeId);
+                }
+            }
         }
 
         private static Type ResolveNestedType(Type type)
@@ -92,6 +137,28 @@ namespace UniCli.Server.Editor.Internal
             if (type == typeof(int[])) return "int[]";
             if (type.IsArray) return type.GetElementType()?.Name + "[]";
             return type.Name;
+        }
+
+        public static string NormalizeTypeName(string typeName)
+        {
+            var normalized = typeName;
+            while (normalized.EndsWith("[]", StringComparison.Ordinal))
+            {
+                normalized = normalized.Substring(0, normalized.Length - 2);
+            }
+
+            return normalized;
+        }
+
+        public static string GetTypeId(Type type)
+        {
+            var targetType = type.IsArray ? type.GetElementType() : type;
+            if (targetType == null)
+                return "";
+
+            var assemblyName = targetType.Assembly.GetName().Name ?? "";
+            var fullName = targetType.FullName ?? targetType.Name;
+            return $"{assemblyName}:{fullName.Replace('+', '.')}";
         }
 
         private static string GetDefaultValueString(FieldInfo field)
