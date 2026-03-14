@@ -21,6 +21,9 @@ internal static class UnityProcessActivator
         if (noFocusFlag)
             return false;
 
+        if (!Activator.SupportsActivation)
+            return false;
+
         var env = Environment.GetEnvironmentVariable("UNICLI_FOCUS");
         if (env != null)
             return env is "1" or "true";

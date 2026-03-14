@@ -7,6 +7,8 @@ namespace UniCli.Client;
 
 internal sealed class WindowsProcessActivator : IProcessActivator
 {
+    public bool SupportsActivation => true;
+
     [DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
 

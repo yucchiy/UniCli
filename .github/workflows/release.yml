@@ -16,6 +16,9 @@ jobs:
           - os: macos-latest
             rid: osx-x64
             archive: unicli-osx-x64.tar.gz
+          - os: ubuntu-latest
+            rid: linux-x64
+            archive: unicli-linux-x64.tar.gz
           - os: windows-latest
             rid: win-x64
             archive: unicli-win-x64.zip
@@ -66,6 +69,7 @@ jobs:
             --generate-notes \
             unicli-osx-arm64.tar.gz \
             unicli-osx-x64.tar.gz \
+            unicli-linux-x64.tar.gz \
             unicli-win-x64.zip
 
       - name: Update Scoop manifest

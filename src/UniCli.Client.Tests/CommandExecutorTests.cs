@@ -60,3 +60,27 @@ public class FormatTypeDetailHeadingTests
         Assert.Equal("Duplicate (Tests:Alpha.Duplicate)", result);
     }
 }
+
+public class UnityProcessActivatorTests
+{
+    [Fact]
+    public void ShouldFocus_ReturnsFalse_WhenActivationIsUnsupportedAndNoOverrideExists()
+    {
+        var original = Environment.GetEnvironmentVariable("UNICLI_FOCUS");
+        try
+        {
+            Environment.SetEnvironmentVariable("UNICLI_FOCUS", null);
+
+            var result = UnityProcessActivator.ShouldFocus(noFocusFlag: false);
+
+            if (OperatingSystem.IsMacOS() || OperatingSystem.IsWindows())
+                Assert.True(result);
+            else
+                Assert.False(result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("UNICLI_FOCUS", original);
+        }
+    }
+}

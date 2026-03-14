@@ -12,7 +12,7 @@ Designed to work with AI coding agents such as [Claude Code](https://docs.anthro
 - **Dynamic C# execution**: run arbitrary C# code in Unity via `unicli eval`
 - **Extensible**: add custom commands with a single C# class
 - **AI-agent ready**: structured JSON output, Claude Code plugin, and Agent Skills support
-- **Cross-platform**: NativeAOT binaries for macOS (arm64/x64) and Windows (x64)
+- **Cross-platform**: NativeAOT binaries for macOS (arm64/x64), Linux (x64), and Windows (x64)
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ UniCli requires two components: the **CLI** (`unicli`) installed on your machine
 ### Requirements
 
 - Unity 2022.3 or later
-- macOS (arm64 / x64) or Windows (x64)
+- macOS (arm64 / x64), Linux (x64), or Windows (x64)
 
 ### CLI
 
@@ -70,7 +70,7 @@ scoop bucket add unicli https://github.com/yucchiy/scoop-bucket
 scoop install unicli
 ```
 
-**Manual:** Download the latest binary from the [Releases](https://github.com/yucchiy/UniCli/releases) page and place it in your PATH.
+**Linux / Manual:** Download the latest binary from the [Releases](https://github.com/yucchiy/UniCli/releases) page and place it in your PATH.
 
 ### Unity Package
 
@@ -186,7 +186,7 @@ These options can be combined with any `exec` command:
 | `--no-focus`| Don't bring Unity Editor to front    |
 | `--help`    | Show command parameters and nested type details |
 
-By default, when the server is not responding (e.g., after an assembly reload), the CLI automatically brings Unity Editor to the foreground using a PID file (`Library/UniCli/server.pid`) and restores focus to the original application once the command completes. Use `--no-focus` to disable this behavior, or set the `UNICLI_FOCUS` environment variable to `0` or `false` to disable it globally.
+By default, when the server is not responding (e.g., after an assembly reload), the CLI automatically brings Unity Editor to the foreground using a PID file (`Library/UniCli/server.pid`) and restores focus to the original application once the command completes on macOS and Windows. Linux currently skips foreground activation. Use `--no-focus` to disable this behavior, or set the `UNICLI_FOCUS` environment variable to `0` or `false` to disable it globally.
 
 ### Examples
 

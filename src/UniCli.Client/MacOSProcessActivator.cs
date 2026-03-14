@@ -8,6 +8,7 @@ namespace UniCli.Client;
 internal sealed class MacOSProcessActivator : IProcessActivator
 {
     private const int TimeoutMs = 2000;
+    public bool SupportsActivation => true;
 
     public async Task<long> ActivateProcessAsync(int pid)
     {
