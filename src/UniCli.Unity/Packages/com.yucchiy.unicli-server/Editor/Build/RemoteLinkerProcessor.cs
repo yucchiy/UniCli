@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.UnityLinker;
+using UnityEngine;
 
 namespace UniCli.Server.Editor.Build
 {
@@ -16,7 +17,7 @@ namespace UniCli.Server.Editor.Build
             if (!IsRemoteAssemblyIncluded(report))
                 return null;
 
-            var path = Path.Combine(data.inputDirectory, "UniCli.Remote.link.xml");
+            var path = Path.Combine(Application.dataPath, "..", "Temp", "UniCli.Remote.link.xml");
             File.WriteAllText(path, "<linker>\n  <assembly fullname=\"UniCli.Remote\" preserve=\"all\" />\n</linker>\n");
             return path;
         }
