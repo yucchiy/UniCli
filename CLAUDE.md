@@ -238,11 +238,13 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.Disable '{"name":"Prof
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 ```
 
-## Testing
+## Development Policy
+
+### UniCli.Unity Testing
 
 When testing CLI behavior, always publish first with `dotnet publish src/UniCli.Client -o .build`, then test with `.build/unicli` directly. Do not use `dotnet run`.
 
-### Server-side verification (required)
+#### Server-side verification (required)
 
 `dotnet build` only verifies the client-side compilation. When modifying server-side code (`Packages/com.yucchiy.unicli-server/`), **always verify with Unity compilation and tests**.
 
@@ -261,7 +263,7 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunPlayMode --json
 ```
 
-### Multi-version testing with sample projects
+#### Multi-version testing with sample projects
 
 Sample Unity projects under `samples/` are used to verify commands across different Unity versions. Install the server package and test against each:
 
@@ -275,7 +277,16 @@ UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec Compile --jso
 UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec TestRunner.RunEditMode --json
 ```
 
-### Maintaining documentation
+#### Tests requiring Unity connection
+
+The `exec` and `commands` subcommands require a connection to the Unity Editor. If the connection fails, retry a few times. If it still fails, ask the user to confirm that Unity Editor is running with the project open.
+
+### .NET Projects Testing (UniCli.Client, UniCli.Protocol, UniCli.SourceGenerator)
+
+1. `dotnet format UniCli.sln` to fix any formatting issues.
+2. `dotnet test UniCli.sln` to run unit tests.
+
+## Maintaining documentation
 
 When adding or modifying commands, update the following files to keep them in sync:
 
@@ -284,7 +295,7 @@ When adding or modifying commands, update the following files to keep them in sy
 
 When creating new commands, follow the naming conventions in `doc/command-naming-guidelines.md`.
 
-### Releasing a new version
+## Releasing a new version
 
 1. Create a `release/vX.Y.Z` branch from `main`
 2. Bump version in the following 4 files:
@@ -297,7 +308,3 @@ When creating new commands, follow the naming conventions in `doc/command-naming
 5. After merge: `git tag vX.Y.Z && git push origin vX.Y.Z`
    - GitHub Actions (`.github/workflows/release.yml`) will automatically build binaries and create a GitHub Release
    - The Homebrew formula (`yucchiy/homebrew-tap`) and Scoop manifest (`yucchiy/scoop-bucket`) are automatically updated by CI (using the `UNICLI_RELEASE_TOKEN` secret)
-
-### Tests requiring Unity connection
-
-The `exec` and `commands` subcommands require a connection to the Unity Editor. If the connection fails, retry a few times. If it still fails, ask the user to confirm that Unity Editor is running with the project open.
