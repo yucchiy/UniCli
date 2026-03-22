@@ -1,6 +1,6 @@
 using System.IO;
-using UniCli.Protocol;
 using UniCli.Client;
+using UniCli.Protocol;
 
 namespace UniCli.Client.Tests;
 
