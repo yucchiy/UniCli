@@ -49,6 +49,18 @@ namespace UniCli.Server.Editor.Handlers
         }
     }
 
+    public sealed class PlayModeStepHandler : CommandHandler<Unit, Unit>
+    {
+        public override string CommandName => "PlayMode.Step";
+        public override string Description => "Advance one frame in play mode";
+
+        protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
+        {
+            EditorApplication.Step();
+            return new ValueTask<Unit>(Unit.Value);
+        }
+    }
+
     public sealed class PlayModeStatusHandler : CommandHandler<Unit, PlayModeStatusResponse>
     {
         public override string CommandName => "PlayMode.Status";

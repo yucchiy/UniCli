@@ -458,6 +458,7 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `PlayMode.Enter` | Enter play mode |
 | `PlayMode.Exit` | Exit play mode |
 | `PlayMode.Pause` | Toggle pause |
+| `PlayMode.Step` | Advance one frame in play mode |
 | `PlayMode.Status` | Get the current play mode state |
 
 ### TestRunner
