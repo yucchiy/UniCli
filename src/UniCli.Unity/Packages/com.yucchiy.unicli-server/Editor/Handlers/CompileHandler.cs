@@ -92,6 +92,7 @@ namespace UniCli.Server.Editor.Handlers
             }
             finally
             {
+                CompilationPipeline.compilationFinished -= OnCompilationFinished;
                 CompilationPipeline.assemblyCompilationFinished -= OnAssemblyCompilationFinished;
             }
 
