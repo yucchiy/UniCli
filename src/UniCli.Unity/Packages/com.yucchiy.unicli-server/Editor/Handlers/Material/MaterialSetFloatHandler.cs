@@ -30,6 +30,7 @@ namespace UniCli.Server.Editor.Handlers
             if (!material.HasProperty(request.name))
                 throw new CommandFailedException($"Material does not have property: {request.name}", new MaterialSetFloatResponse());
 
+            Undo.RecordObject(material, $"Set Material Float {request.name}");
             material.SetFloat(request.name, request.value);
             EditorUtility.SetDirty(material);
 
