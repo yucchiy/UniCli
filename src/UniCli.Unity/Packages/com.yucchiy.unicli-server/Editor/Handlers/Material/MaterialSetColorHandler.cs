@@ -31,6 +31,7 @@ namespace UniCli.Server.Editor.Handlers
                 throw new CommandFailedException($"Material does not have property: {request.name}", new MaterialSetColorResponse());
 
             var color = new Color(request.value.r, request.value.g, request.value.b, request.value.a);
+            Undo.RecordObject(material, $"Set Material Color {request.name}");
             material.SetColor(request.name, color);
             EditorUtility.SetDirty(material);
 
