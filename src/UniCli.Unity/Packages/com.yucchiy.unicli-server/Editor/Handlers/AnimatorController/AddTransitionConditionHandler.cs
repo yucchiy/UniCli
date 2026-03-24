@@ -77,6 +77,7 @@ namespace UniCli.Server.Editor.Handlers
                     new AnimatorControllerAddTransitionConditionResponse());
             }
 
+            Undo.RecordObject(transition, "Add AnimatorController Transition Condition");
             transition.AddCondition(conditionMode, request.threshold, request.parameter);
 
             EditorUtility.SetDirty(controller);

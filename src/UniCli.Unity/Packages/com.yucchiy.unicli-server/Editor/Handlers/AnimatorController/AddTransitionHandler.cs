@@ -61,6 +61,7 @@ namespace UniCli.Server.Editor.Handlers
                     new AnimatorControllerAddTransitionResponse());
             }
 
+            Undo.RecordObject(sourceState, "Add AnimatorController Transition");
             var transition = sourceState.AddTransition(destinationState);
             transition.hasExitTime = request.hasExitTime;
             transition.exitTime = request.exitTime;

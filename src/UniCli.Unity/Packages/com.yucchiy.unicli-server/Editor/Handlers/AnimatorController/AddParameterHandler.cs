@@ -52,6 +52,7 @@ namespace UniCli.Server.Editor.Handlers
                 }
             }
 
+            Undo.RecordObject(controller, "Add AnimatorController Parameter");
             controller.AddParameter(request.name, paramType);
             EditorUtility.SetDirty(controller);
             AssetDatabase.SaveAssets();

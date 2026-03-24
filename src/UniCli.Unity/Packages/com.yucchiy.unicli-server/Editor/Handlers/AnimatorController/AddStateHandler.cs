@@ -56,6 +56,7 @@ namespace UniCli.Server.Editor.Handlers
                 }
             }
 
+            Undo.RecordObject(stateMachine, "Add AnimatorController State");
             var state = stateMachine.AddState(request.name);
 
             if (!string.IsNullOrEmpty(request.motionAssetPath))

@@ -48,6 +48,7 @@ namespace UniCli.Server.Editor.Handlers
                     new AnimatorControllerRemoveParameterResponse());
             }
 
+            Undo.RecordObject(controller, "Remove AnimatorController Parameter");
             controller.RemoveParameter(index);
             EditorUtility.SetDirty(controller);
             AssetDatabase.SaveAssets();
