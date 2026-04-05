@@ -1,4 +1,3 @@
-using ConsoleAppFramework;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -6,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ConsoleAppFramework;
 
 namespace UniCli.Client;
 
 internal sealed class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         if (args is ["exec", var commandName, .. var remaining])
         {
