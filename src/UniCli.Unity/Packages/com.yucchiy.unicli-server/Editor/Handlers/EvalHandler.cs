@@ -169,7 +169,6 @@ public static class {className}
 
             var builder = new AssemblyBuilder(dllPath, sourcePath)
             {
-                referencesOptions = ReferencesOptions.UseEngineModules,
                 additionalReferences = GetAdditionalReferences()
             };
 
