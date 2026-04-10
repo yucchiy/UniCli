@@ -12,7 +12,7 @@ license: MIT
 compatibility: Requires unicli CLI installed and Unity Editor running with com.yucchiy.unicli-server package
 metadata:
   author: yucchiy
-  version: "1.2.2"
+  version: "1.3.0"
 ---
 
 # UniCli — Unity Editor CLI
