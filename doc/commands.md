@@ -1275,12 +1275,13 @@ Duplicate an existing GameObject in the scene
 
 ### GameObject.Find
 
-Find GameObjects by name, tag, layer, or component
+Find GameObjects by exact name, name pattern, tag, layer, or component
 
 **Parameters:**
 
 | Field | Type |
 |---|---|
+| `name` | `string` |
 | `namePattern` | `string` |
 | `tag` | `string` |
 | `layer` | `int` (default: `-1`) |
@@ -1862,9 +1863,6 @@ Get the current play mode state
 | `isPlaying` | `bool` |
 | `isPaused` | `bool` |
 | `isCompiling` | `bool` |
-
----
-
 
 ## PlayerSettings
 
@@ -2894,4 +2892,3 @@ Open an EditorWindow by type name
 | `typeName` | `string` |
 
 ---
-

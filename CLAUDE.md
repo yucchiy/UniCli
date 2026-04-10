@@ -105,16 +105,16 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --stac
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec TestRunner.RunEditMode --resultFilter none --json
 
 # Console logs filtered by type (comma-separated)
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog --logType "Warning,Error" --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog '{"logType":"Warning,Error"}' --json
 
 # Console logs with stack traces (first 3 lines)
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog --logType Error --stackTraceLines 3 --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Console.GetLog '{"logType":"Error","stackTraceLines":3}' --json
 
 # Build player
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --options ConnectWithProfiler --json
-UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --target Android --scenes "Assets/Scenes/SampleScene.unity" --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Build --locationPathName "Builds/Test-Android.apk" --target Android --scenes "Assets/Scenes/SampleScene.unity" --json
 
 # Compile player scripts for a specific build target
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec BuildPlayer.Compile --json

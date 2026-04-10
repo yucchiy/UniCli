@@ -151,15 +151,16 @@ Use `unicli exec <command>` to run commands on the Unity Editor.
 
 ### Parameter syntax
 
-Parameters can be passed as `--key value` flags (recommended) or as a raw JSON string:
+Parameters can be passed as `--key value` flags or as a raw JSON string. For arrays and nested values, JSON is often the clearest option:
 
 ```bash
-# --key value syntax (recommended)
-unicli exec GameObject.Find --name "Main Camera"
-unicli exec TestRunner.RunEditMode --testNameFilter MyTest
+# --key value syntax
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development
 
 # Raw JSON syntax
 unicli exec GameObject.Find '{"name":"Main Camera"}'
+unicli exec GameObject.Find '{"namePattern":"Camera"}'
+unicli exec TestRunner.RunEditMode '{"testNames":["UniCli.Server.Editor.Tests.ResultTests.Success_IsSuccess_ReturnsTrue"]}'
 ```
 
 Boolean flags can be passed without a value:
@@ -197,21 +198,23 @@ unicli exec Compile --timeout 30000
 
 # Build the player
 unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app"
-unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Development --target Android
+unicli exec BuildPlayer.Build --locationPathName "Builds/Test-Android.apk" --options Development --target Android
 
-# Run tests
+# Discover and run tests
+unicli exec TestRunner.List '{"mode":"EditMode"}' --json
 unicli exec TestRunner.RunEditMode
-unicli exec TestRunner.RunEditMode --testNameFilter MyTest --stackTraceLines 3
+unicli exec TestRunner.RunEditMode '{"testNames":["UniCli.Server.Editor.Tests.ResultTests.Success_IsSuccess_ReturnsTrue"],"stackTraceLines":3}'
 unicli exec TestRunner.RunEditMode --resultFilter all
 
 # Find and inspect GameObjects
-unicli exec GameObject.Find --name "Main Camera"
+unicli exec GameObject.Find '{"name":"Main Camera"}'
+unicli exec GameObject.Find '{"namePattern":"Camera"}'
 unicli exec GameObject.GetHierarchy
 unicli exec GameObject.GetComponents --instanceId 1234
 
 # Create and modify GameObjects
 unicli exec GameObject.Create --name "Enemy"
-unicli exec GameObject.SetTransform --path "Enemy" --position 1,2,3 --rotation 0,90,0
+unicli exec GameObject.SetTransform '{"path":"Enemy","position":[1,2,3],"rotation":[0,90,0]}'
 unicli exec GameObject.AddComponent --path "Enemy" --typeName BoxCollider
 
 # Scene operations
@@ -222,7 +225,7 @@ unicli exec Scene.Save --all
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
 
 # Console logs
-unicli exec Console.GetLog --logType "Warning,Error"
+unicli exec Console.GetLog '{"logType":"Warning,Error"}'
 
 # Show command parameters and usage
 unicli exec GameObject.Find --help
@@ -251,7 +254,7 @@ See [Built-in Commands](#built-in-commands) for the full list of available comma
 Code has full access to Unity APIs (`UnityEngine`, `UnityEditor`) as well as any packages and libraries referenced by the project.
 
 ```bash
-unicli eval '<code>' [--json] [--declarations '<decl>'] [--timeout <ms>]
+unicli eval '<code>' [--json] [--declarations '<decl>'] [--timeout <ms>] [--no-focus]
 ```
 
 | Option | Description |
@@ -259,6 +262,7 @@ unicli eval '<code>' [--json] [--declarations '<decl>'] [--timeout <ms>]
 | `--json` | Output in JSON format |
 | `--declarations` | Additional type declarations (classes, structs, enums) |
 | `--timeout` | Timeout in milliseconds |
+| `--no-focus` | Don't bring Unity Editor to front |
 
 For multi-line code, use shell heredocs:
 
@@ -465,6 +469,7 @@ The following commands are built in. Run `unicli commands` to see this list from
 
 | Command | Description |
 |---|---|
+| `TestRunner.List` | List available tests for EditMode or PlayMode |
 | `TestRunner.RunEditMode` | Run EditMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
 | `TestRunner.RunPlayMode` | Run PlayMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
 
