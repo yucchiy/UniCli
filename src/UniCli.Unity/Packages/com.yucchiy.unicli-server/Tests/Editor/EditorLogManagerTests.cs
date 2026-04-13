@@ -21,6 +21,8 @@ namespace UniCli.Server.Editor.Tests
         public void TearDown()
         {
             _manager.ClearLogs();
+            _manager.Dispose();
+            _manager = null;
         }
 
         [Test]
