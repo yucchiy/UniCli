@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/UniCli.Client.Tests/UniCli.Client.Tests.csproj" />
+    <Project Path="src/UniCli.Client/UniCli.Client.csproj" />
+    <Project Path="src/UniCli.Protocol/UniCli.Protocol.csproj" />
+    <Project Path="src/UniCli.SourceGenerator/UniCli.SourceGenerator.csproj" />
+  </Folder>
+</Solution>

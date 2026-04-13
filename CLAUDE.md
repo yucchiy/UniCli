@@ -283,8 +283,8 @@ The `exec` and `commands` subcommands require a connection to the Unity Editor. 
 
 ### .NET Projects Testing (UniCli.Client, UniCli.Protocol, UniCli.SourceGenerator)
 
-1. `dotnet format UniCli.sln` to fix any formatting issues.
-2. `dotnet test UniCli.sln` to run unit tests.
+1. `dotnet format UniCli.slnx` to fix any formatting issues.
+2. `dotnet test UniCli.slnx` to run unit tests.
 
 ## Maintaining documentation
 
