@@ -18,6 +18,6 @@ jobs:
         with:
           dotnet-version: '9.0.x'
       - name: Restore
-        run: dotnet restore UniCli.sln
+        run: dotnet restore UniCli.slnx
       - name: Check formatting
-        run: dotnet format UniCli.sln --verify-no-changes --verbosity diagnostic
+        run: dotnet format UniCli.slnx --verify-no-changes --verbosity diagnostic
