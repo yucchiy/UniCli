@@ -142,7 +142,20 @@ public static class {className}
 
         private static string[] GetAdditionalReferences()
         {
+            var editorContentsPath = EditorApplication.applicationContentsPath;
             var seen = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (asm.IsDynamic) continue;
+                try
+                {
+                    var loc = asm.Location;
+                    if (!string.IsNullOrEmpty(loc) && loc.StartsWith(editorContentsPath, StringComparison.Ordinal))
+                        seen.Add(asm.GetName().Name);
+                }
+                catch { }
+            }
+
             var refs = new System.Collections.Generic.List<string>();
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
             {
