@@ -21,7 +21,7 @@ namespace UniCli.Server.Editor
         public int displayedCount;
     }
 
-    public sealed class EditorLogManager
+    public sealed class EditorLogManager : IDisposable
     {
         private readonly object _lock = new();
         private readonly Queue<LogEntry> _logBuffer = new();
@@ -123,6 +123,11 @@ namespace UniCli.Server.Editor
             {
                 _logBuffer.Clear();
             }
+        }
+
+        public void Dispose()
+        {
+            Application.logMessageReceivedThreaded -= OnLogMessageReceived;
         }
     }
 }
