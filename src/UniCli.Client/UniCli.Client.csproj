@@ -9,7 +9,7 @@
     <PublishAot>true</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <RollForward>LatestMajor</RollForward>
-    <Version>1.3.1</Version>
+    <Version>1.3.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
