@@ -35,7 +35,7 @@ namespace UniCli.Server.Editor.Handlers
             return $"{bytes / (1024.0 * 1024 * 1024):F2} GB";
         }
 
-        protected override ValueTask<ScreenshotCaptureResponse> ExecuteAsync(ScreenshotCaptureRequest request, CancellationToken cancellationToken)
+        protected override async ValueTask<ScreenshotCaptureResponse> ExecuteAsync(ScreenshotCaptureRequest request, CancellationToken cancellationToken)
         {
             if (!EditorApplication.isPlaying)
                 throw new InvalidOperationException("Screenshot.Capture requires Play Mode. Use PlayMode.Enter first.");
@@ -53,17 +53,12 @@ namespace UniCli.Server.Editor.Handlers
 
             int capturedWidth;
             int capturedHeight;
-
             Texture2D tex = null;
             try
             {
-                tex = ScreenCapture.CaptureScreenshotAsTexture(superSize);
-                if (tex == null)
-                    throw new InvalidOperationException("Failed to capture screenshot. Ensure the Game View is visible and rendering.");
-
+                tex = await CaptureScreenshotAsync(superSize, cancellationToken);
                 capturedWidth = tex.width;
                 capturedHeight = tex.height;
-
                 var pngBytes = tex.EncodeToPNG();
                 File.WriteAllBytes(path, pngBytes);
             }
@@ -79,13 +74,64 @@ namespace UniCli.Server.Editor.Handlers
                 throw new InvalidOperationException($"Failed to save screenshot to: {fullPath}");
 
             var fileInfo = new FileInfo(fullPath);
-            return new ValueTask<ScreenshotCaptureResponse>(new ScreenshotCaptureResponse
+            return new ScreenshotCaptureResponse
             {
                 path = fullPath,
                 width = capturedWidth,
                 height = capturedHeight,
                 size = fileInfo.Length
-            });
+            };
+        }
+
+        private static async Task<Texture2D> CaptureScreenshotAsync(int superSize, CancellationToken cancellationToken)
+        {
+            var gameObject = new GameObject("UniCliScreenshotCaptureRunner")
+            {
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            UnityEngine.Object.DontDestroyOnLoad(gameObject);
+
+            var runner = gameObject.AddComponent<ScreenshotCaptureRunner>();
+
+            try
+            {
+                return await runner.CaptureAsync(superSize, cancellationToken);
+            }
+            finally
+            {
+                if (gameObject != null)
+                    UnityEngine.Object.Destroy(gameObject);
+            }
+        }
+
+        private sealed class ScreenshotCaptureRunner : MonoBehaviour
+        {
+            public Task<Texture2D> CaptureAsync(int superSize, CancellationToken cancellationToken)
+            {
+                var tcs = new TaskCompletionSource<Texture2D>();
+                StartCoroutine(CaptureCoroutine(superSize, tcs, cancellationToken));
+                return tcs.Task;
+            }
+
+            private System.Collections.IEnumerator CaptureCoroutine(int superSize, TaskCompletionSource<Texture2D> tcs, CancellationToken cancellationToken)
+            {
+                yield return new WaitForEndOfFrame();
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    tcs.TrySetCanceled(cancellationToken);
+                    yield break;
+                }
+
+                var tex = ScreenCapture.CaptureScreenshotAsTexture(superSize);
+                if (tex != null)
+                {
+                    tcs.TrySetResult(tex);
+                    yield break;
+                }
+
+                tcs.TrySetException(new InvalidOperationException("Failed to capture screenshot. Ensure the Game View is visible and rendering."));
+            }
         }
     }
 
