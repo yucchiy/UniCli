@@ -9,7 +9,7 @@ description: >-
   `AssetDatabase.Import` after file changes and `Compile` verification after C#
   edits.
 metadata:
-  version: "1.3.1"
+  version: "1.3.2"
 ---
 
 # UniCli — Unity Editor CLI
