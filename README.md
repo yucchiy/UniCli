@@ -221,6 +221,12 @@ unicli exec GameObject.AddComponent --path "Enemy" --typeName BoxCollider
 unicli exec Scene.Open --path "Assets/Scenes/Level1.unity"
 unicli exec Scene.Save --all
 
+# Pre-flight before commands that can trigger scene-save dialogs (text output is compact)
+unicli exec Editor.Status
+# Save only when the dirty scenes are your own intended persistent changes.
+unicli exec Scene.Save '{"all":true}' --json
+unicli exec TestRunner.RunPlayMode --json
+
 # Set component properties
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
 
@@ -456,6 +462,7 @@ The following commands are built in. Run `unicli commands` to see this list from
 | Command | Description |
 |---|---|
 | `Compile` | Compile scripts and return results |
+| `Editor.Status` | Get EditorApplication, EditorSceneManager, SceneManager, and PrefabStageUtility status |
 | `Eval` | Compile and execute C# code dynamically |
 
 ### Console

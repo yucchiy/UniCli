@@ -30,6 +30,8 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 6. **When running tests**: Always use the default `--resultFilter failures` (or `--resultFilter none` for summary-only) to keep output minimal. Only use `--resultFilter all` when you specifically need to inspect individual passed test details. This prevents large test suites from flooding context. Stack traces are omitted by default (`--stackTraceLines 0`); use `--stackTraceLines 3` when you need to diagnose a failure location.
 7. **When checking console logs**: Use `Console.GetLog` with `{"logType":"Warning,Error"}` to filter out informational noise and focus on actionable issues. Stack traces are omitted by default; use `{"logType":"Error","stackTraceLines":3}` when debugging errors.
 8. **Discover commands dynamically**: Use `unicli commands --json` to list all available commands and `unicli exec <command> --help` to see parameters for any command. Do not rely on memorized command lists — the project may have custom commands.
+9. **Before scene-affecting operations**: Run `unicli exec Editor.Status` (without `--json` — the compact text summary is enough to check for dirty state and keeps output small) before `TestRunner.RunPlayMode`, `BuildPlayer.Build`, `Scene.Open`, `Scene.New`, `Scene.Close`, `Menu.Execute`, or entering Play Mode. `TestRunner.RunPlayMode` is the most common offender: the test runner creates a temporary test scene and swaps out the currently open scenes, so any unsaved scene changes at that moment can trigger a save prompt, abort the run, or leave the CLI waiting forever. If dirty scenes came from your own edits, save only the changes that should persist; revert or discard temporary probe changes when that is safer. If the dirty state may be from the user, do not save or discard it; ask the user how to proceed.
+10. **When commands hang or time out**: Suspect a Unity Editor modal dialog such as a scene save prompt. Do not keep retrying blindly; ask the user to close or resolve the dialog, then retry.
 
 ## Project Path
 
@@ -97,6 +99,15 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 - `--help` — Show command parameters and usage
 
 ## Key Workflows
+
+**Pre-flight before scene-affecting commands:**
+
+```bash
+unicli exec Editor.Status
+# Save only when the dirty scenes are your own intended persistent changes.
+unicli exec Scene.Save '{"all":true}' --json
+unicli exec TestRunner.RunPlayMode --json
+```
 
 **Compile and run tests:**
 
