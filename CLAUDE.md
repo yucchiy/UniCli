@@ -228,6 +228,7 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary '{"snapshot":"after"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","baseSnapshot":"before","limit":20,"minSize":1048576,"minSizeDelta":1048576}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","includeBreakdownTree":true,"pathFilter":"Native/Unity Subsystems","pathDepth":1,"memoryMetric":"both"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","scope":"managed","typeFilter":"System.","limit":20}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","scope":"native","includeNativeObjects":true,"typeFilter":"Texture2D","nameFilter":"atlas","limit":20}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.TopObjects '{"path":"MemoryCaptures/my_snapshot.snap","groupByType":true}' --json

@@ -239,6 +239,7 @@ unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/before.snap","name":"be
 unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/after.snap"}' --json
 unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/after.snap","name":"after"}' --json
 unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","baseSnapshot":"before","limit":20,"minSize":1048576,"minSizeDelta":1048576}' --json
+unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","includeBreakdownTree":true,"pathFilter":"Native/Unity Subsystems","pathDepth":1,"memoryMetric":"both"}' --json
 unicli exec MemorySnapshot.Diff '{"baseSnapshot":"before","targetSnapshot":"after","scope":"native","minSizeDelta":1048576}' --json
 unicli exec MemorySnapshot.TopObjects '{"snapshot":"after","scope":"managed","groupByType":true,"limit":10}' --json
 unicli exec MemorySnapshot.Analyze '{"snapshot":"after","baseSnapshot":"before","limit":10}' --json
@@ -658,12 +659,14 @@ Requires Unity Memory Profiler (`com.unity.memoryprofiler`). Use `MemorySnapshot
 | `MemorySnapshot.List` | List memory snapshot (.snap) files |
 | `MemorySnapshot.Load` | Analyze and pin a snapshot under a `name`/`id` for later commands |
 | `MemorySnapshot.Summary` | Summarize category totals and metadata; use `snapshot` or `path`, omitted `path` uses the latest `MemoryCaptures/*.snap` |
-| `MemorySnapshot.AllOfMemory` | Show a Memory Profiler All Of Memory style report with `limit`, `scope`, `typeFilter`, `nameFilter`, `minSize`, `minSizeDelta`, and `include*` filters |
+| `MemorySnapshot.AllOfMemory` | Show a Memory Profiler All Of Memory style report with `limit`, `scope`, `typeFilter`, `nameFilter`, `pathFilter`, `pathDepth`, `memoryMetric`, `minSize`, `minSizeDelta`, and `include*` filters |
 | `MemorySnapshot.TopObjects` | List largest retained native objects or native/managed type totals; use `snapshot` or `path` |
 | `MemorySnapshot.Diff` | Compare native or managed type deltas; use `baseSnapshot`/`targetSnapshot` or paths, omitted paths use latest and second latest captures |
 | `MemorySnapshot.Analyze` | Produce a compact summary/top/diff report for leak investigation |
 | `MemorySnapshot.Status` | Show loaded/cached snapshot analyses with id/name/pinned state |
 | `MemorySnapshot.Unload` | Release one loaded snapshot by `snapshot` id/name, or clear cached analysis results |
+
+`MemorySnapshot.AllOfMemory` can return a bounded flat `breakdownTree` with `includeBreakdownTree:true`; `pathFilter` matches root-origin `/` segments exactly and enables the tree implicitly. `memoryMetric` (`allocated`, `resident`, `both`) only affects `breakdownTree` sorting and `minSize`; type/object sections remain allocated-based, and resident falls back to allocated when unavailable.
 
 ### Screenshot / Recorder
 
