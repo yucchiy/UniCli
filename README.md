@@ -227,6 +227,16 @@ unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_I
 # Console logs
 unicli exec Console.GetLog '{"logType":"Warning,Error"}'
 
+# Memory snapshot leak check (requires com.unity.memoryprofiler)
+unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/before.snap"}' --json
+unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/before.snap","name":"before"}' --json
+unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/after.snap"}' --json
+unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/after.snap","name":"after"}' --json
+unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","baseSnapshot":"before","limit":20,"minSize":1048576,"minSizeDelta":1048576}' --json
+unicli exec MemorySnapshot.Diff '{"baseSnapshot":"before","targetSnapshot":"after","scope":"native","minSizeDelta":1048576}' --json
+unicli exec MemorySnapshot.TopObjects '{"snapshot":"after","scope":"managed","groupByType":true,"limit":10}' --json
+unicli exec MemorySnapshot.Analyze '{"snapshot":"after","baseSnapshot":"before","limit":10}' --json
+
 # Show command parameters and usage
 unicli exec GameObject.Find --help
 ```
@@ -631,6 +641,23 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `Profiler.AnalyzeFrames` | Analyze recorded frames and return aggregate statistics |
 | `Profiler.FindSpikes` | Find frames exceeding frame time or GC allocation thresholds |
 
+### Optional: Memory Profiler
+
+Requires Unity Memory Profiler (`com.unity.memoryprofiler`). Use `MemorySnapshot.Capture`, `Profiler.TakeSnapshot`, or the Memory Profiler window to capture `.snap` files.
+
+| Command | Description |
+|---|---|
+| `MemorySnapshot.Capture` | Capture a `.snap` file with configurable `Unity.Profiling.Memory.CaptureFlags` |
+| `MemorySnapshot.List` | List memory snapshot (.snap) files |
+| `MemorySnapshot.Load` | Analyze and pin a snapshot under a `name`/`id` for later commands |
+| `MemorySnapshot.Summary` | Summarize category totals and metadata; use `snapshot` or `path`, omitted `path` uses the latest `MemoryCaptures/*.snap` |
+| `MemorySnapshot.AllOfMemory` | Show a Memory Profiler All Of Memory style report with `limit`, `scope`, `typeFilter`, `nameFilter`, `minSize`, `minSizeDelta`, and `include*` filters |
+| `MemorySnapshot.TopObjects` | List largest retained native objects or native/managed type totals; use `snapshot` or `path` |
+| `MemorySnapshot.Diff` | Compare native or managed type deltas; use `baseSnapshot`/`targetSnapshot` or paths, omitted paths use latest and second latest captures |
+| `MemorySnapshot.Analyze` | Produce a compact summary/top/diff report for leak investigation |
+| `MemorySnapshot.Status` | Show loaded/cached snapshot analyses with id/name/pinned state |
+| `MemorySnapshot.Unload` | Release one loaded snapshot by `snapshot` id/name, or clear cached analysis results |
+
 ### Screenshot / Recorder
 
 | Command | Description |
@@ -700,6 +727,7 @@ The following modules are available:
 | Animation | Animator and AnimatorController operations |
 | Remote | Remote debug and Connection operations |
 | Recorder | Video recording operations (requires `com.unity.recorder`) |
+| MemoryProfiler | Memory snapshot analysis operations (requires `com.unity.memoryprofiler`) |
 | Search | Unity Search API operations |
 | NuGet | NuGet package management (requires NuGetForUnity) |
 | BuildMagic | BuildMagic build scheme operations (requires `jp.co.cyberagent.buildmagic`) |

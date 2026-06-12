@@ -58,7 +58,8 @@ namespace UniCli.Server.Editor
 
         public object CreateInstance(Type type)
         {
-            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(c => c.IsPublic || c.IsAssembly)
                 .OrderBy(c => c.GetParameters().Length)
                 .ToArray();
 
@@ -81,7 +82,7 @@ namespace UniCli.Server.Editor
 
                 if (canResolve)
                 {
-                    return Activator.CreateInstance(type, args);
+                    return ctor.Invoke(args);
                 }
             }
 

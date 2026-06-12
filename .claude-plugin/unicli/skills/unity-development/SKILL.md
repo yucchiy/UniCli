@@ -162,6 +162,34 @@ unicli exec Remote.Invoke '{"command":"Debug.GetPlayerPref","data":"{\"key\":\"H
 
 Built-in debug commands: `Debug.SystemInfo`, `Debug.Stats`, `Debug.GetLogs`, `Debug.GetHierarchy`, `Debug.FindGameObjects`, `Debug.GetScenes`, `Debug.GetPlayerPref`
 
+**Investigate a memory leak:**
+
+`MemorySnapshot.*` commands are available when the project has `com.unity.memoryprofiler`. Captures can come from `MemorySnapshot.Capture`, `Profiler.TakeSnapshot`, or the Memory Profiler window; commands read `.snap` paths or named loaded snapshots and keep heavy snapshot data out of the CLI response.
+
+```bash
+unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/before.snap"}' --json
+# Reproduce the suspected leak in Play Mode or a connected player.
+unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/after.snap"}' --json
+unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/before.snap","name":"before"}' --json
+unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/after.snap","name":"after"}' --json
+unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","baseSnapshot":"before","limit":20,"minSize":1048576,"minSizeDelta":1048576}' --json
+unicli exec MemorySnapshot.Diff '{"baseSnapshot":"before","targetSnapshot":"after","scope":"native","minSizeDelta":1048576}' --json
+unicli exec MemorySnapshot.TopObjects '{"snapshot":"after","typeFilter":"Texture2D","limit":20}' --json
+unicli exec MemorySnapshot.TopObjects '{"snapshot":"after","scope":"managed","groupByType":true,"limit":20}' --json
+unicli exec MemorySnapshot.Analyze '{"snapshot":"after","baseSnapshot":"before","limit":10}' --json
+```
+
+Useful MemorySnapshot commands:
+
+- `MemorySnapshot.Capture` — capture a `.snap` file; optional `flags` are `Unity.Profiling.Memory.CaptureFlags` names.
+- `MemorySnapshot.List` / `MemorySnapshot.Load` — list files, then pin a snapshot under a stable `name`/`id`.
+- `MemorySnapshot.Status` / `MemorySnapshot.Unload` — inspect loaded/cached analyses, release one by id/name, or clear all cached entries.
+- `MemorySnapshot.Summary` — category totals and metadata; use `snapshot` or `path`, omitted `path` uses the latest `MemoryCaptures/*.snap`.
+- `MemorySnapshot.AllOfMemory` — Memory Profiler All Of Memory style report; default is bounded type sections, use `limit`, `scope`, `typeFilter`, `nameFilter`, `minSize`, `minSizeDelta`, and `includeNativeObjects` to control output size.
+- `MemorySnapshot.TopObjects` — largest native objects or native/managed type totals; use `scope:"managed"` for managed type aggregation.
+- `MemorySnapshot.Diff` — native/managed type deltas; use `baseSnapshot`/`targetSnapshot` or paths, omitted paths use latest and second latest snapshots.
+- `MemorySnapshot.Analyze` — compact one-shot report combining summary, top types/objects, and optional diff.
+
 ## Custom Command Handlers
 
 The server auto-discovers all `ICommandHandler` implementations via `TypeCache`, so no manual registration is required.
