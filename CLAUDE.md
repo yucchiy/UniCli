@@ -28,6 +28,7 @@ dotnet build src/UniCli.Client
 # Publish Client and test with the built binary
 dotnet publish src/UniCli.Client -o .build
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli commands --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Editor.Status --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Compile --json
 
 # GameObject operations
