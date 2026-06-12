@@ -172,6 +172,160 @@ namespace UniCli.Server.Editor.MemorySnapshot.Tests
         }
 
         [Test]
+        public void Unit_GetBreakdownTree_PathFilterRootExact_IncludesAncestorsAndDescendants()
+        {
+            var analysis = BreakdownAnalysis(
+                BreakdownNode("Native", allocated: 100, resident: 90),
+                BreakdownNode("Native/Unity Subsystems", allocated: 70, resident: 65),
+                BreakdownNode("Native/Unity Subsystems/Textures", allocated: 40, resident: 35),
+                BreakdownNode("Native/Native Objects", allocated: 30, resident: 25),
+                BreakdownNode("Managed", allocated: 50, resident: 45));
+
+            var result = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "native/unity subsystems",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "Native",
+                "Native/Unity Subsystems",
+                "Native/Unity Subsystems/Textures"
+            }, result.Nodes.Select(node => node.path).ToArray());
+            Assert.AreEqual(1, result.Nodes[0].childrenCount);
+            Assert.AreEqual(1, result.Nodes[1].childrenCount);
+        }
+
+        [Test]
+        public void Unit_GetBreakdownTree_PathFilterNonRootSegment_ReturnsEmptySection()
+        {
+            var analysis = BreakdownAnalysis(
+                BreakdownNode("Native", allocated: 100, resident: 90),
+                BreakdownNode("Native/Unity Subsystems", allocated: 70, resident: 65));
+
+            var result = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "Unity Subsystems",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+
+            Assert.IsTrue(result.Included);
+            Assert.AreEqual(0, result.Nodes.Length);
+        }
+
+        [Test]
+        public void Unit_GetBreakdownTree_PathDepth_DefaultRelativeAndClamp_AppliesToRequestedRoot()
+        {
+            var analysis = BreakdownAnalysis(
+                BreakdownNode("Native", allocated: 100, resident: 90),
+                BreakdownNode("Native/Native Objects", allocated: 40, resident: 30),
+                BreakdownNode("Native/Unity Subsystems", allocated: 70, resident: 65),
+                BreakdownNode("Native/Unity Subsystems/Textures", allocated: 40, resident: 35),
+                BreakdownNode("Native/Unity Subsystems/Textures/Texture2D", allocated: 30, resident: 20));
+
+            var defaultDepth = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "",
+                pathDepth: 0,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+            var pathRelative = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "Native/Unity Subsystems",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+            var clamped = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "",
+                pathDepth: 99,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+
+            Assert.AreEqual(2, defaultDepth.EffectivePathDepth);
+            CollectionAssert.DoesNotContain(defaultDepth.Nodes.Select(node => node.path).ToArray(), "Native/Unity Subsystems/Textures/Texture2D");
+            Assert.AreEqual(1, pathRelative.EffectivePathDepth);
+            CollectionAssert.AreEqual(new[]
+            {
+                "Native",
+                "Native/Unity Subsystems",
+                "Native/Unity Subsystems/Textures"
+            }, pathRelative.Nodes.Select(node => node.path).ToArray());
+            Assert.AreEqual(3, clamped.EffectivePathDepth);
+        }
+
+        [Test]
+        public void Unit_GetBreakdownTree_MemoryMetricResident_FiltersAndFallsBackWhenUnavailable()
+        {
+            var analysis = BreakdownAnalysis(
+                BreakdownNode("Native", allocated: 100, resident: 100),
+                BreakdownNode("Native/AllocatedLarge", allocated: 80, resident: 1),
+                BreakdownNode("Native/ResidentLarge", allocated: 10, resident: 70));
+
+            var resident = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "Native",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Resident,
+                minSize: 50,
+                responseLimit: 500);
+            var unavailable = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                BreakdownAnalysis(
+                    BreakdownNode("Native", allocated: 100, resident: 0, residentAvailable: false),
+                    BreakdownNode("Native/AllocatedLarge", allocated: 80, resident: 0, residentAvailable: false),
+                    BreakdownNode("Native/ResidentLarge", allocated: 10, resident: 0, residentAvailable: false)),
+                pathFilter: "Native",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Resident,
+                minSize: 50,
+                responseLimit: 500);
+
+            CollectionAssert.AreEqual(new[] { "Native", "Native/ResidentLarge" }, resident.Nodes.Select(node => node.path).ToArray());
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Resident, resident.EffectiveMemoryMetric);
+            CollectionAssert.AreEqual(new[] { "Native", "Native/AllocatedLarge" }, unavailable.Nodes.Select(node => node.path).ToArray());
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Allocated, unavailable.EffectiveMemoryMetric);
+        }
+
+        [Test]
+        public void Unit_GetBreakdownTree_ResponseLimitAndDepth_MarkReturnedChildrenTruncated()
+        {
+            var analysis = BreakdownAnalysis(
+                BreakdownNode("Native", allocated: 100, resident: 90),
+                BreakdownNode("Native/A", allocated: 60, resident: 50),
+                BreakdownNode("Native/A/Deep", allocated: 30, resident: 20),
+                BreakdownNode("Native/B", allocated: 50, resident: 40));
+
+            var depthLimited = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "Native",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 500);
+            var responseLimited = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                analysis,
+                pathFilter: "Native",
+                pathDepth: 1,
+                memoryMetric: MemorySnapshotMemoryMetric.Allocated,
+                minSize: 0,
+                responseLimit: 2);
+
+            Assert.AreEqual(0, depthLimited.Nodes[1].childrenCount);
+            Assert.IsTrue(depthLimited.Nodes[1].childrenTruncated);
+            Assert.IsTrue(responseLimited.Truncated);
+            Assert.AreEqual(1, responseLimited.Nodes[0].childrenCount);
+            Assert.IsTrue(responseLimited.Nodes[0].childrenTruncated);
+        }
+
+        [Test]
         public void Unit_ResolveDefaultSnapshot_SelectsLatestAndSecondLatestByMtime()
         {
             var directory = Path.Combine(Path.GetTempPath(), "unicli-memorysnapshot-" + Guid.NewGuid().ToString("N"));
@@ -297,6 +451,7 @@ namespace UniCli.Server.Editor.MemorySnapshot.Tests
             Assert.IsTrue(request.includeNativeTypes);
             Assert.IsTrue(request.includeManagedTypes);
             Assert.IsFalse(request.includeNativeObjects);
+            Assert.IsFalse(request.includeBreakdownTree);
             Assert.IsTrue(request.includeDiff);
         }
 
@@ -310,6 +465,16 @@ namespace UniCli.Server.Editor.MemorySnapshot.Tests
             Assert.Throws<CommandFailedException>(() => MemorySnapshotAllOfMemoryScopeParser.Parse("objects"));
         }
 
+        [Test]
+        public void Unit_MemoryMetricParser_VariousInputs_ReturnsExpected()
+        {
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Allocated, MemorySnapshotMemoryMetricParser.Parse(""));
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Allocated, MemorySnapshotMemoryMetricParser.Parse("allocated"));
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Resident, MemorySnapshotMemoryMetricParser.Parse("resident"));
+            Assert.AreEqual(MemorySnapshotMemoryMetric.Both, MemorySnapshotMemoryMetricParser.Parse("both"));
+            Assert.Throws<CommandFailedException>(() => MemorySnapshotMemoryMetricParser.Parse("committed"));
+        }
+
         private static SnapshotAnalysis Analysis(params MemorySnapshotNativeTypeStat[] typeStats)
         {
             return new SnapshotAnalysis
@@ -318,6 +483,49 @@ namespace UniCli.Server.Editor.MemorySnapshot.Tests
                 ManagedTypeStats = new MemorySnapshotNativeTypeStat[0],
                 TopNativeObjects = new RetainedNativeObjectInfo[0]
             };
+        }
+
+        private static SnapshotAnalysis BreakdownAnalysis(params MemorySnapshotBreakdownTreeNode[] breakdownTree)
+        {
+            foreach (var node in breakdownTree)
+            {
+                node.RetainedChildrenCount = breakdownTree.Count(candidate => IsDirectChild(node.Path, candidate.Path));
+            }
+
+            return new SnapshotAnalysis
+            {
+                BreakdownTree = breakdownTree,
+                Categories = new MemorySnapshotCategoryInfo[0],
+                NativeTypeStats = new MemorySnapshotNativeTypeStat[0],
+                ManagedTypeStats = new MemorySnapshotNativeTypeStat[0],
+                TopNativeObjects = new RetainedNativeObjectInfo[0]
+            };
+        }
+
+        private static MemorySnapshotBreakdownTreeNode BreakdownNode(
+            string path,
+            long allocated,
+            long resident,
+            bool residentAvailable = true)
+        {
+            var nameStart = path.LastIndexOf('/') + 1;
+            return new MemorySnapshotBreakdownTreeNode
+            {
+                Path = path,
+                Name = path.Substring(nameStart),
+                Depth = path.Count(character => character == '/'),
+                Allocated = allocated,
+                Resident = resident,
+                ResidentAvailable = residentAvailable
+            };
+        }
+
+        private static bool IsDirectChild(string parentPath, string path)
+        {
+            if (!path.StartsWith(parentPath + "/", StringComparison.Ordinal))
+                return false;
+
+            return path.IndexOf('/', parentPath.Length + 1) < 0;
         }
 
         private static MemorySnapshotNativeTypeStat TypeStat(string typeName, long count, long totalSize)

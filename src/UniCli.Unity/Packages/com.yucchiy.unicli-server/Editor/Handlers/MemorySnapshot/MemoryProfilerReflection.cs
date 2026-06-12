@@ -204,6 +204,11 @@ namespace UniCli.Server.Editor.Handlers
             var categories = ExtractCategories(snapshot);
             var nativeData = ExtractNativeData(snapshot);
             var managedData = ExtractManagedData(snapshot);
+            ExtractBreakdownTree(
+                snapshot,
+                categories.Any(category => category.residentAvailable),
+                out var breakdownTree,
+                out var breakdownTreeUnavailableReason);
 
             return new SnapshotAnalysis
             {
@@ -215,6 +220,8 @@ namespace UniCli.Server.Editor.Handlers
                 NativeTypeStats = nativeData.TypeStats,
                 ManagedTypeStats = managedData.TypeStats,
                 TopNativeObjects = nativeData.TopObjects,
+                BreakdownTree = breakdownTree,
+                BreakdownTreeUnavailableReason = breakdownTreeUnavailableReason,
                 NativeObjectCount = nativeData.NativeObjectCount,
                 TotalNativeSize = nativeData.TotalNativeSize,
                 ManagedObjectCount = managedData.ManagedObjectCount,
@@ -261,6 +268,29 @@ namespace UniCli.Server.Editor.Handlers
             }
 
             return categories.ToArray();
+        }
+
+        private static void ExtractBreakdownTree(
+            object snapshot,
+            bool residentAvailable,
+            out MemorySnapshotBreakdownTreeNode[] breakdownTree,
+            out string unavailableReason)
+        {
+            breakdownTree = null;
+            unavailableReason = "";
+
+            if (!AllTrackedMemoryReflection.TryGet(out var reflection, out unavailableReason))
+                return;
+
+            try
+            {
+                breakdownTree = reflection.BuildBreakdownTree(snapshot, residentAvailable);
+            }
+            catch (Exception ex)
+            {
+                breakdownTree = null;
+                unavailableReason = ex.InnerException?.Message ?? ex.Message;
+            }
         }
 
         private NativeExtractionResult ExtractNativeData(object snapshot)

@@ -19,6 +19,7 @@ namespace UniCli.Server.Editor.Handlers
         protected override ValueTask<MemorySnapshotAllOfMemoryResponse> ExecuteAsync(MemorySnapshotAllOfMemoryRequest request, CancellationToken cancellationToken)
         {
             var scope = MemorySnapshotAllOfMemoryScopeParser.Parse(request.scope);
+            var memoryMetric = MemorySnapshotMemoryMetricParser.Parse(request.memoryMetric);
             if (scope == MemorySnapshotAllOfMemoryScope.Managed && !string.IsNullOrEmpty(request.nameFilter))
             {
                 throw new CommandFailedException(
@@ -34,6 +35,7 @@ namespace UniCli.Server.Editor.Handlers
             var includeNativeObjects = (request.includeNativeObjects || !string.IsNullOrEmpty(request.nameFilter)) &&
                 scope != MemorySnapshotAllOfMemoryScope.Managed;
             var includeDiff = request.includeDiff && (!string.IsNullOrEmpty(request.baseSnapshot) || !string.IsNullOrEmpty(request.basePath));
+            var includeBreakdownTree = request.includeBreakdownTree || !string.IsNullOrEmpty(request.pathFilter);
 
             var analysis = GetAnalysisByReferenceOrDefault(
                 request.snapshot,
@@ -60,15 +62,40 @@ namespace UniCli.Server.Editor.Handlers
                     limit = limit,
                     typeFilter = request.typeFilter ?? "",
                     nameFilter = request.nameFilter ?? "",
+                    pathFilter = request.pathFilter ?? "",
+                    pathDepth = request.pathDepth <= 0 ? MemorySnapshotBreakdownTreeLimits.DefaultPathDepth : request.pathDepth,
+                    memoryMetric = MemorySnapshotMemoryMetricParser.Name(memoryMetric),
                     minSize = minSize,
                     minSizeDelta = minSizeDelta,
                     includeCategories = request.includeCategories,
                     includeNativeTypes = includeNativeTypes,
                     includeManagedTypes = includeManagedTypes,
                     includeNativeObjects = includeNativeObjects,
+                    includeBreakdownTree = includeBreakdownTree,
                     includeDiff = includeDiff
                 }
             };
+
+            if (includeBreakdownTree)
+            {
+                var breakdownTree = MemorySnapshotAnalysisQueries.GetBreakdownTree(
+                    analysis,
+                    request.pathFilter,
+                    request.pathDepth,
+                    memoryMetric,
+                    minSize,
+                    MemorySnapshotBreakdownTreeLimits.MaxResponseNodes);
+
+                response.filters.pathDepth = breakdownTree.EffectivePathDepth;
+                response.filters.memoryMetric = MemorySnapshotMemoryMetricParser.Name(breakdownTree.EffectiveMemoryMetric);
+                response.breakdownTree = new MemorySnapshotAllOfMemoryBreakdownTreeSection
+                {
+                    included = breakdownTree.Included,
+                    unavailableReason = breakdownTree.UnavailableReason ?? "",
+                    nodes = breakdownTree.Nodes ?? Array.Empty<MemorySnapshotBreakdownTreeNodeInfo>(),
+                    truncated = breakdownTree.Truncated
+                };
+            }
 
             if (includeNativeTypes)
                 response.nativeTypes = ToTypeSection(analysis, MemorySnapshotScope.Native, request.typeFilter, limit, minSize);
@@ -187,12 +214,16 @@ namespace UniCli.Server.Editor.Handlers
         public int limit = 20;
         public string typeFilter;
         public string nameFilter;
+        public string pathFilter;
+        public int pathDepth;
+        public string memoryMetric;
         public long minSize;
         public long minSizeDelta;
         public bool includeCategories = true;
         public bool includeNativeTypes = true;
         public bool includeManagedTypes = true;
         public bool includeNativeObjects;
+        public bool includeBreakdownTree;
         public bool includeDiff = true;
     }
 
@@ -211,6 +242,7 @@ namespace UniCli.Server.Editor.Handlers
         public MemorySnapshotAllOfMemoryTypeSection nativeTypes;
         public MemorySnapshotAllOfMemoryTypeSection managedTypes;
         public MemorySnapshotAllOfMemoryObjectSection nativeObjects;
+        public MemorySnapshotAllOfMemoryBreakdownTreeSection breakdownTree;
         public MemorySnapshotAllOfMemoryDiffSection diff;
         public MemorySnapshotAllOfMemoryFilterInfo filters;
     }
@@ -222,12 +254,16 @@ namespace UniCli.Server.Editor.Handlers
         public int limit;
         public string typeFilter;
         public string nameFilter;
+        public string pathFilter;
+        public int pathDepth;
+        public string memoryMetric;
         public long minSize;
         public long minSizeDelta;
         public bool includeCategories;
         public bool includeNativeTypes;
         public bool includeManagedTypes;
         public bool includeNativeObjects;
+        public bool includeBreakdownTree;
         public bool includeDiff;
     }
 
@@ -248,6 +284,15 @@ namespace UniCli.Server.Editor.Handlers
     {
         public bool included;
         public MemorySnapshotNativeObjectInfo[] objects;
+        public bool truncated;
+    }
+
+    [Serializable]
+    public class MemorySnapshotAllOfMemoryBreakdownTreeSection
+    {
+        public bool included;
+        public string unavailableReason;
+        public MemorySnapshotBreakdownTreeNodeInfo[] nodes;
         public bool truncated;
     }
 
