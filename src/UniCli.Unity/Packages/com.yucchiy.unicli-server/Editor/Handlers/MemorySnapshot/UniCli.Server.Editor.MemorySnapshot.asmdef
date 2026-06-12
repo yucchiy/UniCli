@@ -1,0 +1,26 @@
+{
+    "name": "UniCli.Server.Editor.MemorySnapshot",
+    "rootNamespace": "UniCli.Server.Editor.Handlers.MemorySnapshot",
+    "references": [
+        "UniCli.Server.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNICLI_MEMORY_PROFILER"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.memoryprofiler",
+            "expression": "[1.0.0,2.0.0)",
+            "define": "UNICLI_MEMORY_PROFILER"
+        }
+    ],
+    "noEngineReferences": false
+}

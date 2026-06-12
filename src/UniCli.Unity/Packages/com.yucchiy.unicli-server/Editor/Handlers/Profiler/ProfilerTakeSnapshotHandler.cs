@@ -10,7 +10,7 @@ namespace UniCli.Server.Editor.Handlers
     public sealed class ProfilerTakeSnapshotHandler : CommandHandler<ProfilerTakeSnapshotRequest, ProfilerTakeSnapshotResponse>
     {
         public override string CommandName => "Profiler.TakeSnapshot";
-        public override string Description => "Take a memory snapshot (.snap file)";
+        public override string Description => "Take a memory snapshot (.snap file); use MemorySnapshot.Capture when the optional MemorySnapshot command family is available";
 
         protected override bool TryWriteFormatted(ProfilerTakeSnapshotResponse response, bool success, IFormatWriter writer)
         {

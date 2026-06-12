@@ -1,0 +1,30 @@
+{
+    "name": "UniCli.Server.Editor.MemorySnapshot.Tests",
+    "rootNamespace": "UniCli.Server.Editor.MemorySnapshot.Tests",
+    "references": [
+        "UniCli.Server.Editor",
+        "UniCli.Server.Editor.MemorySnapshot"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS",
+        "UNICLI_MEMORY_PROFILER"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.memoryprofiler",
+            "expression": "[1.0.0,2.0.0)",
+            "define": "UNICLI_MEMORY_PROFILER"
+        }
+    ],
+    "noEngineReferences": false
+}

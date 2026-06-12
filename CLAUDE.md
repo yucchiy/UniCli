@@ -216,6 +216,30 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameT
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"gcThresholdBytes":1024}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Profiler.FindSpikes '{"frameTimeThresholdMs":16.6,"gcThresholdBytes":1024,"limit":5}' --json
 
+# Memory snapshot analysis (requires com.unity.memoryprofiler; capture with MemorySnapshot.Capture, Profiler.TakeSnapshot, or the Memory Profiler window)
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Capture --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Capture '{"path":"MemoryCaptures/before.snap","flags":["ManagedObjects","NativeObjects","NativeAllocations"]}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.List --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/before.snap","name":"before"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Load '{"path":"MemoryCaptures/after.snap","name":"after"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Status --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary '{"path":"MemoryCaptures/my_snapshot.snap"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Summary '{"snapshot":"after"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","baseSnapshot":"before","limit":20,"minSize":1048576,"minSizeDelta":1048576}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","scope":"managed","typeFilter":"System.","limit":20}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.AllOfMemory '{"snapshot":"after","scope":"native","includeNativeObjects":true,"typeFilter":"Texture2D","nameFilter":"atlas","limit":20}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.TopObjects '{"path":"MemoryCaptures/my_snapshot.snap","groupByType":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.TopObjects '{"snapshot":"after","scope":"managed","groupByType":true,"limit":20}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.TopObjects '{"path":"MemoryCaptures/my_snapshot.snap","typeFilter":"Texture2D","limit":20}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Diff --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Diff '{"basePath":"MemoryCaptures/before.snap","targetPath":"MemoryCaptures/after.snap"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Diff '{"baseSnapshot":"before","targetSnapshot":"after","scope":"managed","minSizeDelta":1048576}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Diff '{"scope":"managed","minSizeDelta":1048576}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Analyze '{"snapshot":"after","baseSnapshot":"before","limit":10}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Unload '{"snapshot":"before"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec MemorySnapshot.Unload --json
+
 # Recorder operations (requires Play Mode and com.unity.recorder package)
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording '{"path":"Recordings/test.mp4"}' --json
