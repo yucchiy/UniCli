@@ -11,6 +11,17 @@ namespace UniCli.Server.Editor
         public string stackTrace;
         public string type;
         public string timestamp;
+
+        public LogEntry Clone()
+        {
+            return new LogEntry
+            {
+                message = message,
+                stackTrace = stackTrace,
+                type = type,
+                timestamp = timestamp
+            };
+        }
     }
 
     [Serializable]
@@ -65,7 +76,13 @@ namespace UniCli.Server.Editor
         {
             lock (_lock)
             {
-                return _logBuffer.ToArray();
+                var logs = new LogEntry[_logBuffer.Count];
+                var i = 0;
+                foreach (var entry in _logBuffer)
+                {
+                    logs[i++] = entry.Clone();
+                }
+                return logs;
             }
         }
 
@@ -95,7 +112,7 @@ namespace UniCli.Server.Editor
                     if (filterBySearch && !entry.message.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    result.Add(entry);
+                    result.Add(entry.Clone());
                 }
             }
 
