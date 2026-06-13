@@ -221,6 +221,10 @@ unicli exec GameObject.AddComponent --path "Enemy" --typeName BoxCollider
 unicli exec Scene.Open --path "Assets/Scenes/Level1.unity"
 unicli exec Scene.Save --all
 
+# SceneView screenshots (lookAt: GameObject path; offset: added to the lookAt position)
+unicli exec Scene.Screenshot2D '{"lookAt":"Player","offset":[1,0],"size":5,"path":"Screenshots/map.png"}'
+unicli exec Scene.Screenshot3D '{"lookAt":"Player","yaw":45,"pitch":30,"distance":10,"path":"Screenshots/shot.png"}'
+
 # Pre-flight before commands that can trigger scene-save dialogs (text output is compact)
 unicli exec Editor.Status
 # Save only when the dirty scenes are your own intended persistent changes.
@@ -534,6 +538,8 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `Scene.Close` | Close a loaded scene |
 | `Scene.Save` | Save a scene or all open scenes |
 | `Scene.New` | Create a new scene |
+| `Scene.Screenshot2D` | Capture a SceneView screenshot in 2D mode (orthographic) as PNG |
+| `Scene.Screenshot3D` | Capture a SceneView screenshot in 3D mode (orbit by yaw/pitch/distance) as PNG |
 
 ### Asset
 
