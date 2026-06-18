@@ -50,7 +50,7 @@ namespace UniCli.Server.Editor.Handlers
             {
                 gameObjectName = go.name,
                 typeName = componentType.FullName,
-                instanceId = component.GetInstanceID(),
+                instanceId = UnityObjectIdUtility.GetId(component),
                 enabled = component is not Behaviour behaviour || behaviour.enabled
             });
         }

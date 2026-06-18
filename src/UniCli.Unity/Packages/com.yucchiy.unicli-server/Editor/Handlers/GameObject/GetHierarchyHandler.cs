@@ -118,7 +118,7 @@ namespace UniCli.Server.Editor.Handlers
 
             var node = new HierarchyNode
             {
-                instanceId = go.GetInstanceID(),
+                instanceId = UnityObjectIdUtility.GetId(go),
                 name = go.name,
                 depth = depth,
                 isActive = go.activeSelf,

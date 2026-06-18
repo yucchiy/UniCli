@@ -27,7 +27,7 @@ namespace UniCli.Server.Editor.Handlers
             if (request.componentInstanceId == 0)
                 throw new ArgumentException("componentInstanceId is required");
 
-            var obj = EditorUtility.InstanceIDToObject(request.componentInstanceId);
+            var obj = UnityObjectIdUtility.ToObject(request.componentInstanceId);
             if (obj is not Component component)
             {
                 throw new CommandFailedException(
@@ -44,7 +44,7 @@ namespace UniCli.Server.Editor.Handlers
 
             var goName = component.gameObject.name;
             var typeName = component.GetType().FullName;
-            var instanceId = component.GetInstanceID();
+            var instanceId = UnityObjectIdUtility.GetId(component);
 
             Undo.DestroyObjectImmediate(component);
 

@@ -61,7 +61,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<PrefabInstantiateResponse>(new PrefabInstantiateResponse
             {
-                instanceId = instance.GetInstanceID(),
+                instanceId = UnityObjectIdUtility.GetId(instance),
                 name = instance.name,
                 assetPath = request.assetPath
             });

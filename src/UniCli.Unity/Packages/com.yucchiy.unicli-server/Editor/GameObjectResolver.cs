@@ -24,7 +24,7 @@ namespace UniCli.Server.Editor
         public static GameObject ResolveByIdOrPath(int instanceId, string path)
         {
             if (instanceId != 0)
-                return EditorUtility.InstanceIDToObject(instanceId) as GameObject;
+                return UnityObjectIdUtility.ToObject(instanceId) as GameObject;
 
             return ResolveByPath(path);
         }
