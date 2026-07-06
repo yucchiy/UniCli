@@ -76,7 +76,7 @@ namespace UniCli.Server.Editor.Handlers
 
                     results.Add(new GameObjectResult
                     {
-                        instanceId = go.GetInstanceID(),
+                        instanceId = UnityObjectIdentity.GetId(go),
                         name = go.name,
                         path = path,
                         isActive = go.activeSelf,

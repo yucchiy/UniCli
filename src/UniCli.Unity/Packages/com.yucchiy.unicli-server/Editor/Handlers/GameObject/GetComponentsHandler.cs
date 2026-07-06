@@ -32,7 +32,7 @@ namespace UniCli.Server.Editor.Handlers
 
                 var detail = new ComponentDetail
                 {
-                    instanceId = component.GetInstanceID(),
+                    instanceId = UnityObjectIdentity.GetId(component),
                     typeName = component.GetType().FullName,
                     enabled = component is not Behaviour behaviour || behaviour.enabled,
                     properties = ExtractProperties(component)

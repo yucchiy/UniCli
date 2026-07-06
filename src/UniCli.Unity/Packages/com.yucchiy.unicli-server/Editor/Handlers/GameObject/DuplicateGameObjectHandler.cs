@@ -49,7 +49,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<CreateGameObjectResponse>(new CreateGameObjectResponse
             {
-                instanceId = duplicate.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(duplicate),
                 name = duplicate.name,
                 path = GameObjectResolver.BuildPath(duplicate.transform),
                 isActive = duplicate.activeSelf,

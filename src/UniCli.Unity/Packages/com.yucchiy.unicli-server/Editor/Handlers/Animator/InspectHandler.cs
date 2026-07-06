@@ -110,7 +110,7 @@ namespace UniCli.Server.Editor.Handlers
             {
                 gameObjectName = go.name,
                 gameObjectPath = GameObjectResolver.BuildPath(go.transform),
-                instanceId = animator.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(animator),
                 enabled = animator.enabled,
                 controllerAssetPath = controllerPath,
                 parameters = parameters.ToArray(),

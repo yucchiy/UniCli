@@ -2,8 +2,9 @@ namespace UniCli.Server.Editor
 {
     /// <summary>
     /// Unity 6.5 (6000.5) made Object.GetInstanceID() and EditorUtility.InstanceIDToObject(int)
-    /// obsolete errors, so the version branch is centralized here. The wire format stays int
-    /// (EntityId has implicit conversions to and from int).
+    /// obsolete errors, so the version branch is centralized here. The wire format stays int.
+    /// The EntityId -> int implicit conversion is itself an obsolete error in 6000.5, so ids
+    /// are extracted through EntityId.ToULong (low 32 bits); int -> EntityId stays implicit.
     /// The boundary is UNITY_6000_5_OR_NEWER: GetEntityId is confirmed present in 6000.5 and
     /// absent in 6000.0; 6000.1-6000.4 are unverified, so they fall back to the legacy APIs.
     /// </summary>
@@ -12,7 +13,7 @@ namespace UniCli.Server.Editor
         public static int GetId(UnityEngine.Object obj)
         {
 #if UNITY_6000_5_OR_NEWER
-            return obj.GetEntityId();
+            return unchecked((int)UnityEngine.EntityId.ToULong(obj.GetEntityId()));
 #else
             return obj.GetInstanceID();
 #endif

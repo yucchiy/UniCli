@@ -32,7 +32,7 @@ namespace UniCli.Server.Editor.Handlers
             }
 
             var name = go.name;
-            var instanceId = go.GetInstanceID();
+            var instanceId = UnityObjectIdentity.GetId(go);
 
             Undo.DestroyObjectImmediate(go);
 

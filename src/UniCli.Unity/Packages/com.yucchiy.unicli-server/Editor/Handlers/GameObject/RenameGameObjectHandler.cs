@@ -42,7 +42,7 @@ namespace UniCli.Server.Editor.Handlers
             {
                 previousName = previousName,
                 name = go.name,
-                instanceId = go.GetInstanceID()
+                instanceId = UnityObjectIdentity.GetId(go)
             });
         }
     }
