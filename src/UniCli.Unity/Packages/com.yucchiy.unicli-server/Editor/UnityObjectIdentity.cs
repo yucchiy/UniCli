@@ -16,6 +16,10 @@ namespace UniCli.Server.Editor
         {
 #if UNITY_6000_5_OR_NEWER
             // EntityId is 64-bit in 6000.5 with meaningful upper bits (measured); never truncate.
+            // The long is a bit-exact reinterpretation of the ulong raw value: Resolve recovers
+            // the same bits via unchecked((ulong)id), so nothing is lost even if the top bit is
+            // ever set (the id merely appears negative). A signed wire type is required anyway
+            // because legacy instance ids on older Unity versions are negative.
             return unchecked((long)UnityEngine.EntityId.ToULong(obj.GetEntityId()));
 #else
             return obj.GetInstanceID();
