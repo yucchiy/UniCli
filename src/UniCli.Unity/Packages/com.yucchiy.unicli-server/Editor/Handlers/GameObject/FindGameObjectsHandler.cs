@@ -182,7 +182,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class GameObjectResult
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string path;
         public bool isActive;

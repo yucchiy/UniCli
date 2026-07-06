@@ -38,7 +38,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetActiveRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public bool active;
     }

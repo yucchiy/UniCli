@@ -106,7 +106,7 @@ namespace UniCli.SourceGenerator.Emitters
                     sb.AppendLine($"{indent}public string guid;");
                     break;
                 case SettingsCommandGenerator.ResolveMode.InstanceId:
-                    sb.AppendLine($"{indent}public int instanceId;");
+                    sb.AppendLine($"{indent}public long instanceId;");
                     break;
             }
         }

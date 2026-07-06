@@ -69,7 +69,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class AnimatorCrossFadeRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public string stateName = "";
         public int layer;

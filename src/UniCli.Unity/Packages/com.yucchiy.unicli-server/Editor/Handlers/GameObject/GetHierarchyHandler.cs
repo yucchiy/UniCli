@@ -179,7 +179,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class HierarchyNode
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public int depth;
         public bool isActive;

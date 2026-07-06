@@ -149,7 +149,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class AnimatorInspectRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
     }
 
@@ -158,7 +158,7 @@ namespace UniCli.Server.Editor.Handlers
     {
         public string gameObjectName;
         public string gameObjectPath;
-        public int instanceId;
+        public long instanceId;
         public bool enabled;
         public string controllerAssetPath;
         public AnimatorRuntimeParameterInfo[] parameters;

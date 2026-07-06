@@ -63,6 +63,6 @@ namespace UniCli.Server.Editor.Handlers
     public class CreateWindowResponse
     {
         public string typeName;
-        public int instanceId;
+        public long instanceId;
     }
 }

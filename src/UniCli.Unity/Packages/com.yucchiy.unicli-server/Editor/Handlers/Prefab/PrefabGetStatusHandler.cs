@@ -68,7 +68,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class PrefabGetStatusRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
     }
 

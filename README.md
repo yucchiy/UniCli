@@ -248,6 +248,14 @@ unicli exec MemorySnapshot.Analyze '{"snapshot":"after","baseSnapshot":"before",
 unicli exec GameObject.Find --help
 ```
 
+### Object instance ids
+
+`instanceId` / `componentInstanceId` fields are 64-bit integers (int64). On Unity 6.5+ they carry the full `EntityId` value, which exceeds the 32-bit range; on older Unity versions they are the legacy instance id widened to 64 bits. Treat them as opaque, session-scoped handles:
+
+- Pass ids back exactly as returned by a previous command. Do not truncate them to 32 bits.
+- Do not persist ids across Unity Editor restarts; they are only valid within the running session.
+- When post-processing `--json` output, use a tool that preserves 64-bit integers (`jq` 1.7+, Python). JavaScript-based tools lose precision above 2^53.
+
 ### Inspect nested request/response types
 
 `unicli exec <command> --help` shows top-level fields and, when available, nested type details.

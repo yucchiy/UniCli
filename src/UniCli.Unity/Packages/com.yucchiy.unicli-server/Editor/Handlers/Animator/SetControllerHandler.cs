@@ -72,7 +72,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class AnimatorSetControllerRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public string controllerAssetPath = "";
     }

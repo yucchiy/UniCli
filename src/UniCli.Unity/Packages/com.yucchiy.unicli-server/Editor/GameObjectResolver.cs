@@ -21,7 +21,7 @@ namespace UniCli.Server.Editor
             return string.Join("/", parts);
         }
 
-        public static GameObject ResolveByIdOrPath(int instanceId, string path)
+        public static GameObject ResolveByIdOrPath(long instanceId, string path)
         {
             if (instanceId != 0)
                 return UnityObjectIdentity.Resolve<GameObject>(instanceId);

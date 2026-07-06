@@ -60,7 +60,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class RemoveComponentRequest
     {
-        public int componentInstanceId;
+        public long componentInstanceId;
     }
 
     [Serializable]
@@ -68,6 +68,6 @@ namespace UniCli.Server.Editor.Handlers
     {
         public string gameObjectName;
         public string typeName;
-        public int componentInstanceId;
+        public long componentInstanceId;
     }
 }

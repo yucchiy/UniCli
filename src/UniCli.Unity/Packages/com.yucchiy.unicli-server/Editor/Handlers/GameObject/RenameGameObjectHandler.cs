@@ -50,7 +50,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class RenameGameObjectRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public string name = "";
     }
@@ -60,6 +60,6 @@ namespace UniCli.Server.Editor.Handlers
     {
         public string previousName;
         public string name;
-        public int instanceId;
+        public long instanceId;
     }
 }

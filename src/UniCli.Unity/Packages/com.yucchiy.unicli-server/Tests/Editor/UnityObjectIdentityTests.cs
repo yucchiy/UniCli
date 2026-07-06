@@ -75,6 +75,41 @@ namespace UniCli.Server.Editor.Tests
             Assert.IsNull(resolved);
         }
 
+#if UNITY_6000_5_OR_NEWER
+        [Test]
+        public void GetId_ReturnsUntruncatedEntityId()
+        {
+            var go = CreateGameObject();
+
+            var id = UnityObjectIdentity.GetId(go);
+            var raw = unchecked((long)EntityId.ToULong(go.GetEntityId()));
+
+            Assert.AreEqual(raw, id);
+            Assert.AreNotEqual((long)unchecked((int)id), id,
+                "EntityId raw values carry meaningful upper 32 bits on Unity 6.5; GetId must not truncate them.");
+        }
+
+        [Test]
+        public void Resolve_LegacyIntRangeId_ResolvesSameObject()
+        {
+            var go = CreateGameObject();
+
+            // Compatibility guarantee for clients that stored ids as 32-bit values:
+            // the low 32 bits of the id (the legacy instance id, typically negative for
+            // runtime-created objects) must still resolve in the current session.
+            long legacyId = unchecked((int)UnityObjectIdentity.GetId(go));
+
+            Assert.AreSame(go, UnityObjectIdentity.Resolve(legacyId));
+        }
+#else
+        [Test]
+        public void Resolve_OutOfIntRangeId_ReturnsNull()
+        {
+            Assert.IsNull(UnityObjectIdentity.Resolve(long.MaxValue));
+            Assert.IsNull(UnityObjectIdentity.Resolve(long.MinValue));
+        }
+#endif
+
         private GameObject CreateGameObject()
         {
             var go = new GameObject($"UnityObjectIdentityTests_{Guid.NewGuid():N}");

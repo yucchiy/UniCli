@@ -237,7 +237,7 @@ namespace UniCli.Server.Editor.Handlers
             if (value.StartsWith("instanceId:"))
             {
                 var idStr = value.Substring("instanceId:".Length);
-                if (!int.TryParse(idStr, out var instanceId))
+                if (!long.TryParse(idStr, out var instanceId))
                     throw new CommandFailedException(
                         $"Invalid instanceId: {idStr}",
                         new SetPropertyResponse());
@@ -304,7 +304,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetPropertyRequest
     {
-        public int componentInstanceId;
+        public long componentInstanceId;
         public string propertyPath = "";
         public string value = "";
     }
@@ -312,7 +312,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetPropertyResponse
     {
-        public int componentInstanceId;
+        public long componentInstanceId;
         public string propertyPath;
         public string previousValue;
         public string currentValue;

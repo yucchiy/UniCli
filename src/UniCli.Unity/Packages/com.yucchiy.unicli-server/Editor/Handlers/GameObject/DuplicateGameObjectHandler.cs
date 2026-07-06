@@ -61,7 +61,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class DuplicateGameObjectRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public string name = "";
     }

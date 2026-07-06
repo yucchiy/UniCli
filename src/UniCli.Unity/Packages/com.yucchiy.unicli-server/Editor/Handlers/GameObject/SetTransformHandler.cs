@@ -58,7 +58,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetTransformRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public float[] position;
         public float[] rotation;
@@ -68,7 +68,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetTransformResponse
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public float[] position;
         public float[] rotation;
