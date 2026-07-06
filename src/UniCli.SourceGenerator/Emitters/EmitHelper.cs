@@ -88,7 +88,7 @@ namespace UniCli.SourceGenerator.Emitters
                     break;
 
                 case SettingsCommandGenerator.ResolveMode.InstanceId:
-                    sb.AppendLine($"{indent}var obj = UnityEditor.EditorUtility.InstanceIDToObject(request.instanceId);");
+                    sb.AppendLine($"{indent}var obj = UniCli.Server.Editor.UnityObjectIdentity.Resolve(request.instanceId);");
                     sb.AppendLine($"{indent}if (obj is not {typeFullName} instance)");
                     sb.AppendLine($"{indent}    throw new CommandFailedException($\"Object not found for instanceId: {{request.instanceId}}\", null);");
                     break;
