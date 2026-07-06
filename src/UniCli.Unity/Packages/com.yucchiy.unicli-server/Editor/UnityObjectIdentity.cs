@@ -25,21 +25,12 @@ namespace UniCli.Server.Editor
         public static UnityEngine.Object Resolve(long id)
         {
 #if UNITY_6000_5_OR_NEWER
-            // Primary path: raw lookup via FromULong, the exact inverse of GetId. The EntityId
-            // bit layout is undocumented, so no assumption is made that genuine ids never fit
-            // in int range - raw lookup always runs first.
-            var viaRaw = UnityEditor.EditorUtility.EntityIdToObject(
+            // Raw lookup via FromULong, the exact inverse of GetId. Ids truncated to 32 bits
+            // are intentionally not resolved: the official migration guide treats truncated
+            // EntityId values as errors, and no released UniCli exchanged 32-bit ids with a
+            // Unity 6.5 server.
+            return UnityEditor.EditorUtility.EntityIdToObject(
                 UnityEngine.EntityId.FromULong(unchecked((ulong)id)));
-            if (viaRaw != null)
-                return viaRaw;
-
-            // Fallback for legacy 32-bit clients: the implicit int -> EntityId conversion
-            // resolves an old-style instance id in the current session (measured on 6000.5;
-            // sign- or zero-extending such ids through FromULong does not resolve).
-            if (id >= int.MinValue && id <= int.MaxValue)
-                return UnityEditor.EditorUtility.EntityIdToObject((int)id);
-
-            return null;
 #else
             // Legacy ids always fit in int; treat out-of-range values as nonexistent objects.
             if (id < int.MinValue || id > int.MaxValue)

@@ -90,16 +90,16 @@ namespace UniCli.Server.Editor.Tests
         }
 
         [Test]
-        public void Resolve_LegacyIntRangeId_ResolvesSameObject()
+        public void Resolve_TruncatedId_ReturnsNull()
         {
             var go = CreateGameObject();
 
-            // Compatibility guarantee for clients that stored ids as 32-bit values:
-            // the low 32 bits of the id (the legacy instance id, typically negative for
-            // runtime-created objects) must still resolve in the current session.
-            long legacyId = unchecked((int)UnityObjectIdentity.GetId(go));
+            // Ids truncated to 32 bits are not resolved on Unity 6.5: the official migration
+            // guide treats truncated EntityId values as errors, so they fail as not-found
+            // instead of being silently repaired.
+            long truncatedId = unchecked((int)UnityObjectIdentity.GetId(go));
 
-            Assert.AreSame(go, UnityObjectIdentity.Resolve(legacyId));
+            Assert.IsNull(UnityObjectIdentity.Resolve(truncatedId));
         }
 #else
         [Test]
