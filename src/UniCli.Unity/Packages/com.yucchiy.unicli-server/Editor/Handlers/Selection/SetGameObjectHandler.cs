@@ -39,7 +39,7 @@ namespace UniCli.Server.Editor.Handlers
             return new ValueTask<SetGameObjectSelectionResponse>(new SetGameObjectSelectionResponse
             {
                 path = GameObjectResolver.BuildPath(go.transform),
-                instanceId = go.GetInstanceID()
+                instanceId = UnityObjectIdentity.GetId(go)
             });
         }
     }
@@ -54,6 +54,6 @@ namespace UniCli.Server.Editor.Handlers
     public class SetGameObjectSelectionResponse
     {
         public string path;
-        public int instanceId;
+        public long instanceId;
     }
 }

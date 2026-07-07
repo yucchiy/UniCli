@@ -13,6 +13,7 @@
 - `samples`: Sample Unity projects for multi-version testing
     - `samples/UniCli.Samples.Unity2022LTS`: Unity 2022.3 LTS project
     - `samples/UniCli.Samples.Unity6LTS`: Unity 6 (6000.0) LTS project
+    - `samples/UniCli.Samples.Unity6.5`: Unity 6.5 (6000.5) project
 - `doc`: Documentation directory
     - `doc/command-naming-guidelines.md`: Command naming conventions for handlers
 
@@ -301,6 +302,10 @@ UNICLI_PROJECT=samples/UniCli.Samples.Unity2022LTS .build/unicli exec TestRunner
 # Unity 6 LTS (6000.0) — supports BuildProfile commands
 UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec Compile --json
 UNICLI_PROJECT=samples/UniCli.Samples.Unity6LTS .build/unicli exec TestRunner.RunEditMode --json
+
+# Unity 6.5 (6000.5)
+UNICLI_PROJECT=samples/UniCli.Samples.Unity6.5 .build/unicli exec Compile --json
+UNICLI_PROJECT=samples/UniCli.Samples.Unity6.5 .build/unicli exec TestRunner.RunEditMode --json
 ```
 
 #### Tests requiring Unity connection

@@ -53,7 +53,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<SetParentResponse>(new SetParentResponse
             {
-                instanceId = go.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(go),
                 name = go.name,
                 path = GameObjectResolver.BuildPath(go.transform)
             });
@@ -63,7 +63,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetParentRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public int parentInstanceId;
         public string parentPath = "";
@@ -73,7 +73,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetParentResponse
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string path;
     }

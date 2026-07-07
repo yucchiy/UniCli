@@ -50,7 +50,7 @@ namespace UniCli.Server.Editor.Handlers
             {
                 gameObjectName = go.name,
                 typeName = componentType.FullName,
-                instanceId = component.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(component),
                 enabled = component is not Behaviour behaviour || behaviour.enabled
             });
         }
@@ -113,7 +113,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class AddComponentRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public string typeName;
     }
@@ -123,7 +123,7 @@ namespace UniCli.Server.Editor.Handlers
     {
         public string gameObjectName;
         public string typeName;
-        public int instanceId;
+        public long instanceId;
         public bool enabled;
     }
 }

@@ -48,7 +48,7 @@ namespace UniCli.Server.Editor.Handlers
             return new ValueTask<CreateWindowResponse>(new CreateWindowResponse
             {
                 typeName = type.FullName,
-                instanceId = window.GetInstanceID()
+                instanceId = UnityObjectIdentity.GetId(window)
             });
         }
     }
@@ -63,6 +63,6 @@ namespace UniCli.Server.Editor.Handlers
     public class CreateWindowResponse
     {
         public string typeName;
-        public int instanceId;
+        public long instanceId;
     }
 }

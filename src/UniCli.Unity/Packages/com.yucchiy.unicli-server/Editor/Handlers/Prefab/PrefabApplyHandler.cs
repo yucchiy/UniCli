@@ -54,7 +54,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class PrefabApplyRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
     }
 

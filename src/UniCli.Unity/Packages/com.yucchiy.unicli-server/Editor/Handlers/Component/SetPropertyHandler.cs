@@ -30,7 +30,7 @@ namespace UniCli.Server.Editor.Handlers
             if (string.IsNullOrEmpty(request.propertyPath))
                 throw new ArgumentException("propertyPath is required");
 
-            var obj = EditorUtility.InstanceIDToObject(request.componentInstanceId);
+            var obj = UnityObjectIdentity.Resolve(request.componentInstanceId);
             if (obj is not UnityEngine.Component component)
             {
                 throw new CommandFailedException(
@@ -237,11 +237,11 @@ namespace UniCli.Server.Editor.Handlers
             if (value.StartsWith("instanceId:"))
             {
                 var idStr = value.Substring("instanceId:".Length);
-                if (!int.TryParse(idStr, out var instanceId))
+                if (!long.TryParse(idStr, out var instanceId))
                     throw new CommandFailedException(
                         $"Invalid instanceId: {idStr}",
                         new SetPropertyResponse());
-                var obj = EditorUtility.InstanceIDToObject(instanceId);
+                var obj = UnityObjectIdentity.Resolve(instanceId);
                 if (obj == null)
                     throw new CommandFailedException(
                         $"Object not found for instanceId: {instanceId}",
@@ -304,7 +304,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetPropertyRequest
     {
-        public int componentInstanceId;
+        public long componentInstanceId;
         public string propertyPath = "";
         public string value = "";
     }
@@ -312,7 +312,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetPropertyResponse
     {
-        public int componentInstanceId;
+        public long componentInstanceId;
         public string propertyPath;
         public string previousValue;
         public string currentValue;

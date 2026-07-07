@@ -73,7 +73,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<CreateGameObjectResponse>(new CreateGameObjectResponse
             {
-                instanceId = go.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(go),
                 name = go.name,
                 path = path,
                 isActive = go.activeSelf,
@@ -144,7 +144,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class CreateGameObjectResponse
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string path;
         public bool isActive;

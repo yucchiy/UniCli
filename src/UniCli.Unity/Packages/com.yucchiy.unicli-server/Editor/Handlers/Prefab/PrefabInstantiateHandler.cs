@@ -61,7 +61,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<PrefabInstantiateResponse>(new PrefabInstantiateResponse
             {
-                instanceId = instance.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(instance),
                 name = instance.name,
                 assetPath = request.assetPath
             });
@@ -79,7 +79,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class PrefabInstantiateResponse
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string assetPath;
     }

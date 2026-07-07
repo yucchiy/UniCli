@@ -76,7 +76,7 @@ namespace UniCli.Server.Editor.Handlers
 
                     results.Add(new GameObjectResult
                     {
-                        instanceId = go.GetInstanceID(),
+                        instanceId = UnityObjectIdentity.GetId(go),
                         name = go.name,
                         path = path,
                         isActive = go.activeSelf,
@@ -182,7 +182,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class GameObjectResult
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string path;
         public bool isActive;

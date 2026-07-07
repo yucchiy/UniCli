@@ -51,7 +51,7 @@ namespace UniCli.Server.Editor.Handlers
                 {
                     gameObjects.Add(new SelectedGameObjectInfo
                     {
-                        instanceId = go.GetInstanceID(),
+                        instanceId = UnityObjectIdentity.GetId(go),
                         name = go.name,
                         path = GameObjectResolver.BuildPath(go.transform)
                     });
@@ -89,7 +89,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SelectedGameObjectInfo
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public string path;
     }

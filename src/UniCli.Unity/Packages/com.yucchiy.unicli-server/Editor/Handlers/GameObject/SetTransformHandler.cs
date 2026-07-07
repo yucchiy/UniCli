@@ -46,7 +46,7 @@ namespace UniCli.Server.Editor.Handlers
 
             return new ValueTask<SetTransformResponse>(new SetTransformResponse
             {
-                instanceId = go.GetInstanceID(),
+                instanceId = UnityObjectIdentity.GetId(go),
                 name = go.name,
                 position = new[] { transform.localPosition.x, transform.localPosition.y, transform.localPosition.z },
                 rotation = new[] { transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z },
@@ -58,7 +58,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetTransformRequest
     {
-        public int instanceId;
+        public long instanceId;
         public string path = "";
         public float[] position;
         public float[] rotation;
@@ -68,7 +68,7 @@ namespace UniCli.Server.Editor.Handlers
     [Serializable]
     public class SetTransformResponse
     {
-        public int instanceId;
+        public long instanceId;
         public string name;
         public float[] position;
         public float[] rotation;
