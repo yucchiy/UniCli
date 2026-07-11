@@ -125,6 +125,25 @@ namespace UniCli.Server.Editor.Tests
             }
         }
 
+        [Test]
+        public void EnsureNoUntitledScenes_WithUntitledScene_Throws()
+        {
+            // The EditMode test scene itself is untitled (empty path).
+            var scene = SceneManager.GetActiveScene();
+            Assert.That(scene.path, Is.Empty, "precondition: test scene should be untitled");
+
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => DirtySceneGuard.EnsureNoUntitledScenes(new List<Scene> { scene }, "Scene.Save"));
+            Assert.That(exception.Message, Does.Contain("untitled"));
+            Assert.That(exception.Message, Does.Contain("saveAsPath"));
+        }
+
+        [Test]
+        public void EnsureNoUntitledScenes_EmptyList_DoesNotThrow()
+        {
+            Assert.DoesNotThrow(() => DirtySceneGuard.EnsureNoUntitledScenes(new List<Scene>(), "Scene.Save"));
+        }
+
         private static Scene MakeActiveSceneDirty(out GameObject marker)
         {
             var scene = SceneManager.GetActiveScene();

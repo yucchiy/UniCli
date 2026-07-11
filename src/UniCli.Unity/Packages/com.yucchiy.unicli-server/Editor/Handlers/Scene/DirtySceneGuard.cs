@@ -68,6 +68,22 @@ namespace UniCli.Server.Editor.Handlers
             }
         }
 
+        /// <summary>
+        /// Rejects untitled scenes before a save operation. Saving an untitled
+        /// scene without a destination path opens a "Save Scene" file panel,
+        /// which blocks the editor main loop.
+        /// </summary>
+        public static void EnsureNoUntitledScenes(IReadOnlyList<Scene> scenes, string commandName)
+        {
+            var untitled = scenes.Where(scene => scene.IsValid() && string.IsNullOrEmpty(scene.path)).ToList();
+            if (untitled.Count == 0)
+                return;
+
+            throw new InvalidOperationException(
+                $"Cannot save untitled scene(s) with '{commandName}': {string.Join(", ", untitled.Select(DescribeScene))}. "
+                + "Save them individually with saveAsPath, or close them first.");
+        }
+
         public static List<Scene> GetLoadedScenes()
         {
             var scenes = new List<Scene>(SceneManager.sceneCount);
