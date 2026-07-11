@@ -206,7 +206,7 @@ namespace UniCli.Server.Editor.Handlers
         public int stackTraceLines = 0; // 0: no stack trace (default), -1: full, N>0: first N lines
     }
 
-    internal class TestRunnerCallbacks : ICallbacks
+    internal class TestRunnerCallbacks : IErrorCallbacks
     {
         private readonly TaskCompletionSource<TestRunnerResponse> _tcs;
         private readonly System.Collections.Generic.List<TestResult> _testResults = new();
@@ -233,7 +233,7 @@ namespace UniCli.Server.Editor.Handlers
 
         public void RunFinished(ITestResultAdaptor result)
         {
-            _tcs.SetResult(new TestRunnerResponse
+            _tcs.TrySetResult(new TestRunnerResponse
             {
                 passed = _passedCount,
                 failed = _failedCount,
@@ -241,6 +241,11 @@ namespace UniCli.Server.Editor.Handlers
                 total = _passedCount + _failedCount + _skippedCount,
                 results = _testResults.ToArray()
             });
+        }
+
+        public void OnError(string message)
+        {
+            _tcs.TrySetException(new InvalidOperationException($"Test run aborted: {message}"));
         }
 
         public void TestStarted(ITestAdaptor test)
