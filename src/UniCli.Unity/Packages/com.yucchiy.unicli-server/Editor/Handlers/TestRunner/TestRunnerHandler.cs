@@ -116,7 +116,7 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
+            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
             return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request, cancellationToken);
         }
     }
