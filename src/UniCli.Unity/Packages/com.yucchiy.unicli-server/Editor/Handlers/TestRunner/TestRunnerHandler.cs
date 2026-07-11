@@ -95,6 +95,8 @@ namespace UniCli.Server.Editor.Handlers
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
             using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: false, CommandName);
+            DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName, allowDiscard: false);
             return await TestRunnerHelper.RunTestsAsync(TestMode.EditMode, request, cancellationToken);
         }
     }
@@ -117,6 +119,8 @@ namespace UniCli.Server.Editor.Handlers
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
             using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
+            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: false, CommandName);
+            DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName, allowDiscard: false);
             return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request, cancellationToken);
         }
     }
@@ -204,6 +208,7 @@ namespace UniCli.Server.Editor.Handlers
         public string[] assemblies = Array.Empty<string>();
         public string resultFilter = "failures"; // "failures" (default): failed+skipped only, "all": everything, "none": summary only
         public int stackTraceLines = 0; // 0: no stack trace (default), -1: full, N>0: first N lines
+        public string dirtyAction = ""; // "error" (default), "save" — "discard" is not supported for test runs
     }
 
     internal class TestRunnerCallbacks : IErrorCallbacks
