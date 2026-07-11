@@ -39,6 +39,10 @@ namespace UniCli.Server.Editor.Handlers
                 ? OpenSceneMode.Additive
                 : OpenSceneMode.Single;
 
+            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: true, CommandName);
+            if (!request.additive)
+                DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName);
+
             var scene = EditorSceneManager.OpenScene(request.path, mode);
             if (!scene.IsValid())
             {
@@ -56,5 +60,6 @@ namespace UniCli.Server.Editor.Handlers
     {
         public string path;
         public bool additive;
+        public string dirtyAction = ""; // "error" (default), "save", "discard"
     }
 }
