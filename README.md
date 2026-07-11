@@ -221,11 +221,11 @@ unicli exec GameObject.AddComponent --path "Enemy" --typeName BoxCollider
 unicli exec Scene.Open --path "Assets/Scenes/Level1.unity"
 unicli exec Scene.Save --all
 
-# Pre-flight before commands that can trigger scene-save dialogs (text output is compact)
-unicli exec Editor.Status
-# Save only when the dirty scenes are your own intended persistent changes.
-unicli exec Scene.Save '{"all":true}' --json
-unicli exec TestRunner.RunPlayMode --json
+# Dirty-scene policy: commands that would drop unsaved changes fail by default.
+# Choose explicitly: save the changes first, or discard them (scene commands only).
+unicli exec Scene.Open '{"path":"Assets/Scenes/Level1.unity","dirtyAction":"save"}'
+unicli exec Scene.New '{"empty":true,"dirtyAction":"discard"}'
+unicli exec TestRunner.RunPlayMode '{"dirtyAction":"save"}' --json
 
 # Set component properties
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
@@ -496,8 +496,8 @@ The following commands are built in. Run `unicli commands` to see this list from
 | Command | Description |
 |---|---|
 | `TestRunner.List` | List available tests for EditMode or PlayMode |
-| `TestRunner.RunEditMode` | Run EditMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
-| `TestRunner.RunPlayMode` | Run PlayMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`) |
+| `TestRunner.RunEditMode` | Run EditMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`; `dirtyAction`: `"error"` (default), `"save"`) |
+| `TestRunner.RunPlayMode` | Run PlayMode tests (`resultFilter`: `"failures"` (default), `"all"`, `"none"`; `dirtyAction`: `"error"` (default), `"save"`) |
 
 ### Build
 
@@ -538,10 +538,12 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `Scene.List` | List all loaded scenes |
 | `Scene.GetActive` | Get the active scene |
 | `Scene.SetActive` | Set the active scene |
-| `Scene.Open` | Open a scene by asset path |
-| `Scene.Close` | Close a loaded scene |
+| `Scene.Open` | Open a scene by asset path (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
+| `Scene.Close` | Close a loaded scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
 | `Scene.Save` | Save a scene or all open scenes |
-| `Scene.New` | Create a new scene |
+| `Scene.New` | Create a new scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
+
+Commands that would drop unsaved scene changes (`Scene.Open`/`Scene.New` in single mode, `Scene.Close`, and `TestRunner.RunEditMode`/`RunPlayMode`) refuse to run by default when a dirty scene is affected, instead of letting Unity discard the changes silently or show a blocking save dialog. Pass `dirtyAction: "save"` to save the scenes first, or `dirtyAction: "discard"` (scene commands only) to proceed without saving.
 
 ### Asset
 

@@ -77,6 +77,7 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Prefab.Unpack '{"path":"MyPre
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.List --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.GetActive --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Open '{"path":"Assets/Scenes/SampleScene.unity"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Open '{"path":"Assets/Scenes/SampleScene.unity","dirtyAction":"save"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Open '{"path":"Assets/Scenes/Additive.unity","additive":true}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.SetActive '{"name":"SampleScene"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Save '{"all":true}' --json
