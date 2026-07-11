@@ -278,6 +278,8 @@ See [Built-in Commands](#built-in-commands) for the full list of available comma
 `unicli eval` compiles and executes arbitrary C# code in the Unity Editor context using `AssemblyBuilder`.
 Code has full access to Unity APIs (`UnityEngine`, `UnityEditor`) as well as any packages and libraries referenced by the project.
 
+Avoid APIs that show modal dialogs or file panels (`EditorUtility.DisplayDialog`, `EditorUtility.OpenFilePanel`, `EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo`, ...): they block the editor main loop, so the CLI keeps waiting until someone closes the dialog in the Editor.
+
 ```bash
 unicli eval '<code>' [--json] [--declarations '<decl>'] [--timeout <ms>] [--no-focus]
 ```
@@ -540,7 +542,7 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `Scene.SetActive` | Set the active scene |
 | `Scene.Open` | Open a scene by asset path (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
 | `Scene.Close` | Close a loaded scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
-| `Scene.Save` | Save a scene or all open scenes |
+| `Scene.Save` | Save a scene or all open scenes (untitled scenes require `saveAsPath`; saving them without a path is rejected instead of opening a file panel) |
 | `Scene.New` | Create a new scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
 
 Commands that would drop unsaved scene changes (`Scene.Open`/`Scene.New` in single mode, `Scene.Close`, and `TestRunner.RunEditMode`/`RunPlayMode`) refuse to run by default when a dirty scene is affected, instead of letting Unity discard the changes silently or show a blocking save dialog. Pass `dirtyAction: "save"` to save the scenes first, or `dirtyAction: "discard"` (scene commands only) to proceed without saving.
@@ -626,7 +628,7 @@ Commands that would drop unsaved scene changes (`Scene.Open`/`Scene.New` in sing
 | `Window.Focus` | Focus an already-open EditorWindow |
 | `Window.Create` | Create a new EditorWindow instance |
 | `Menu.List` | List menu items |
-| `Menu.Execute` | Execute a menu item |
+| `Menu.Execute` | Execute a menu item (menu items that show dialogs or file panels block the editor and leave the CLI waiting — prefer dedicated commands where available) |
 
 ### Utility
 
