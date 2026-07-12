@@ -95,8 +95,8 @@ namespace UniCli.Server.Editor.Handlers
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
             using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
-            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: false, CommandName);
-            DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName, allowDiscard: false);
+            var dirtyAction = DirtyScenePolicy.Parse(request.dirtyAction, allowDiscard: false, CommandName);
+            DirtyScenePolicy.Apply(dirtyAction, DirtyScenePolicy.GetLoadedScenes(), CommandName, allowDiscard: false);
             return await TestRunnerHelper.RunTestsAsync(TestMode.EditMode, request, cancellationToken);
         }
     }
@@ -119,8 +119,8 @@ namespace UniCli.Server.Editor.Handlers
         protected override async ValueTask<TestRunnerResponse> ExecuteAsync(TestRunRequest request, CancellationToken cancellationToken)
         {
             using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
-            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: false, CommandName);
-            DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName, allowDiscard: false);
+            var dirtyAction = DirtyScenePolicy.Parse(request.dirtyAction, allowDiscard: false, CommandName);
+            DirtyScenePolicy.Apply(dirtyAction, DirtyScenePolicy.GetLoadedScenes(), CommandName, allowDiscard: false);
             return await TestRunnerHelper.RunTestsAsync(TestMode.PlayMode, request, cancellationToken);
         }
     }

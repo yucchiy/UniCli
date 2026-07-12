@@ -17,8 +17,15 @@ namespace UniCli.Server.Editor.Handlers
     /// Resolves how commands treat unsaved (dirty) scenes before Unity gets a
     /// chance to discard them silently or show a save-confirmation dialog that
     /// would block the editor main loop (and therefore the UniCli server).
+    ///
+    /// Kept separate from <see cref="EditorStateGuard"/> on purpose: that guard
+    /// is a pure precondition check against global editor state, while this
+    /// policy is driven by a request field and may mutate state (saving scenes)
+    /// before the command proceeds. If a third kind of pre-execution check
+    /// appears, consolidate them into a precondition pipeline on
+    /// CommandDispatcher rather than merging the checks into one type.
     /// </summary>
-    internal static class DirtySceneGuard
+    internal static class DirtyScenePolicy
     {
         public static DirtyAction Parse(string dirtyAction, bool allowDiscard, string commandName)
         {

@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 namespace UniCli.Server.Editor.Tests
 {
     [TestFixture]
-    public class DirtySceneGuardTests
+    public class DirtyScenePolicyTests
     {
         [TestCase(null)]
         [TestCase("")]
@@ -16,28 +16,28 @@ namespace UniCli.Server.Editor.Tests
         [TestCase("Error")]
         public void Parse_ErrorValues_ReturnsError(string value)
         {
-            Assert.That(DirtySceneGuard.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Error));
+            Assert.That(DirtyScenePolicy.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Error));
         }
 
         [TestCase("save")]
         [TestCase("Save")]
         public void Parse_Save_ReturnsSave(string value)
         {
-            Assert.That(DirtySceneGuard.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Save));
+            Assert.That(DirtyScenePolicy.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Save));
         }
 
         [TestCase("discard")]
         [TestCase("Discard")]
         public void Parse_DiscardAllowed_ReturnsDiscard(string value)
         {
-            Assert.That(DirtySceneGuard.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Discard));
+            Assert.That(DirtyScenePolicy.Parse(value, allowDiscard: true, "Scene.Open"), Is.EqualTo(DirtyAction.Discard));
         }
 
         [Test]
         public void Parse_DiscardNotAllowed_Throws()
         {
             var exception = Assert.Throws<ArgumentException>(
-                () => DirtySceneGuard.Parse("discard", allowDiscard: false, "TestRunner.RunEditMode"));
+                () => DirtyScenePolicy.Parse("discard", allowDiscard: false, "TestRunner.RunEditMode"));
             Assert.That(exception.Message, Does.Contain("discard"));
             Assert.That(exception.Message, Does.Contain("save"));
         }
@@ -46,14 +46,14 @@ namespace UniCli.Server.Editor.Tests
         public void Parse_InvalidValue_Throws()
         {
             var exception = Assert.Throws<ArgumentException>(
-                () => DirtySceneGuard.Parse("keep", allowDiscard: true, "Scene.Open"));
+                () => DirtyScenePolicy.Parse("keep", allowDiscard: true, "Scene.Open"));
             Assert.That(exception.Message, Does.Contain("keep"));
         }
 
         [Test]
         public void Apply_NoDirtyScenes_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() => DirtySceneGuard.Apply(DirtyAction.Error, new List<Scene>(), "Scene.Open"));
+            Assert.DoesNotThrow(() => DirtyScenePolicy.Apply(DirtyAction.Error, new List<Scene>(), "Scene.Open"));
         }
 
         // EditMode tests run in an untitled, unsaved scene, and Unity rejects
@@ -67,7 +67,7 @@ namespace UniCli.Server.Editor.Tests
             try
             {
                 var exception = Assert.Throws<InvalidOperationException>(
-                    () => DirtySceneGuard.Apply(DirtyAction.Error, new List<Scene> { scene }, "Scene.Open"));
+                    () => DirtyScenePolicy.Apply(DirtyAction.Error, new List<Scene> { scene }, "Scene.Open"));
                 Assert.That(exception.Message, Does.Contain("unsaved changes"));
                 Assert.That(exception.Message, Does.Contain("dirtyAction"));
             }
@@ -84,7 +84,7 @@ namespace UniCli.Server.Editor.Tests
             try
             {
                 var exception = Assert.Throws<InvalidOperationException>(
-                    () => DirtySceneGuard.Apply(DirtyAction.Error, new List<Scene> { scene }, "TestRunner.RunEditMode", allowDiscard: false));
+                    () => DirtyScenePolicy.Apply(DirtyAction.Error, new List<Scene> { scene }, "TestRunner.RunEditMode", allowDiscard: false));
                 Assert.That(exception.Message, Does.Contain("\"save\""));
                 Assert.That(exception.Message, Does.Not.Contain("discard"));
             }
@@ -101,7 +101,7 @@ namespace UniCli.Server.Editor.Tests
             try
             {
                 var exception = Assert.Throws<InvalidOperationException>(
-                    () => DirtySceneGuard.Apply(DirtyAction.Save, new List<Scene> { scene }, "Scene.Open"));
+                    () => DirtyScenePolicy.Apply(DirtyAction.Save, new List<Scene> { scene }, "Scene.Open"));
                 Assert.That(exception.Message, Does.Contain("untitled"));
             }
             finally
@@ -117,7 +117,7 @@ namespace UniCli.Server.Editor.Tests
             try
             {
                 Assert.DoesNotThrow(
-                    () => DirtySceneGuard.Apply(DirtyAction.Discard, new List<Scene> { scene }, "Scene.Open"));
+                    () => DirtyScenePolicy.Apply(DirtyAction.Discard, new List<Scene> { scene }, "Scene.Open"));
             }
             finally
             {
@@ -133,7 +133,7 @@ namespace UniCli.Server.Editor.Tests
             Assert.That(scene.path, Is.Empty, "precondition: test scene should be untitled");
 
             var exception = Assert.Throws<InvalidOperationException>(
-                () => DirtySceneGuard.EnsureNoUntitledScenes(new List<Scene> { scene }, "Scene.Save"));
+                () => DirtyScenePolicy.EnsureNoUntitledScenes(new List<Scene> { scene }, "Scene.Save"));
             Assert.That(exception.Message, Does.Contain("untitled"));
             Assert.That(exception.Message, Does.Contain("saveAsPath"));
         }
@@ -141,13 +141,13 @@ namespace UniCli.Server.Editor.Tests
         [Test]
         public void EnsureNoUntitledScenes_EmptyList_DoesNotThrow()
         {
-            Assert.DoesNotThrow(() => DirtySceneGuard.EnsureNoUntitledScenes(new List<Scene>(), "Scene.Save"));
+            Assert.DoesNotThrow(() => DirtyScenePolicy.EnsureNoUntitledScenes(new List<Scene>(), "Scene.Save"));
         }
 
         private static Scene MakeActiveSceneDirty(out GameObject marker)
         {
             var scene = SceneManager.GetActiveScene();
-            marker = new GameObject("DirtySceneGuardTests_Marker");
+            marker = new GameObject("DirtyScenePolicyTests_Marker");
             SceneManager.MoveGameObjectToScene(marker, scene);
             UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
             Assert.That(scene.isDirty, Is.True, "precondition: scene should be dirty");

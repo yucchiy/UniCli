@@ -43,8 +43,8 @@ namespace UniCli.Server.Editor.Handlers
             var sceneName = scene.name;
             var scenePath = scene.path;
 
-            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: true, CommandName);
-            DirtySceneGuard.Apply(dirtyAction, new[] { scene }, CommandName);
+            var dirtyAction = DirtyScenePolicy.Parse(request.dirtyAction, allowDiscard: true, CommandName);
+            DirtyScenePolicy.Apply(dirtyAction, new[] { scene }, CommandName);
 
             var closed = EditorSceneManager.CloseScene(scene, request.removeScene);
             if (!closed)

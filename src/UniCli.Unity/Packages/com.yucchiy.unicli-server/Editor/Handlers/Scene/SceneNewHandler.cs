@@ -40,9 +40,9 @@ namespace UniCli.Server.Editor.Handlers
                 ? NewSceneMode.Additive
                 : NewSceneMode.Single;
 
-            var dirtyAction = DirtySceneGuard.Parse(request.dirtyAction, allowDiscard: true, CommandName);
+            var dirtyAction = DirtyScenePolicy.Parse(request.dirtyAction, allowDiscard: true, CommandName);
             if (!request.additive)
-                DirtySceneGuard.Apply(dirtyAction, DirtySceneGuard.GetLoadedScenes(), CommandName);
+                DirtyScenePolicy.Apply(dirtyAction, DirtyScenePolicy.GetLoadedScenes(), CommandName);
 
             var scene = EditorSceneManager.NewScene(setup, mode);
             if (!scene.IsValid())
