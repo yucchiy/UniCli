@@ -83,6 +83,8 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.SetActive '{"name":"Sam
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Save '{"all":true}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Close '{"name":"Additive"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.New '{"empty":true,"additive":true}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Screenshot2D '{"lookAt":"Player","offset":[1,0],"size":5,"path":"Screenshots/map.png"}' --json
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Scene.Screenshot3D '{"lookAt":"Player","yaw":45,"pitch":30,"distance":10,"path":"Screenshots/shot.png"}' --json
 
 # PackageManager operations
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec PackageManager.GetInfo '{"name":"com.unity.test-framework"}' --json

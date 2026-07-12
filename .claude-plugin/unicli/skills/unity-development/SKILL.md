@@ -119,6 +119,15 @@ unicli exec TestRunner.RunEditMode --json
 unicli exec TestRunner.RunPlayMode --json
 ```
 
+**Capture SceneView screenshots (works in Edit Mode, no Play Mode required):**
+
+```bash
+# 2D mode (orthographic, facing the XY plane); lookAt is a GameObject path, offset shifts the capture center
+unicli exec Scene.Screenshot2D '{"lookAt":"Player","offset":[1,0],"size":5,"path":"Screenshots/map.png"}' --json
+# 3D mode: orbit the lookAt point by yaw/pitch at the given distance
+unicli exec Scene.Screenshot3D '{"lookAt":"Player","yaw":45,"pitch":30,"distance":10,"path":"Screenshots/shot.png"}' --json
+```
+
 **Inspect and modify settings:**
 
 ```bash

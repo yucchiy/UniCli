@@ -227,6 +227,10 @@ unicli exec Scene.Open '{"path":"Assets/Scenes/Level1.unity","dirtyAction":"save
 unicli exec Scene.New '{"empty":true,"dirtyAction":"discard"}'
 unicli exec TestRunner.RunPlayMode '{"dirtyAction":"save"}' --json
 
+# SceneView screenshots (lookAt: GameObject path; offset: added to the lookAt position)
+unicli exec Scene.Screenshot2D '{"lookAt":"Player","offset":[1,0],"size":5,"path":"Screenshots/map.png"}'
+unicli exec Scene.Screenshot3D '{"lookAt":"Player","yaw":45,"pitch":30,"distance":10,"path":"Screenshots/shot.png"}'
+
 # Set component properties
 unicli exec Component.SetProperty --componentInstanceId 1234 --propertyPath "m_IsKinematic" --value "true"
 
@@ -544,6 +548,8 @@ The following commands are built in. Run `unicli commands` to see this list from
 | `Scene.Close` | Close a loaded scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
 | `Scene.Save` | Save a scene or all open scenes (untitled scenes require `saveAsPath`; saving them without a path is rejected instead of opening a file panel) |
 | `Scene.New` | Create a new scene (`dirtyAction`: `"error"` (default), `"save"`, `"discard"`) |
+| `Scene.Screenshot2D` | Capture a SceneView screenshot in 2D mode (orthographic) as PNG |
+| `Scene.Screenshot3D` | Capture a SceneView screenshot in 3D mode (orbit by yaw/pitch/distance) as PNG |
 
 Commands that would drop unsaved scene changes (`Scene.Open`/`Scene.New` in single mode, `Scene.Close`, and `TestRunner.RunEditMode`/`RunPlayMode`) refuse to run by default when a dirty scene is affected, instead of letting Unity discard the changes silently or show a blocking save dialog. Pass `dirtyAction: "save"` to save the scenes first, or `dirtyAction: "discard"` (scene commands only) to proceed without saving.
 
