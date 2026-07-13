@@ -40,6 +40,10 @@ namespace UniCli.Server.Editor.Handlers
                 ? NewSceneMode.Additive
                 : NewSceneMode.Single;
 
+            var dirtyAction = DirtyScenePolicy.Parse(request.dirtyAction, allowDiscard: true, CommandName);
+            if (!request.additive)
+                DirtyScenePolicy.Apply(dirtyAction, DirtyScenePolicy.GetLoadedScenes(), CommandName);
+
             var scene = EditorSceneManager.NewScene(setup, mode);
             if (!scene.IsValid())
             {
@@ -57,5 +61,6 @@ namespace UniCli.Server.Editor.Handlers
     {
         public bool empty;
         public bool additive;
+        public string dirtyAction = ""; // "error" (default), "save", "discard"
     }
 }

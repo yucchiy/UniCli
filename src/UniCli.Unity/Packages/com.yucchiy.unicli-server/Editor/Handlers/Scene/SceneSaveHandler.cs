@@ -42,6 +42,8 @@ namespace UniCli.Server.Editor.Handlers
 
         private static ValueTask<SceneSaveResponse> SaveAllScenes()
         {
+            DirtyScenePolicy.EnsureNoUntitledScenes(DirtyScenePolicy.GetLoadedScenes(), "Scene.Save");
+
             var saved = EditorSceneManager.SaveOpenScenes();
             if (!saved)
             {
@@ -87,6 +89,11 @@ namespace UniCli.Server.Editor.Handlers
             var savePath = !string.IsNullOrEmpty(request.saveAsPath)
                 ? request.saveAsPath
                 : scene.path;
+
+            // Saving an untitled scene without a destination opens a "Save Scene"
+            // file panel that blocks the editor main loop.
+            if (string.IsNullOrEmpty(savePath))
+                DirtyScenePolicy.EnsureNoUntitledScenes(new[] { scene }, "Scene.Save");
 
             var saved = EditorSceneManager.SaveScene(scene, savePath);
             if (!saved)

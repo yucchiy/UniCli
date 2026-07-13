@@ -30,7 +30,7 @@ The CLI (`unicli`) communicates with the Unity Editor over named pipes, so the E
 6. **When running tests**: Always use the default `--resultFilter failures` (or `--resultFilter none` for summary-only) to keep output minimal. Only use `--resultFilter all` when you specifically need to inspect individual passed test details. This prevents large test suites from flooding context. Stack traces are omitted by default (`--stackTraceLines 0`); use `--stackTraceLines 3` when you need to diagnose a failure location.
 7. **When checking console logs**: Use `Console.GetLog` with `{"logType":"Warning,Error"}` to filter out informational noise and focus on actionable issues. Stack traces are omitted by default; use `{"logType":"Error","stackTraceLines":3}` when debugging errors.
 8. **Discover commands dynamically**: Use `unicli commands --json` to list all available commands and `unicli exec <command> --help` to see parameters for any command. Do not rely on memorized command lists — the project may have custom commands.
-9. **Before scene-affecting operations**: Run `unicli exec Editor.Status` (without `--json` — the compact text summary is enough to check for dirty state and keeps output small) before `TestRunner.RunPlayMode`, `BuildPlayer.Build`, `Scene.Open`, `Scene.New`, `Scene.Close`, `Menu.Execute`, or entering Play Mode. `TestRunner.RunPlayMode` is the most common offender: the test runner creates a temporary test scene and swaps out the currently open scenes, so any unsaved scene changes at that moment can trigger a save prompt, abort the run, or leave the CLI waiting forever. If dirty scenes came from your own edits, save only the changes that should persist; revert or discard temporary probe changes when that is safer. If the dirty state may be from the user, do not save or discard it; ask the user how to proceed.
+9. **Dirty scenes and scene-affecting operations**: `Scene.Open`/`Scene.New` (single mode), `Scene.Close`, and `TestRunner.RunEditMode`/`RunPlayMode` fail by default when a dirty scene would lose its unsaved changes, instead of letting Unity discard them silently or show a blocking save dialog. Read the error, then decide explicitly: pass `dirtyAction: "save"` when the dirty scenes are your own intended persistent changes, or `dirtyAction: "discard"` (scene commands only; not available for test runs) to drop temporary probe changes. If the dirty state may be from the user, do not save or discard it; ask the user how to proceed. `Scene.Save` rejects untitled scenes unless `saveAsPath` is given (saving them without a path would open a file panel). Dialogs can still block the editor through `Menu.Execute` (menu items with confirmations or file panels) and `eval` (`EditorUtility.DisplayDialog`, `OpenFilePanel`, ...) — avoid those APIs, and use `unicli exec Editor.Status` (without `--json`) as a compact pre-flight check before `BuildPlayer.Build`, `Menu.Execute`, or entering Play Mode, which do not take `dirtyAction`.
 10. **When commands hang or time out**: Suspect a Unity Editor modal dialog such as a scene save prompt. Do not keep retrying blindly; ask the user to close or resolve the dialog, then retry.
 
 ## Project Path
@@ -100,13 +100,15 @@ unicli exec BuildPlayer.Build --locationPathName "Builds/Test.app" --options Dev
 
 ## Key Workflows
 
-**Pre-flight before scene-affecting commands:**
+**Dirty-scene policy for scene-affecting commands:**
 
 ```bash
-unicli exec Editor.Status
-# Save only when the dirty scenes are your own intended persistent changes.
-unicli exec Scene.Save '{"all":true}' --json
-unicli exec TestRunner.RunPlayMode --json
+# Fails by default if a dirty scene would lose unsaved changes
+unicli exec Scene.Open '{"path":"Assets/Scenes/Level1.unity"}' --json
+# Decide explicitly: save first, or discard (scene commands only)
+unicli exec Scene.Open '{"path":"Assets/Scenes/Level1.unity","dirtyAction":"save"}' --json
+unicli exec Scene.New '{"empty":true,"dirtyAction":"discard"}' --json
+unicli exec TestRunner.RunPlayMode '{"dirtyAction":"save"}' --json
 ```
 
 **Compile and run tests:**
