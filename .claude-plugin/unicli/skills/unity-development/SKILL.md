@@ -128,6 +128,13 @@ unicli exec Scene.Screenshot2D '{"lookAt":"Player","offset":[1,0],"size":5,"path
 unicli exec Scene.Screenshot3D '{"lookAt":"Player","yaw":45,"pitch":30,"distance":10,"path":"Screenshots/shot.png"}' --json
 ```
 
+**Capture GameView screenshots:**
+
+```bash
+unicli exec Screenshot.CaptureEditMode --json  # Edit Mode
+unicli exec Screenshot.Capture --json          # Play Mode
+```
+
 **Inspect and modify settings:**
 
 ```bash
