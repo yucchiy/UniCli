@@ -135,6 +135,81 @@ namespace UniCli.Server.Editor.Handlers
         }
     }
 
+    public sealed class ScreenshotCaptureEditModeHandler : CommandHandler<ScreenshotCaptureRequest, ScreenshotCaptureResponse>
+    {
+        public override string CommandName => "Screenshot.CaptureEditMode";
+        public override string Description => "Capture a screenshot of the Game View and save as PNG (requires Edit Mode)";
+
+        protected override async ValueTask<ScreenshotCaptureResponse> ExecuteAsync(
+            ScreenshotCaptureRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (EditorApplication.isPlaying)
+                throw new InvalidOperationException("Screenshot.CaptureEditMode requires Edit Mode. Use Screenshot.Capture in Play Mode.");
+
+            var superSize = request.superSize > 0 ? request.superSize : 1;
+            var path = string.IsNullOrEmpty(request.path)
+                ? Path.Combine("Screenshots", $"screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png")
+                : request.path;
+            path = ResolvePath(path);
+
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
+
+            var gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
+            var gameView = gameViewType == null ? null : EditorWindow.GetWindow(gameViewType);
+            if (gameView == null)
+                throw new InvalidOperationException("No Game View is available.");
+
+            if (File.Exists(path))
+                File.Delete(path);
+
+            var width = Screen.width * superSize;
+            var height = Screen.height * superSize;
+            ScreenCapture.CaptureScreenshot(path, superSize);
+            gameView.Repaint();
+            await WaitForFileAsync(path, gameView, cancellationToken);
+
+            var fullPath = Path.GetFullPath(path);
+            return new ScreenshotCaptureResponse
+            {
+                path = fullPath,
+                width = width,
+                height = height,
+                size = new FileInfo(fullPath).Length
+            };
+        }
+
+        private static Task WaitForFileAsync(string path, EditorWindow gameView, CancellationToken cancellationToken)
+        {
+            var completionSource = new TaskCompletionSource<bool>();
+            var completedFrames = 0;
+            EditorApplication.CallbackFunction update = null;
+            update = () =>
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    EditorApplication.update -= update;
+                    completionSource.TrySetCanceled(cancellationToken);
+                    return;
+                }
+
+                gameView.Repaint();
+                completedFrames = File.Exists(path) && new FileInfo(path).Length > 0
+                    ? completedFrames + 1
+                    : 0;
+                if (completedFrames < 2)
+                    return;
+
+                EditorApplication.update -= update;
+                completionSource.TrySetResult(true);
+            };
+            EditorApplication.update += update;
+            return completionSource.Task;
+        }
+    }
+
     [Serializable]
     public class ScreenshotCaptureRequest
     {

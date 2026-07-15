@@ -254,10 +254,13 @@ UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StartRecording '{"wi
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.Status --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Recorder.StopRecording --json
 
-# Screenshot operations (requires Play Mode)
+# Screenshot operations
+# Play Mode
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"Screenshots/test.png"}' --json
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.Capture '{"path":"Screenshots/hires.png","superSize":2}' --json
+# Edit Mode
+UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Screenshot.CaptureEditMode --json
 
 # Module management
 UNICLI_PROJECT=src/UniCli.Unity .build/unicli exec Module.List --json

@@ -691,6 +691,7 @@ Requires Unity Memory Profiler (`com.unity.memoryprofiler`). Use `MemorySnapshot
 | Command | Description |
 |---|---|
 | `Screenshot.Capture` | Capture Game View screenshot as PNG (requires Play Mode) |
+| `Screenshot.CaptureEditMode` | Capture Game View screenshot as PNG (requires Edit Mode) |
 | `Recorder.StartRecording` | Start recording Game View as video (requires Play Mode) |
 | `Recorder.StopRecording` | Stop the current video recording |
 | `Recorder.Status` | Get the current recording status |

@@ -2564,6 +2564,28 @@ Capture a screenshot of the Game View and save as PNG (requires Play Mode)
 
 ---
 
+### Screenshot.CaptureEditMode
+
+Capture a screenshot of the Game View and save as PNG (requires Edit Mode)
+
+**Parameters:**
+
+| Field | Type |
+|---|---|
+| `path` | `string` |
+| `superSize` | `int` |
+
+**Response:**
+
+| Field | Type |
+|---|---|
+| `path` | `string` |
+| `width` | `int` |
+| `height` | `int` |
+| `size` | `Int64` |
+
+---
+
 
 ## Search
 
