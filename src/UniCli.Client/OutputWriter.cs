@@ -1,11 +1,21 @@
 using System;
 using System.Buffers;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace UniCli.Client;
 
 internal static class OutputWriter
 {
+    // The default JavaScriptEncoder escapes ' < > & " as \uXXXX for HTML-embedding
+    // safety, which makes console logs and other Unity strings unreadable on stdout.
+    // CLI output is never embedded in HTML, so use the relaxed encoder.
+    private static readonly JsonWriterOptions WriterOptions = new()
+    {
+        Indented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    };
+
     public static int Write(CliResult result, bool json)
     {
         if (json)
@@ -18,8 +28,13 @@ internal static class OutputWriter
 
     private static void WriteJson(CliResult result)
     {
+        WriteToStdout(RenderJson(result));
+    }
+
+    internal static byte[] RenderJson(CliResult result)
+    {
         var buffer = new ArrayBufferWriter<byte>();
-        using var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true });
+        using var writer = new Utf8JsonWriter(buffer, WriterOptions);
 
         writer.WriteStartObject();
         writer.WriteBoolean("success", result.Success);
@@ -51,10 +66,7 @@ internal static class OutputWriter
         writer.WriteEndObject();
         writer.Flush();
 
-        using var stdout = Console.OpenStandardOutput();
-        stdout.Write(buffer.WrittenSpan);
-        stdout.Flush();
-        Console.WriteLine();
+        return buffer.WrittenSpan.ToArray();
     }
 
     private static void WriteHuman(CliResult result)
@@ -79,14 +91,24 @@ internal static class OutputWriter
 
     private static void WritePrettyJson(string json)
     {
+        WriteToStdout(RenderPrettyJson(json));
+    }
+
+    internal static byte[] RenderPrettyJson(string json)
+    {
         using var doc = JsonDocument.Parse(json);
         var buffer = new ArrayBufferWriter<byte>();
-        using var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true });
+        using var writer = new Utf8JsonWriter(buffer, WriterOptions);
         doc.RootElement.WriteTo(writer);
         writer.Flush();
 
+        return buffer.WrittenSpan.ToArray();
+    }
+
+    private static void WriteToStdout(byte[] bytes)
+    {
         using var stdout = Console.OpenStandardOutput();
-        stdout.Write(buffer.WrittenSpan);
+        stdout.Write(bytes);
         stdout.Flush();
         Console.WriteLine();
     }
