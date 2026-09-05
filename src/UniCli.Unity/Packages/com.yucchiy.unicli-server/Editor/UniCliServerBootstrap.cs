@@ -46,6 +46,10 @@ namespace UniCli.Server.Editor
 
         static UniCliServerBootstrap()
         {
+            // Import workers share this project's PID file and pipe name with the visible editor.
+            if (AssetDatabase.IsAssetImportWorkerProcess())
+                return;
+
             EnsurePidFile();
 
             EditorApplication.update -= Initialize;
@@ -55,6 +59,9 @@ namespace UniCli.Server.Editor
         private static void Initialize()
         {
             EditorApplication.update -= Initialize;
+
+            if (AssetDatabase.IsAssetImportWorkerProcess())
+                return;
 
             RunServiceInstallers(Services);
 
@@ -75,6 +82,9 @@ namespace UniCli.Server.Editor
         public static void StartServer()
         {
             EditorApplication.update -= StartServer;
+
+            if (AssetDatabase.IsAssetImportWorkerProcess())
+                return;
 
             if (_server != null)
                 return;
@@ -186,6 +196,10 @@ namespace UniCli.Server.Editor
         private static void OnAfterAssemblyReload()
         {
             AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
+
+            if (AssetDatabase.IsAssetImportWorkerProcess())
+                return;
+
             EditorApplication.update += OnEditorUpdate;
 
             EditorApplication.update -= StartServer;
