@@ -5,21 +5,14 @@ using UnityEditor;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [CommandPrecondition(EditorState = GuardCondition.NotCompiling)]
     public sealed class PlayModeEnterHandler : CommandHandler<Unit, Unit>
     {
-        private readonly EditorStateGuard _guard;
-
-        public PlayModeEnterHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "PlayMode.Enter";
         public override string Description => "Enter play mode in Unity Editor";
 
         protected override ValueTask<Unit> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotCompiling);
             if (EditorUtility.scriptCompilationFailed)
                 throw new CommandFailedException("Script compilation errors detected - fix them before entering play mode", Unit.Value);
             EditorApplication.EnterPlaymode();

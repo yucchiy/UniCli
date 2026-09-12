@@ -5,15 +5,9 @@ using UnityEditor.PackageManager;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [CommandPrecondition(EditorState = GuardCondition.NotPlayingOrCompiling)]
     public sealed class PackageManagerAddHandler : CommandHandler<PackageManagerAddRequest, PackageManagerAddResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public PackageManagerAddHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "PackageManager.Add";
         public override string Description => "Add a package by identifier (e.g., com.unity.foo@1.2.3 or git URL)";
 
@@ -27,8 +21,6 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<PackageManagerAddResponse> ExecuteAsync(PackageManagerAddRequest request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
-
             if (string.IsNullOrEmpty(request.identifier))
                 throw new ArgumentException("identifier is required");
 

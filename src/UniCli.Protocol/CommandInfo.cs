@@ -9,6 +9,10 @@ namespace UniCli.Protocol
         public string description;
         public bool builtIn;
         public string module;
+
+        // Editor state this command requires, from CommandPreconditionAttribute; null when it
+        // declares none, so existing listings and cached completions stay valid.
+        public string requiresEditorState;
         public CommandFieldInfo[] requestFields;
         public CommandFieldInfo[] responseFields;
         public CommandTypeDetail[] requestTypeDetails;

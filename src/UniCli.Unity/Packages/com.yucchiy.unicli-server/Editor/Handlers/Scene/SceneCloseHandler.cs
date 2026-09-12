@@ -6,15 +6,9 @@ using UnityEditor.SceneManagement;
 namespace UniCli.Server.Editor.Handlers
 {
     [Module("Scene")]
+    [CommandPrecondition(EditorState = GuardCondition.NotPlaying)]
     public sealed class SceneCloseHandler : CommandHandler<SceneCloseRequest, SceneCloseResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public SceneCloseHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "Scene.Close";
         public override string Description => "Close a loaded scene via EditorSceneManager";
 
@@ -30,8 +24,6 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<SceneCloseResponse> ExecuteAsync(SceneCloseRequest request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
-
             var scene = SceneResolver.Resolve(request.name, request.path, request.sceneIndex);
             if (!scene.IsValid())
             {

@@ -8,15 +8,9 @@ using UniCli.Protocol;
 namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 {
     [Module("NuGet")]
+    [CommandPrecondition(EditorState = GuardCondition.NotPlayingOrCompiling)]
     public sealed class NuGetRestoreHandler : CommandHandler<Unit, NuGetRestoreResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public NuGetRestoreHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "NuGet.Restore";
         public override string Description => "Restore all NuGet packages from packages.config";
 
@@ -30,8 +24,6 @@ namespace UniCli.Server.Editor.Handlers.NuGetForUnity
 
         protected override ValueTask<NuGetRestoreResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
-
             PackageRestorer.Restore(false);
 
             var packageCount = InstalledPackagesManager.InstalledPackages.Count();

@@ -8,15 +8,9 @@ using UnityEditor.Compilation;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [CommandPrecondition(EditorState = GuardCondition.NotPlaying)]
     public sealed class CompileHandler : CommandHandler<Unit, CompileResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public CompileHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "Compile";
         public override string Description => "Trigger script compilation and return results with error details";
 
@@ -48,8 +42,6 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override async ValueTask<CompileResponse> ExecuteAsync(Unit request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
-
             var errors = new List<CompileIssue>();
             var warnings = new List<CompileIssue>();
             var tcs = new TaskCompletionSource<bool>();

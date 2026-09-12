@@ -92,6 +92,17 @@ namespace UniCli.Server.Editor
 
             var wantsText = request.format == "text";
 
+            // Preconditions are declared on the handler and enforced here, so a command cannot
+            // opt out of them by forgetting to check. See CommandPreconditions.
+            var blocked = CommandPreconditions.Check(
+                CommandPreconditions.Resolve(handler.GetType()), request.command);
+            if (blocked != null)
+            {
+                var blockedResponse = MakeResponse(false, blocked);
+                blockedResponse.versionWarning = versionCheck.Warning;
+                return blockedResponse;
+            }
+
             try
             {
                 var result = await handler.ExecuteAsync(request, cancellationToken);

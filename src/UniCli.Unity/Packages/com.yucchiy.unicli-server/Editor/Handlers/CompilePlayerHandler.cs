@@ -9,15 +9,9 @@ using UnityEditor.Compilation;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [CommandPrecondition(EditorState = GuardCondition.NotPlayingOrCompiling)]
     public sealed class CompilePlayerHandler : CommandHandler<CompilePlayerRequest, CompilePlayerResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public CompilePlayerHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "BuildPlayer.Compile";
         public override string Description => "Compile player scripts for a specific build target";
 
@@ -49,8 +43,6 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<CompilePlayerResponse> ExecuteAsync(CompilePlayerRequest request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlayingOrCompiling);
-
             var target = ResolveTarget(request.target);
             var targetGroup = BuildPipeline.GetBuildTargetGroup(target);
 

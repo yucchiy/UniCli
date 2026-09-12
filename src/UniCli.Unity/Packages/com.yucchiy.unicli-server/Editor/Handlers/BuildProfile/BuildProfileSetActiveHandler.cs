@@ -7,15 +7,9 @@ using UnityEditor.Build.Profile;
 
 namespace UniCli.Server.Editor.Handlers
 {
+    [CommandPrecondition(EditorState = GuardCondition.NotPlaying)]
     public sealed class BuildProfileSetActiveHandler : CommandHandler<BuildProfileSetActiveRequest, BuildProfileSetActiveResponse>
     {
-        private readonly EditorStateGuard _guard;
-
-        public BuildProfileSetActiveHandler(EditorStateGuard guard)
-        {
-            _guard = guard;
-        }
-
         public override string CommandName => "BuildProfile.SetActive";
         public override string Description => "Set the active build profile";
 
@@ -38,8 +32,6 @@ namespace UniCli.Server.Editor.Handlers
 
         protected override ValueTask<BuildProfileSetActiveResponse> ExecuteAsync(BuildProfileSetActiveRequest request, CancellationToken cancellationToken)
         {
-            using var scope = _guard.BeginScope(CommandName, GuardCondition.NotPlaying);
-
             if (string.IsNullOrEmpty(request.path) || request.path == "none")
             {
                 BuildProfile.SetActiveBuildProfile(null);
